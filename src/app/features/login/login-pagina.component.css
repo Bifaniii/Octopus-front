@@ -1,0 +1,28 @@
+.login-page {
+  position: relative;
+  display: flex;
+  min-height: 100vh;
+  background: var(--color-bg);
+}
+
+@media (max-width: 900px) {
+  .login-page {
+    flex-direction: column;
+  }
+}
+
+.login-page__theme-toggle {
+  position: absolute;
+  top: 24px;
+  right: 24px;
+  z-index: 10;
+}
+
+.login-page__form-area {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  box-sizing: border-box;
+}
