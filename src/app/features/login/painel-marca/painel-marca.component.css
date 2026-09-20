@@ -1,3 +1,9 @@
+/* O host precisa ser flex para o painel esticar em altura junto
+   com a coluna da tela de login (senão o azul para no meio). */
+:host {
+  display: flex;
+}
+
 .brand-panel {
   position: relative;
   overflow: hidden;
@@ -17,10 +23,42 @@
   );
 }
 
+/* Empilhado: painel ocupa a largura toda e encolhe um pouco. */
 @media (max-width: 900px) {
+  :host {
+    width: 100%;
+  }
+
   .brand-panel {
     width: 100%;
     padding: 32px 24px;
+    gap: 24px;
+  }
+
+  .brand-panel__copy h1 {
+    font-size: 26px;
+  }
+}
+
+/* Celular: texto e ornamento menores. */
+@media (max-width: 480px) {
+  .brand-panel {
+    padding: 24px 20px;
+  }
+
+  .brand-panel__copy h1 {
+    font-size: 22px;
+  }
+
+  .brand-panel__copy p {
+    font-size: 13.5px;
+  }
+
+  .brand-panel__pattern {
+    width: 420px;
+    height: 420px;
+    top: -60px;
+    right: -110px;
   }
 }
 

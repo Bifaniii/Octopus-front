@@ -16,7 +16,7 @@ import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PainelMarcaComponent {
-  @Input() brandName = 'VetCare Clínica';
+  @Input() brandName = 'VidaPet';
   @Input() title = 'Cuidado veterinário, organizado com carinho.';
   @Input() subtitle =
     'Prontuários, agenda e histórico de cada paciente em um só lugar para sua equipe.';
