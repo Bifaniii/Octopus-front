@@ -1,0 +1,68 @@
+/* ============================================================
+   Tema global (claro / escuro)
+   ============================================================
+   As cores ficam em CSS Custom Properties para que qualquer
+   componente possa usá-las sem precisar saber se o tema atual
+   é claro ou escuro. O TemaService só alterna uma classe
+   (.dark-theme) no <html>; quem decide as cores é este arquivo.
+   Importado uma única vez em src/styles.css.
+   ============================================================ */
+
+:root {
+  /* Paleta azul — tema claro */
+  --color-primary: #2563eb;
+  --color-primary-strong: #1e40af;
+  --color-primary-soft: #3b82f6;
+  --color-primary-contrast: #ffffff;
+
+  --color-bg: #f8fafc;
+  --color-surface: #ffffff;
+  --color-surface-alt: #eff6ff;
+
+  --color-text: #0f172a;
+  --color-text-muted: #64748b;
+  --color-text-on-primary: #ffffff;
+  --color-text-on-primary-muted: #dbeafe;
+
+  --color-border: #e2e8f0;
+  --color-border-strong: #93c5fd;
+
+  --shadow-primary: 0 8px 16px -6px rgba(37, 99, 235, 0.5);
+
+  --radius-md: 10px;
+  --radius-lg: 14px;
+
+  color-scheme: light;
+}
+
+html.dark-theme {
+  /* Paleta azul — tema escuro */
+  --color-primary: #3b82f6;
+  --color-primary-strong: #0c1a3d;
+  --color-primary-soft: #1d3a8f;
+  --color-primary-contrast: #ffffff;
+
+  --color-bg: #0b1220;
+  --color-surface: #141b2d;
+  --color-surface-alt: #0f172a;
+
+  --color-text: #f1f5f9;
+  --color-text-muted: #94a3b8;
+  --color-text-on-primary: #f1f5f9;
+  --color-text-on-primary-muted: #94a3b8;
+
+  --color-border: #334155;
+  --color-border-strong: #3b82f6;
+
+  --shadow-primary: 0 8px 20px -6px rgba(59, 130, 246, 0.55);
+
+  color-scheme: dark;
+}
+
+body {
+  margin: 0;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: 'Poppins', system-ui, sans-serif;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}

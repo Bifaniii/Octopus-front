@@ -1,0 +1,44 @@
+<form class="login-form" [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+
+  <div class="login-form__heading">
+    <h2>Bem-vindo de volta</h2>
+    <p>Acesse sua conta para continuar</p>
+  </div>
+
+  <div class="login-form__field">
+    <label for="email">E-mail</label>
+    <input
+      id="email"
+      type="email"
+      formControlName="email"
+      placeholder="voce@clinica.com"
+      autocomplete="username"
+    />
+    @if (form.controls.email.invalid && form.controls.email.touched) {
+      <span class="login-form__error">Informe um e-mail válido.</span>
+    }
+  </div>
+
+  <div class="login-form__field">
+    <label for="senha">Senha</label>
+    <input
+      id="senha"
+      type="password"
+      formControlName="senha"
+      placeholder="••••••••"
+      autocomplete="current-password"
+    />
+    @if (form.controls.senha.invalid && form.controls.senha.touched) {
+      <span class="login-form__error">A senha precisa ter ao menos 6 caracteres.</span>
+    }
+  </div>
+
+  @if (erro) {
+    <p class="login-form__alert" role="alert">{{ erro }}</p>
+  }
+
+  <button type="submit" class="login-form__submit" [disabled]="carregando">
+    {{ carregando ? 'Entrando...' : 'Entrar' }}
+  </button>
+
+</form>

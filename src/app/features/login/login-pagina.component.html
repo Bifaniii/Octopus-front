@@ -1,0 +1,15 @@
+<div class="login-page">
+
+  <app-modo-dark class="login-page__theme-toggle" />
+
+  <app-painel-marca />
+
+  <main class="login-page__form-area">
+    <app-login-formulario
+      [carregando]="carregando()"
+      [erro]="erro()"
+      (login)="handleLogin($event)"
+    />
+  </main>
+
+</div>
