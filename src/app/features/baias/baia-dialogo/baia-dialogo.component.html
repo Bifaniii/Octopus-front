@@ -1,0 +1,75 @@
+<dialog
+  #dialogo
+  class="dialogo"
+  aria-labelledby="dialogo-titulo"
+  (close)="fechar.emit()"
+  (click)="aoClicarFora($event)"
+>
+  <form class="form" [formGroup]="form" (ngSubmit)="enviar()">
+    <header class="form__topo">
+      <h2 id="dialogo-titulo" class="form__titulo">{{ titulo }}</h2>
+      <button type="button" class="fechar" aria-label="Fechar" (click)="fecharDialogo()">
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </header>
+
+    <div class="linha">
+      <label class="campo">
+        <span class="campo__rotulo">Tipo</span>
+        <select formControlName="tipo" (change)="aoMudarTipo()">
+          @for (t of tipos; track t.valor) {
+            <option [value]="t.valor">{{ t.nome }}</option>
+          }
+        </select>
+      </label>
+
+      <label class="campo campo--numero">
+        <span class="campo__rotulo">Número</span>
+        <input type="number" min="1" step="1" formControlName="numero" autofocus />
+      </label>
+    </div>
+
+    <fieldset class="campo">
+      <legend class="campo__rotulo">Situação</legend>
+      <div class="opcoes">
+        <label class="opcao">
+          <input type="radio" formControlName="status" value="livre" (change)="ocupada.set(false)" />
+          Livre
+        </label>
+        <label class="opcao">
+          <input type="radio" formControlName="status" value="ocupada" (change)="ocupada.set(true)" />
+          Ocupada
+        </label>
+      </div>
+    </fieldset>
+
+    @if (ocupada()) {
+      <label class="campo">
+        <span class="campo__rotulo">Animal e atendimento</span>
+        <input type="text" formControlName="descricao" placeholder="Ex.: Rex · Consulta em andamento" />
+      </label>
+
+      <label class="campo">
+        <span class="campo__rotulo">Responsável ou observação</span>
+        <input type="text" formControlName="detalhe" placeholder="Ex.: Dra. Ana" />
+      </label>
+    }
+
+    @if (erro(); as mensagem) {
+      <p class="erro" role="alert">{{ mensagem }}</p>
+    }
+
+    <footer class="form__rodape">
+      @if (editando) {
+        <button type="button" class="botao botao--perigo" (click)="pedirRemocao()">
+          {{ confirmandoRemocao() ? 'Confirmar remoção' : 'Remover baia' }}
+        </button>
+      }
+      <span class="espaco"></span>
+      <button type="button" class="botao" (click)="fecharDialogo()">Cancelar</button>
+      <button type="submit" class="botao botao--primario">
+        {{ editando ? 'Salvar alterações' : 'Cadastrar baia' }}
+      </button>
+    </footer>
+  </form>
+</dialog>

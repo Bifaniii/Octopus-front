@@ -11,6 +11,15 @@
     </div>
 
     <nav class="shell__nav">
+      <a
+        class="shell__nav-item"
+        [class.shell__nav-item--ativo]="itemAtivo === 'baias'"
+        routerLink="/baias"
+        title="Painel de baias"
+      >
+        <i class="bi bi-grid-3x3-gap"></i>
+      </a>
+
       <button
         type="button"
         class="shell__nav-item"
@@ -38,14 +47,14 @@
         <i class="bi bi-clipboard-data"></i>
       </button>
 
-      <button
-        type="button"
+      <a
         class="shell__nav-item"
         [class.shell__nav-item--ativo]="itemAtivo === 'medicamentos'"
+        routerLink="/registro-medicamentos"
         title="Medicamentos"
       >
         <i class="bi bi-capsule"></i>
-      </button>
+      </a>
     </nav>
   </aside>
 

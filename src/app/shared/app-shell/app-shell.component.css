@@ -58,6 +58,11 @@
     color 0.15s ease;
 }
 
+/* item da sidebar agora pode ser <a> (com routerLink) ou <button> */
+a.shell__nav-item {
+  text-decoration: none;
+}
+
 .shell__nav-item:hover {
   background: rgba(255, 255, 255, 0.1);
   color: var(--color-text-on-primary);
