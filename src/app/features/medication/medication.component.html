@@ -1,0 +1,61 @@
+<app-shell
+  titulo="Registro de medicamentos"
+  subtitulo="Terça-feira, 13 de setembro"
+  itemAtivo="medicamentos"
+>
+  <div class="registro-medicamentos__topo">
+    <h2>Prescrições ativas</h2>
+
+    <button
+      type="button"
+      class="registro-medicamentos__cadastrar"
+      (click)="onCadastrarClick()"
+    >
+      <svg
+        width="16"
+        height="16"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <path d="M12 5v14M5 12h14" />
+      </svg>
+      Cadastrar medicamento
+    </button>
+  </div>
+
+  <div class="registro-medicamentos__lista">
+    @for (prescricao of prescricoes; track prescricao.id) {
+      <article class="prescricao-card">
+        <header class="prescricao-card__header">
+          <div>
+            <h3>{{ prescricao.animal }} · {{ prescricao.especie }}</h3>
+            <p>
+              Registro #{{ prescricao.registro }} · {{ prescricao.responsavel }}
+            </p>
+          </div>
+          <span
+            class="prescricao-card__status"
+            [class]="'prescricao-card__status--' + prescricao.variante"
+          >
+            {{ prescricao.status }}
+          </span>
+        </header>
+
+        <ul class="prescricao-card__itens">
+          @for (item of prescricao.itens; track item) {
+            <li>
+              <label class="prescricao-card__item">
+                <input type="checkbox" />
+                <span>{{ item }}</span>
+              </label>
+            </li>
+          }
+        </ul>
+      </article>
+    }
+  </div>
+</app-shell>

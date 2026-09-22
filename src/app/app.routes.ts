@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { authGuard } from './core/guards/auth.guard';
 
 /**
  * Rotas raiz da aplicação.
@@ -21,6 +22,15 @@ export const routes: Routes = [
       ),
   },
 
+  {
+    path: 'registro-medicamentos',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/medication/medication.component').then(
+        (m) => m.MedicationComponent,
+      ),
+  },
+
   // ──────────────────────────────────────────────────────────────
   // EXEMPLOS de features futuras — descomente ao criar cada pasta.
   //
@@ -28,7 +38,7 @@ export const routes: Routes = [
   // import { permissaoGuard } from './core/guards/permissao.guard';
   //
   // {
-  //   path: 'baias',                          
+  //   path: 'baias',
   //   canActivate: [authGuard],
   //   data: {roles: ['ROLE']},
   //   loadComponent: () =>
@@ -36,7 +46,7 @@ export const routes: Routes = [
   //       .then((m) => m.CadastroBaiaComponent),
   // },
   // {
-  //   path: 'painel',                        
+  //   path: 'painel',
   //   canActivate: [authGuard, permissaoGuard],
   //   data: { roles: ['ROLE'] },
   //   loadComponent: () =>

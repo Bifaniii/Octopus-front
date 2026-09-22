@@ -1,16 +1,11 @@
 import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
+import { MedicationComponent } from './features/medication/medication.component';
 
-/**
- * AppComponent
- * ------------
- * Raiz da aplicação. Não tem tela própria: apenas hospeda o
- * <router-outlet />, onde o Angular monta a rota atual.
- */
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet],
+  imports: [RouterOutlet, MedicationComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css',
 })
