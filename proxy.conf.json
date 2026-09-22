@@ -4,14 +4,13 @@
     "secure": false,
     "changeOrigin": true,
     "logLevel": "debug"
-  }
-}
-{
-  "/api/baias": {
+  },
+    "/api/baias": {
     "target": "http://***REMOVIDO***:8081",
     "secure": false,
     "changeOrigin": true,
     "logLevel": "debug"
   }
 }
+
 
