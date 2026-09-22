@@ -1,1 +1,47 @@
-<p>cadastro-baias-pagina works!</p>
+<app-shell titulo="Painel de baias" [subtitulo]="dataHoje" itemAtivo="baias">
+  <div class="acoes">
+    <button type="button" class="botao-novo" (click)="novaBaia()">
+      <i class="bi bi-plus-lg"></i>
+      Nova baia
+    </button>
+  </div>
+
+  <section class="secao">
+    <h2 class="secao__titulo">Serviços</h2>
+    <div class="grade">
+      @for (servico of servicos; track servico.nome) {
+        <button type="button" class="servico">
+          <span class="servico__icone"><i [class]="'bi ' + servico.icone"></i></span>
+          {{ servico.nome }}
+        </button>
+      }
+    </div>
+  </section>
+
+  @for (grupo of grupos(); track grupo.tipo) {
+    <section class="secao">
+      <div class="secao__cabecalho">
+        <h2 class="secao__titulo">{{ grupo.titulo }}</h2>
+        <div class="legenda">
+          <span class="legenda__item legenda__item--livre">Livre</span>
+          <span class="legenda__item legenda__item--ocupada">Ocupada</span>
+        </div>
+      </div>
+      <div class="grade">
+        @for (baia of grupo.baias; track baia.id) {
+          <app-baia-card [baia]="baia" (selecionar)="editarBaia($event)" />
+        }
+      </div>
+    </section>
+  }
+</app-shell>
+
+@if (dialogo(); as estado) {
+  <app-baia-dialogo
+    [baia]="estado.baia"
+    [baias]="baias()"
+    (salvar)="salvar($event)"
+    (remover)="remover()"
+    (fechar)="fecharDialogo()"
+  />
+}

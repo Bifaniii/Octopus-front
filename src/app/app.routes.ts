@@ -23,8 +23,17 @@ export const routes: Routes = [
   },
 
   {
+    path: 'baias',
+   // canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/baias/cadastro-baias-pagina.component').then(
+        (m) => m.CadastroBaiasPaginaComponent,
+      ),
+  },
+
+  {
     path: 'registro-medicamentos',
-    canActivate: [authGuard],
+    // canActivate: [authGuard],
     loadComponent: () =>
       import('./features/medication/medication.component').then(
         (m) => m.MedicationComponent,
@@ -34,17 +43,8 @@ export const routes: Routes = [
   // ──────────────────────────────────────────────────────────────
   // EXEMPLOS de features futuras — descomente ao criar cada pasta.
   //
-  // import { authGuard } from './core/guards/auth.guard';
   // import { permissaoGuard } from './core/guards/permissao.guard';
   //
-  // {
-  //   path: 'baias',
-  //   canActivate: [authGuard],
-  //   data: {roles: ['ROLE']},
-  //   loadComponent: () =>
-  //     import('./features/baias/cadastro-baia/cadastro-baia.component')
-  //       .then((m) => m.CadastroBaiaComponent),
-  // },
   // {
   //   path: 'painel',
   //   canActivate: [authGuard, permissaoGuard],

@@ -1,1 +1,22 @@
-<p>baia-card works!</p>
+<button
+  type="button"
+  class="card"
+  [class.card--ocupada]="ocupada"
+  [class.card--livre]="!ocupada"
+  [attr.title]="'Abrir ' + titulo"
+  (click)="selecionar.emit(baia)"
+>
+  <span class="card__topo">
+    <span class="card__titulo">{{ titulo }}</span>
+    <span class="selo">{{ ocupada ? 'Ocupada' : 'Livre' }}</span>
+  </span>
+
+  @if (ocupada) {
+    <span class="card__descricao">{{ baia.descricao }}</span>
+    @if (rodape) {
+      <span class="card__detalhe">{{ rodape }}</span>
+    }
+  } @else {
+    <span class="card__descricao">Disponível para atendimento</span>
+  }
+</button>

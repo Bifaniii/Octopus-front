@@ -1,0 +1,37 @@
+:host { display: block; }
+
+.card {
+  width: 100%;
+  min-height: 106px;
+  padding: 1rem 1.15rem;
+  border: 1px solid;
+  border-radius: var(--radius-lg);
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.35rem;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.card:hover { box-shadow: var(--shadow-primary); }
+.card:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 2px; }
+.card--livre { background: var(--color-success-soft); border-color: var(--color-success-border); color: var(--color-success); }
+.card--ocupada { background: var(--color-danger-soft); border-color: var(--color-danger-border); color: var(--color-danger); }
+
+.card__topo { display: flex; justify-content: space-between; align-items: center; gap: 0.5rem; }
+.card__titulo { font-size: 0.95rem; font-weight: 600; color: var(--color-text); white-space: nowrap; }
+.card__descricao { display: block; font-size: 0.85rem; }
+.card__detalhe { display: block; margin-top: auto; font-size: 0.72rem; }
+
+.selo {
+  padding: 0.15rem 0.7rem;
+  border-radius: 999px;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: #fff;
+}
+.card--livre .selo { background: var(--color-success); }
+.card--ocupada .selo { background: var(--color-danger); }
