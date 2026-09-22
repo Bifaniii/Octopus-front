@@ -4,14 +4,13 @@
     "secure": false,
     "changeOrigin": true,
     "logLevel": "debug"
-  }
-}
-{
-  "/api/baias": {
+  },
+    "/api/baias": {
     "target": "http://18.231.156.129:8081",
     "secure": false,
     "changeOrigin": true,
     "logLevel": "debug"
   }
 }
+
 
