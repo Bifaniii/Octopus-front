@@ -12,14 +12,15 @@ import {
   signal,
 } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
-import { Baia, DadosBaia, NOME_POR_TIPO, ROTULO_POR_TIPO, StatusBaia, TipoBaia } from '../baia.model';
+import { Baia, CAPACIDADE_MAXIMA, DadosBaia, NOME_POR_TIPO, TipoBaia } from '../baia.model';
 
 /**
  * BaiaDialogoComponent
  * --------------------
  * Janela (dialog nativo) para cadastrar uma baia nova ou editar uma existente.
- * Não conhece serviços: recebe a lista de baias só para validar número repetido
- * e avisa o container por eventos (`salvar`, `remover`, `fechar`).
+ * Não conhece serviços: valida o formulário com as mesmas regras do back-end,
+ * avisa o container por eventos (`salvar`, `desativar`, `fechar`) e recebe
+ * de volta o estado da chamada à API (`salvando`, `erroApi`).
  */
 @Component({
   selector: 'app-baia-dialogo',
@@ -32,11 +33,15 @@ import { Baia, DadosBaia, NOME_POR_TIPO, ROTULO_POR_TIPO, StatusBaia, TipoBaia }
 export class BaiaDialogoComponent implements OnInit, AfterViewInit {
   /** Baia em edição. `null` significa cadastro de uma nova. */
   @Input() baia: Baia | null = null;
-  /** Todas as baias, só para checar número repetido e sugerir o próximo. */
+  /** Todas as baias, só para checar nome repetido antes de chamar a API. */
   @Input({ required: true }) baias!: Baia[];
+  /** Enquanto true, os botões ficam desabilitados. */
+  @Input() salvando = false;
+  /** Mensagem de erro vinda da API (ex.: nome duplicado, limite atingido). */
+  @Input() erroApi: string | null = null;
 
   @Output() salvar = new EventEmitter<DadosBaia>();
-  @Output() remover = new EventEmitter<void>();
+  @Output() desativar = new EventEmitter<void>();
   @Output() fechar = new EventEmitter<void>();
 
   @ViewChild('dialogo', { static: true }) private dialogo!: ElementRef<HTMLDialogElement>;
@@ -45,28 +50,26 @@ export class BaiaDialogoComponent implements OnInit, AfterViewInit {
 
   protected readonly tipos = (Object.keys(NOME_POR_TIPO) as TipoBaia[]).map((valor) => ({
     valor,
-    nome: NOME_POR_TIPO[valor],
+    nome: `${NOME_POR_TIPO[valor]} (até ${CAPACIDADE_MAXIMA[valor]})`,
   }));
 
   protected readonly form = this.fb.nonNullable.group({
-    tipo: ['padrao' as TipoBaia],
-    numero: [1],
-    status: ['livre' as StatusBaia],
+    tipo: ['COLETIVA' as TipoBaia],
+    nome: [''],
+    capacidade: [1],
     descricao: [''],
-    detalhe: [''],
   });
 
-  protected readonly ocupada = signal(false);
+  protected readonly capacidadeMaxima = signal(CAPACIDADE_MAXIMA.COLETIVA);
   protected readonly erro = signal<string | null>(null);
-  protected readonly confirmandoRemocao = signal(false);
+  protected readonly confirmandoDesativacao = signal(false);
 
   protected get editando(): boolean {
     return this.baia !== null;
   }
 
   protected get titulo(): string {
-    if (!this.baia) return 'Nova baia';
-    return `Editar ${ROTULO_POR_TIPO[this.baia.tipo]} ${this.formatar(this.baia.numero)}`;
+    return this.baia ? `Editar ${this.baia.nome}` : 'Nova baia';
   }
 
   ngOnInit(): void {
@@ -74,16 +77,11 @@ export class BaiaDialogoComponent implements OnInit, AfterViewInit {
     if (b) {
       this.form.reset({
         tipo: b.tipo,
-        numero: b.numero,
-        status: b.status,
+        nome: b.nome,
+        capacidade: b.capacidade,
         descricao: b.descricao ?? '',
-        detalhe: b.detalhe ?? '',
       });
-      // O tipo não muda depois de criada, para não bagunçar a numeração.
-      this.form.controls.tipo.disable();
-      this.ocupada.set(b.status === 'ocupada');
-    } else {
-      this.form.controls.numero.setValue(this.proximoNumero('padrao'));
+      this.capacidadeMaxima.set(CAPACIDADE_MAXIMA[b.tipo]);
     }
   }
 
@@ -92,8 +90,10 @@ export class BaiaDialogoComponent implements OnInit, AfterViewInit {
   }
 
   protected aoMudarTipo(): void {
-    if (!this.baia) {
-      this.form.controls.numero.setValue(this.proximoNumero(this.form.controls.tipo.value));
+    const maxima = CAPACIDADE_MAXIMA[this.form.controls.tipo.value];
+    this.capacidadeMaxima.set(maxima);
+    if (this.form.controls.capacidade.value > maxima) {
+      this.form.controls.capacidade.setValue(maxima);
     }
   }
 
@@ -109,53 +109,50 @@ export class BaiaDialogoComponent implements OnInit, AfterViewInit {
   }
 
   protected enviar(): void {
-    const v = this.form.getRawValue();
-    const numero = Number(v.numero);
+    if (this.salvando) return;
 
-    if (!Number.isInteger(numero) || numero < 1) {
-      this.erro.set('Informe um número de baia maior que zero.');
+    const v = this.form.getRawValue();
+    const nome = v.nome.trim();
+    const capacidade = Number(v.capacidade);
+    const maxima = CAPACIDADE_MAXIMA[v.tipo];
+
+    if (!nome) {
+      this.erro.set('Informe o nome da baia.');
+      return;
+    }
+    if (nome.length > 25) {
+      this.erro.set('O nome pode ter no máximo 25 caracteres.');
+      return;
+    }
+    if (!Number.isInteger(capacidade) || capacidade < 1 || capacidade > maxima) {
+      this.erro.set(`A capacidade de uma baia ${NOME_POR_TIPO[v.tipo]} vai de 1 a ${maxima}.`);
       return;
     }
 
     const repetida = this.baias.some(
-      (b) => b.tipo === v.tipo && b.numero === numero && b.id !== this.baia?.id,
+      (b) => b.nome.toLowerCase() === nome.toLowerCase() && b.id !== this.baia?.id,
     );
     if (repetida) {
-      this.erro.set(`Já existe a ${ROTULO_POR_TIPO[v.tipo]} ${this.formatar(numero)}.`);
+      this.erro.set(`Já existe uma baia com o nome "${nome}".`);
       return;
     }
 
     const descricao = v.descricao.trim();
-    if (v.status === 'ocupada' && !descricao) {
-      this.erro.set('Informe o animal e o atendimento.');
+    if (descricao.length > 255) {
+      this.erro.set('A descrição pode ter no máximo 255 caracteres.');
       return;
     }
 
     this.erro.set(null);
-    this.salvar.emit({
-      tipo: v.tipo,
-      numero,
-      status: v.status,
-      descricao: descricao || undefined,
-      detalhe: v.detalhe.trim() || undefined,
-    });
+    this.salvar.emit({ tipo: v.tipo, nome, capacidade, descricao: descricao || null });
   }
 
-  protected pedirRemocao(): void {
-    // Dois cliques: o primeiro pede confirmação, o segundo remove.
-    if (this.confirmandoRemocao()) {
-      this.remover.emit();
+  protected pedirDesativacao(): void {
+    // Dois cliques: o primeiro pede confirmação, o segundo desativa.
+    if (this.confirmandoDesativacao()) {
+      this.desativar.emit();
     } else {
-      this.confirmandoRemocao.set(true);
+      this.confirmandoDesativacao.set(true);
     }
-  }
-
-  private proximoNumero(tipo: TipoBaia): number {
-    const numeros = this.baias.filter((b) => b.tipo === tipo).map((b) => b.numero);
-    return Math.max(0, ...numeros) + 1;
-  }
-
-  private formatar(numero: number): string {
-    return String(numero).padStart(2, '0');
   }
 }

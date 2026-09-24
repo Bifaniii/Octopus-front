@@ -1,47 +1,90 @@
-.registro-medicamentos__topo {
+/* As variáveis de cor (--color-*, --radius-*) vêm de src/styles/tema.css. */
+
+.medicamentos__topo {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-wrap: wrap;
   gap: 16px;
   margin-bottom: 20px;
 }
 
-.registro-medicamentos__topo h2 {
+.medicamentos__topo h2 {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
   margin: 0;
   font-size: 17px;
   font-weight: 600;
   color: var(--color-text);
 }
 
-.registro-medicamentos__cadastrar {
-  display: inline-flex;
+.medicamentos__contagem {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-text-muted);
+}
+
+.medicamentos__filtros {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.medicamentos__busca {
+  display: flex;
   align-items: center;
   gap: 8px;
-  height: 42px;
-  padding: 0 18px;
-  border: none;
+  width: min(340px, 100%);
+  height: 40px;
+  padding: 0 12px;
+  box-sizing: border-box;
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
-  background: var(--color-primary);
-  color: var(--color-text-on-primary);
+  background: var(--color-surface);
+  color: var(--color-text-muted);
+}
+
+.medicamentos__busca:focus-within {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 1px;
+}
+
+.medicamentos__busca input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: var(--color-text);
+  font: inherit;
   font-size: 14px;
-  font-weight: 600;
-  font-family: inherit;
+}
+
+.medicamentos__inativos {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--color-text-muted);
   cursor: pointer;
-  box-shadow: var(--shadow-primary);
-  transition: filter 0.15s ease;
 }
 
-.registro-medicamentos__cadastrar:hover {
-  filter: brightness(1.06);
+.medicamentos__inativos input {
+  accent-color: var(--color-primary);
 }
 
-.registro-medicamentos__lista {
-  display: flex;
-  flex-direction: column;
+.medicamentos__lista {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
   gap: 18px;
 }
 
-.prescricao-card {
+.medicamento-card {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
   padding: 20px 22px;
   box-sizing: border-box;
   border-radius: var(--radius-lg);
@@ -49,30 +92,46 @@
   background: var(--color-surface);
 }
 
-.prescricao-card__header {
+.medicamento-card--inativo {
+  opacity: 0.65;
+}
+
+.medicamento-card__header {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
   gap: 16px;
   padding-bottom: 14px;
-  margin-bottom: 14px;
   border-bottom: 1px solid var(--color-border);
 }
 
-.prescricao-card__header h3 {
+.medicamento-card__header h3 {
   margin: 0;
   font-size: 16px;
   font-weight: 600;
   color: var(--color-text);
 }
 
-.prescricao-card__header p {
+.medicamento-card__concentracao {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-text-muted);
+}
+
+.medicamento-card__header p {
   margin: 2px 0 0;
   font-size: 13px;
   color: var(--color-text-muted);
 }
 
-.prescricao-card__status {
+.medicamento-card__etiquetas {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 6px;
+}
+
+.etiqueta {
   flex-shrink: 0;
   padding: 4px 12px;
   border-radius: 999px;
@@ -81,49 +140,123 @@
   white-space: nowrap;
 }
 
-.prescricao-card__status--tratamento {
+.etiqueta--continuo {
   color: #1d4ed8;
   background: color-mix(in srgb, #3b82f6 16%, transparent);
 }
 
-.prescricao-card__status--atencao {
+.etiqueta--sintomatico {
   color: #b45309;
   background: color-mix(in srgb, #f59e0b 18%, transparent);
 }
 
-.prescricao-card__status--cirurgico {
-  color: #be123c;
-  background: color-mix(in srgb, #f43f5e 16%, transparent);
+.etiqueta--inativo {
+  color: var(--color-text-muted);
+  background: var(--color-surface-alt);
 }
 
-.prescricao-card__status--observacao {
-  color: #0369a1;
-  background: color-mix(in srgb, #0ea5e9 16%, transparent);
-}
-
-.prescricao-card__itens {
-  list-style: none;
+.medicamento-card__dados {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px 16px;
   margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
 }
 
-.prescricao-card__item {
-  display: flex;
-  align-items: flex-start;
-  gap: 10px;
+.medicamento-card__dados dt {
+  font-size: 12px;
+  color: var(--color-text-muted);
+}
+
+.medicamento-card__dados dd {
+  margin: 2px 0 0;
   font-size: 14px;
   color: var(--color-text);
+  overflow-wrap: anywhere;
+}
+
+.validade--proxima {
+  color: #b45309;
+  font-weight: 600;
+}
+
+.validade--vencido {
+  color: var(--color-danger);
+  font-weight: 600;
+}
+
+.medicamento-card__interacoes {
+  padding: 10px 12px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-danger-border);
+  background: var(--color-danger-soft);
+}
+
+.medicamento-card__interacoes-titulo {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-danger);
+}
+
+.medicamento-card__interacoes ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 8px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.medicamento-card__interacoes li {
+  padding: 2px 10px;
+  border-radius: 999px;
+  font-size: 12.5px;
+  color: var(--color-text);
+  background: var(--color-surface);
+  border: 1px solid var(--color-danger-border);
+}
+
+.aviso {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin: 0 0 20px;
+  padding: 0.9rem 1.1rem;
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius-lg);
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+}
+
+.aviso--erro {
+  border-style: solid;
+  border-color: var(--color-danger-border);
+  background: var(--color-danger-soft);
+  color: var(--color-danger);
+}
+
+.aviso__acao {
+  padding: 0.4rem 0.8rem;
+  border: 1px solid currentColor;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 0.8rem;
+  font-weight: 600;
+  white-space: nowrap;
   cursor: pointer;
 }
 
-.prescricao-card__item input[type="checkbox"] {
-  margin-top: 3px;
-  width: 16px;
-  height: 16px;
-  accent-color: var(--color-primary);
-  cursor: pointer;
-  flex-shrink: 0;
+@media (max-width: 480px) {
+  .medicamentos__lista {
+    grid-template-columns: 1fr;
+  }
+
+  .medicamento-card__dados {
+    grid-template-columns: 1fr;
+  }
 }

@@ -14,13 +14,14 @@
   text-align: left;
   cursor: pointer;
 }
-.card:hover { box-shadow: var(--shadow-primary); }
+.card:disabled { cursor: default; }
+.card:not(:disabled):hover { box-shadow: var(--shadow-primary); }
 .card:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 2px; }
-.card--livre { background: var(--color-success-soft); border-color: var(--color-success-border); color: var(--color-success); }
-.card--ocupada { background: var(--color-danger-soft); border-color: var(--color-danger-border); color: var(--color-danger); }
+.card--ativa { background: var(--color-success-soft); border-color: var(--color-success-border); color: var(--color-success); }
+.card--inativa { background: var(--color-surface-alt); border-color: var(--color-border); color: var(--color-text-muted); }
 
 .card__topo { display: flex; justify-content: space-between; align-items: center; gap: 0.5rem; }
-.card__titulo { font-size: 0.95rem; font-weight: 600; color: var(--color-text); white-space: nowrap; }
+.card__titulo { font-size: 0.95rem; font-weight: 600; color: var(--color-text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .card__descricao { display: block; font-size: 0.85rem; }
 .card__detalhe { display: block; margin-top: auto; font-size: 0.72rem; }
 
@@ -33,5 +34,5 @@
   text-transform: uppercase;
   color: #fff;
 }
-.card--livre .selo { background: var(--color-success); }
-.card--ocupada .selo { background: var(--color-danger); }
+.card--ativa .selo { background: var(--color-success); }
+.card--inativa .selo { background: var(--color-text-muted); }

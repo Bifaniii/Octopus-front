@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
-import { Baia, ROTULO_POR_TIPO } from '../baia.model';
+import { Baia, NOME_POR_TIPO } from '../baia.model';
 
 /**
  * BaiaCardComponent
@@ -16,20 +16,13 @@ import { Baia, ROTULO_POR_TIPO } from '../baia.model';
 })
 export class BaiaCardComponent {
   @Input({ required: true }) baia!: Baia;
+  /** Quando false (usuário sem permissão de escrita), o card não é clicável. */
+  @Input() editavel = false;
   @Output() selecionar = new EventEmitter<Baia>();
 
-  protected get titulo(): string {
-    const numero = String(this.baia.numero).padStart(2, '0');
-    return `${ROTULO_POR_TIPO[this.baia.tipo]} ${numero}`;
-  }
-
-  protected get ocupada(): boolean {
-    return this.baia.status === 'ocupada';
-  }
-
-  /** Ex.: "Dra. Ana · desde 14:20" */
+  /** Ex.: "Coletiva · até 6 animais" */
   protected get rodape(): string {
-    const partes = [this.baia.detalhe, this.baia.desde ? `desde ${this.baia.desde}` : ''];
-    return partes.filter(Boolean).join(' · ');
+    const animais = this.baia.capacidade === 1 ? 'animal' : 'animais';
+    return `${NOME_POR_TIPO[this.baia.tipo]} · até ${this.baia.capacidade} ${animais}`;
   }
 }

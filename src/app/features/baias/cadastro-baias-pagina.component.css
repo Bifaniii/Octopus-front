@@ -2,7 +2,8 @@
    aplicadas globalmente pelo AppShellComponent. */
 :host { display: block; }
 
-.acoes { display: flex; justify-content: flex-end; margin-bottom: 1rem; }
+.acoes { display: flex; justify-content: flex-end; align-items: center; gap: 0.75rem; margin-bottom: 1rem; }
+.acoes__aviso { font-size: 0.8rem; color: var(--color-text-muted); }
 
 .botao-novo {
   display: inline-flex;
@@ -19,7 +20,8 @@
   white-space: nowrap;
   cursor: pointer;
 }
-.botao-novo:hover { background: var(--color-primary-strong); }
+.botao-novo:hover:not(:disabled) { background: var(--color-primary-strong); }
+.botao-novo:disabled { opacity: 0.6; cursor: default; }
 .botao-novo:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 2px; }
 
 .secao { margin-bottom: 1.75rem; }
@@ -63,5 +65,36 @@
 .legenda { display: flex; gap: 1rem; font-size: 0.75rem; color: var(--color-text-muted); }
 .legenda__item { display: inline-flex; align-items: center; gap: 0.4rem; }
 .legenda__item::before { content: ''; width: 8px; height: 8px; border-radius: 2px; }
-.legenda__item--livre::before { background: var(--color-success); }
-.legenda__item--ocupada::before { background: var(--color-danger); }
+.legenda__item--ativa::before { background: var(--color-success); }
+.legenda__item--inativa::before { background: var(--color-text-muted); }
+
+.aviso {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin: 0 0 1.75rem;
+  padding: 0.9rem 1.1rem;
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius-lg);
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+}
+.aviso--erro {
+  border-style: solid;
+  border-color: var(--color-danger-border);
+  background: var(--color-danger-soft);
+  color: var(--color-danger);
+}
+.aviso__acao {
+  padding: 0.4rem 0.8rem;
+  border: 1px solid currentColor;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 0.8rem;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+}
