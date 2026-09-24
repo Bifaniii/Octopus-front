@@ -1,62 +1,86 @@
-import { Injectable, signal } from '@angular/core';
-import { Baia, DadosBaia } from './baia.model';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { Injectable, inject, signal } from '@angular/core';
+import { Observable, finalize, tap } from 'rxjs';
+import { environment } from '../../../environments/environment';
+import { Baia, DadosBaia, ErroApi } from './baia.model';
 
 /**
  * BaiaService
  * -----------
- * Fonte de dados das baias e das operações de cadastro.
- * Por enquanto tudo fica em memória: ao recarregar a página, volta ao início
- * (lista vazia). Cadastre as baias pelo botão "Nova baia" na tela.
+ * Consome o microserviço ms-cadastro-baias (/api/baias). Guarda a lista
+ * em um signal para a tela reagir, e atualiza o signal após cada escrita.
+ *
+ * O token JWT é anexado pelo `authInterceptor`. Leitura: qualquer usuário
+ * logado. Escrita (criar/editar/desativar): apenas ROLE_ADMIN.
  */
 @Injectable({ providedIn: 'root' })
 export class BaiaService {
-  // TODO: trocar por chamadas HttpClient quando a API de baias existir.
+  private readonly http = inject(HttpClient);
+  private readonly baseUrl = `${environment.apiBaseUrl}/baias`;
+
   private readonly _baias = signal<Baia[]>([]);
+  private readonly _carregando = signal(false);
 
   readonly baias = this._baias.asReadonly();
+  readonly carregando = this._carregando.asReadonly();
 
-  /** Cadastra uma nova baia. Se já nascer ocupada, registra a hora atual. */
-  adicionar(dados: DadosBaia): Baia {
-    const ocupada = dados.status === 'ocupada';
-    const nova: Baia = {
-      id: Math.max(0, ...this._baias().map((b) => b.id)) + 1,
-      tipo: dados.tipo,
-      numero: dados.numero,
-      status: dados.status,
-      descricao: ocupada ? dados.descricao : undefined,
-      detalhe: ocupada ? dados.detalhe : undefined,
-      desde: ocupada ? this.horaAtual() : undefined,
-    };
-    this._baias.update((lista) => [...lista, nova]);
-    return nova;
-  }
-
-  /** Atualiza uma baia. Ao liberar, limpa o atendimento; ao ocupar, registra a hora. */
-  atualizar(id: number, dados: DadosBaia): void {
-    this._baias.update((lista) =>
-      lista.map((b) => {
-        if (b.id !== id) return b;
-        if (dados.status === 'livre') {
-          return { id, tipo: dados.tipo, numero: dados.numero, status: 'livre' };
-        }
-        return {
-          id,
-          tipo: dados.tipo,
-          numero: dados.numero,
-          status: 'ocupada',
-          descricao: dados.descricao,
-          detalhe: dados.detalhe,
-          desde: b.status === 'ocupada' ? b.desde : this.horaAtual(),
-        };
-      }),
+  /** GET /api/baias — recarrega a lista inteira. */
+  carregar(): Observable<Baia[]> {
+    this._carregando.set(true);
+    return this.http.get<Baia[]>(this.baseUrl).pipe(
+      tap((lista) => this._baias.set(lista)),
+      finalize(() => this._carregando.set(false)),
     );
   }
 
-  remover(id: number): void {
-    this._baias.update((lista) => lista.filter((b) => b.id !== id));
+  /** POST /api/baias */
+  criar(dados: DadosBaia): Observable<Baia> {
+    return this.http
+      .post<Baia>(this.baseUrl, dados)
+      .pipe(tap((nova) => this._baias.update((lista) => [...lista, nova])));
   }
 
-  private horaAtual(): string {
-    return new Intl.DateTimeFormat('pt-BR', { hour: '2-digit', minute: '2-digit' }).format(new Date());
+  /** PUT /api/baias/{id} */
+  atualizar(id: string, dados: DadosBaia): Observable<Baia> {
+    return this.http
+      .put<Baia>(`${this.baseUrl}/${id}`, dados)
+      .pipe(tap((atualizada) => this.substituir(atualizada)));
+  }
+
+  /** PATCH /api/baias/{id}/desativar — o back-end não apaga baias, só arquiva. */
+  desativar(id: string): Observable<Baia> {
+    return this.http
+      .patch<Baia>(`${this.baseUrl}/${id}/desativar`, null)
+      .pipe(tap((desativada) => this.substituir(desativada)));
+  }
+
+  /** Traduz o erro HTTP em uma mensagem amigável para exibir na tela. */
+  mensagemDeErro(e: HttpErrorResponse): string {
+    const corpo = e.error as Partial<ErroApi> | null;
+    switch (e.status) {
+      case 0:
+        return 'Não foi possível conectar ao servidor de baias. Verifique se a API está no ar.';
+      case 401:
+        return 'Sua sessão expirou. Entre novamente.';
+      case 403:
+        return 'Apenas administradores podem alterar baias.';
+      case 400: {
+        const campos = corpo?.campos ? Object.entries(corpo.campos) : [];
+        if (campos.length) {
+          return campos.map(([campo, msg]) => `${campo}: ${msg}`).join(' · ');
+        }
+        return corpo?.mensagem ?? 'Dados inválidos.';
+      }
+      case 404:
+      case 409:
+      case 422:
+        return corpo?.mensagem ?? 'Não foi possível salvar a baia.';
+      default:
+        return 'Algo deu errado. Tente novamente.';
+    }
+  }
+
+  private substituir(baia: Baia): void {
+    this._baias.update((lista) => lista.map((b) => (b.id === baia.id ? baia : b)));
   }
 }

@@ -1,14 +1,25 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  afterNextRender,
+  computed,
+  inject,
+  signal,
+} from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
+import { Router } from '@angular/router';
+import { Observable } from 'rxjs';
 import { AppShellComponent } from '../../shared/app-shell/app-shell.component';
+import { AuthService } from '../../core/services/auth.service';
 import { BaiaCardComponent } from './baia-card/baia-card.component';
 import { BaiaDialogoComponent } from './baia-dialogo/baia-dialogo.component';
 import { BaiaService } from './baia.service';
-import { Baia, DadosBaia, TipoBaia } from './baia.model';
+import { Baia, DadosBaia, LIMITE_BAIAS, TipoBaia } from './baia.model';
 
 const SECOES: { tipo: TipoBaia; titulo: string }[] = [
-  { tipo: 'padrao', titulo: 'Baias' },
-  { tipo: 'ninhada', titulo: 'Baia de Ninhada' },
-  { tipo: 'coletiva', titulo: 'Baia Coletiva' },
+  { tipo: 'ISOLAMENTO', titulo: 'Baias de Isolamento' },
+  { tipo: 'COLETIVA', titulo: 'Baias Coletivas' },
+  { tipo: 'NINHADA', titulo: 'Baias de Ninhada' },
 ];
 
 /** Atalho de serviço mostrado no topo da tela. O ícone é uma classe do bootstrap-icons. */
@@ -20,8 +31,9 @@ interface Servico {
 /**
  * CadastroBaiasPaginaComponent
  * ----------------------------
- * Componente de ROTA do painel de baias. Busca os dados no BaiaService,
- * agrupa por tipo, monta os cards e controla o diálogo de cadastro/edição.
+ * Componente de ROTA do painel de baias. Busca os dados no BaiaService
+ * (API ms-cadastro-baias), agrupa por tipo, monta os cards e controla o
+ * diálogo de cadastro/edição. Só administradores podem cadastrar/editar.
  * A moldura (sidebar, cabeçalho, tema) vem do AppShellComponent compartilhado.
  */
 @Component({
@@ -34,12 +46,26 @@ interface Servico {
 })
 export class CadastroBaiasPaginaComponent {
   private readonly baiaService = inject(BaiaService);
+  private readonly auth = inject(AuthService);
+  private readonly router = inject(Router);
 
   protected readonly baias = this.baiaService.baias;
+  protected readonly carregando = this.baiaService.carregando;
   protected readonly dataHoje = this.formatarData(new Date());
+  protected readonly limite = LIMITE_BAIAS;
+
+  /** Só o ADMIN pode criar/editar/desativar (regra do back-end). */
+  protected readonly podeEditar = computed(() => this.auth.temRole(['ROLE_ADMIN']));
+  /** O back-end conta todas as baias (inclusive inativas) no limite. */
+  protected readonly limiteAtingido = computed(() => this.baias().length >= LIMITE_BAIAS);
+
+  /** Erro ao carregar a lista. */
+  protected readonly erroLista = signal<string | null>(null);
 
   /** `null` = diálogo fechado. `{ baia: null }` = nova baia. `{ baia }` = edição. */
   protected readonly dialogo = signal<{ baia: Baia | null } | null>(null);
+  protected readonly salvando = signal(false);
+  protected readonly erroDialogo = signal<string | null>(null);
 
   protected readonly servicos: Servico[] = [
     { nome: 'Agendamento', icone: 'bi-calendar-check' },
@@ -51,16 +77,35 @@ export class CadastroBaiasPaginaComponent {
     const todas = this.baias();
     return SECOES.map((s) => ({
       ...s,
-      baias: todas.filter((b) => b.tipo === s.tipo).sort((a, b) => a.numero - b.numero),
+      baias: todas
+        .filter((b) => b.tipo === s.tipo)
+        .sort((a, b) => Number(b.ativo) - Number(a.ativo) || a.nome.localeCompare(b.nome, 'pt-BR', { numeric: true })),
     })).filter((g) => g.baias.length > 0);
   });
 
+  constructor() {
+    // Só no navegador: no SSR não há token (localStorage) nem proxy para /api.
+    afterNextRender(() => this.recarregar());
+  }
+
+  protected recarregar(): void {
+    this.erroLista.set(null);
+    this.baiaService.carregar().subscribe({
+      error: (e: HttpErrorResponse) => {
+        if (this.sessaoExpirou(e)) return;
+        this.erroLista.set(this.baiaService.mensagemDeErro(e));
+      },
+    });
+  }
+
   protected novaBaia(): void {
-    this.dialogo.set({ baia: null });
+    this.abrirDialogo(null);
   }
 
   protected editarBaia(baia: Baia): void {
-    this.dialogo.set({ baia });
+    if (this.podeEditar()) {
+      this.abrirDialogo(baia);
+    }
   }
 
   protected fecharDialogo(): void {
@@ -69,20 +114,47 @@ export class CadastroBaiasPaginaComponent {
 
   protected salvar(dados: DadosBaia): void {
     const atual = this.dialogo()?.baia;
-    if (atual) {
-      this.baiaService.atualizar(atual.id, dados);
-    } else {
-      this.baiaService.adicionar(dados);
-    }
-    this.dialogo.set(null);
+    this.executar(
+      atual ? this.baiaService.atualizar(atual.id, dados) : this.baiaService.criar(dados),
+    );
   }
 
-  protected remover(): void {
+  protected desativar(): void {
     const atual = this.dialogo()?.baia;
     if (atual) {
-      this.baiaService.remover(atual.id);
+      this.executar(this.baiaService.desativar(atual.id));
     }
-    this.dialogo.set(null);
+  }
+
+  private abrirDialogo(baia: Baia | null): void {
+    this.erroDialogo.set(null);
+    this.salvando.set(false);
+    this.dialogo.set({ baia });
+  }
+
+  /** Roda uma escrita na API: fecha o diálogo no sucesso, mostra o erro na falha. */
+  private executar(chamada: Observable<Baia>): void {
+    this.salvando.set(true);
+    this.erroDialogo.set(null);
+    chamada.subscribe({
+      next: () => {
+        this.salvando.set(false);
+        this.dialogo.set(null);
+      },
+      error: (e: HttpErrorResponse) => {
+        this.salvando.set(false);
+        if (this.sessaoExpirou(e)) return;
+        this.erroDialogo.set(this.baiaService.mensagemDeErro(e));
+      },
+    });
+  }
+
+  /** 401 = token ausente/expirado: limpa a sessão e volta para o login. */
+  private sessaoExpirou(e: HttpErrorResponse): boolean {
+    if (e.status !== 401) return false;
+    this.auth.logout();
+    this.router.navigateByUrl('/login');
+    return true;
   }
 
   private formatarData(data: Date): string {

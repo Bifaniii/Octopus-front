@@ -13,6 +13,11 @@
       </button>
     </header>
 
+    <label class="campo">
+      <span class="campo__rotulo">Nome</span>
+      <input type="text" formControlName="nome" maxlength="25" placeholder="Ex.: Baia 01" autofocus />
+    </label>
+
     <div class="linha">
       <label class="campo">
         <span class="campo__rotulo">Tipo</span>
@@ -24,51 +29,34 @@
       </label>
 
       <label class="campo campo--numero">
-        <span class="campo__rotulo">Número</span>
-        <input type="number" min="1" step="1" formControlName="numero" autofocus />
+        <span class="campo__rotulo">Capacidade</span>
+        <input type="number" min="1" [max]="capacidadeMaxima()" step="1" formControlName="capacidade" />
       </label>
     </div>
 
-    <fieldset class="campo">
-      <legend class="campo__rotulo">Situação</legend>
-      <div class="opcoes">
-        <label class="opcao">
-          <input type="radio" formControlName="status" value="livre" (change)="ocupada.set(false)" />
-          Livre
-        </label>
-        <label class="opcao">
-          <input type="radio" formControlName="status" value="ocupada" (change)="ocupada.set(true)" />
-          Ocupada
-        </label>
-      </div>
-    </fieldset>
+    <label class="campo">
+      <span class="campo__rotulo">Descrição (opcional)</span>
+      <input type="text" formControlName="descricao" maxlength="255" placeholder="Ex.: Próxima à sala de cirurgia" />
+    </label>
 
-    @if (ocupada()) {
-      <label class="campo">
-        <span class="campo__rotulo">Animal e atendimento</span>
-        <input type="text" formControlName="descricao" placeholder="Ex.: Rex · Consulta em andamento" />
-      </label>
-
-      <label class="campo">
-        <span class="campo__rotulo">Responsável ou observação</span>
-        <input type="text" formControlName="detalhe" placeholder="Ex.: Dra. Ana" />
-      </label>
-    }
-
-    @if (erro(); as mensagem) {
+    @if (erro() ?? erroApi; as mensagem) {
       <p class="erro" role="alert">{{ mensagem }}</p>
     }
 
     <footer class="form__rodape">
-      @if (editando) {
-        <button type="button" class="botao botao--perigo" (click)="pedirRemocao()">
-          {{ confirmandoRemocao() ? 'Confirmar remoção' : 'Remover baia' }}
+      @if (editando && baia?.ativo) {
+        <button type="button" class="botao botao--perigo" [disabled]="salvando" (click)="pedirDesativacao()">
+          {{ confirmandoDesativacao() ? 'Confirmar desativação' : 'Desativar baia' }}
         </button>
       }
       <span class="espaco"></span>
       <button type="button" class="botao" (click)="fecharDialogo()">Cancelar</button>
-      <button type="submit" class="botao botao--primario">
-        {{ editando ? 'Salvar alterações' : 'Cadastrar baia' }}
+      <button type="submit" class="botao botao--primario" [disabled]="salvando">
+        @if (salvando) {
+          Salvando...
+        } @else {
+          {{ editando ? 'Salvar alterações' : 'Cadastrar baia' }}
+        }
       </button>
     </footer>
   </form>

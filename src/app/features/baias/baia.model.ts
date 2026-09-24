@@ -1,32 +1,54 @@
-export type TipoBaia = 'padrao' | 'ninhada' | 'coletiva';
-export type StatusBaia = 'livre' | 'ocupada';
+/**
+ * Modelos de baia — espelham o contrato do microserviço ms-cadastro-baias
+ * (BaiaRequest / BaiaResponse, endpoints em /api/baias).
+ *
+ * A ocupação (livre/ocupada) ainda não existe no back-end: ela será tratada
+ * na internação (Sprint 2). Aqui é só o cadastro.
+ */
 
+/** Tipos de baia, exatamente como o enum `Tipo` do back-end. */
+export type TipoBaia = 'ISOLAMENTO' | 'COLETIVA' | 'NINHADA';
+
+/** Resposta de GET/POST/PUT/PATCH em /api/baias. */
 export interface Baia {
-  id: number;
-  numero: number;
+  id: string; // UUID
   tipo: TipoBaia;
-  status: StatusBaia;
-  /** Linha abaixo do título. Ex.: "Rex · Consulta em andamento" */
-  descricao?: string;
-  /** Responsável ou observação. Ex.: "Dra. Ana" */
-  detalhe?: string;
-  /** Hora em que a baia foi ocupada (HH:MM). Preenchida automaticamente. */
-  desde?: string;
+  nome: string;
+  descricao: string | null;
+  capacidade: number;
+  ativo: boolean;
 }
 
-/** Dados que o formulário envia ao cadastrar ou editar uma baia. */
-export type DadosBaia = Omit<Baia, 'id' | 'desde'>;
+/** Corpo enviado no POST e no PUT /api/baias. */
+export interface DadosBaia {
+  tipo: TipoBaia;
+  nome: string;
+  descricao: string | null;
+  capacidade: number;
+}
 
-/** Prefixo do título do card. Ex.: "Baia 01" */
-export const ROTULO_POR_TIPO: Record<TipoBaia, string> = {
-  padrao: 'Baia',
-  ninhada: 'Ninhada',
-  coletiva: 'Coletiva',
-};
+/** Corpo de erro padrão do back-end (ErroResponse). */
+export interface ErroApi {
+  status: number;
+  erro: string;
+  mensagem: string;
+  path: string;
+  campos: Record<string, string> | null;
+}
 
-/** Nome do tipo no formulário. */
+/** Nome do tipo exibido na tela. */
 export const NOME_POR_TIPO: Record<TipoBaia, string> = {
-  padrao: 'Baia comum',
-  ninhada: 'Baia de ninhada',
-  coletiva: 'Baia coletiva',
+  ISOLAMENTO: 'Isolamento',
+  COLETIVA: 'Coletiva',
+  NINHADA: 'Ninhada',
 };
+
+/** Capacidade máxima por tipo (mesma regra do enum `Tipo` do back-end). */
+export const CAPACIDADE_MAXIMA: Record<TipoBaia, number> = {
+  ISOLAMENTO: 1,
+  COLETIVA: 6,
+  NINHADA: 6,
+};
+
+/** A clínica tem no máximo 12 baias (regra LIMITE_BAIAS do back-end). */
+export const LIMITE_BAIAS = 12;

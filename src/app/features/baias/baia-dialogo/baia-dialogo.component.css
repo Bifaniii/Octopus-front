@@ -50,9 +50,6 @@ input:focus-visible,
 select:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 1px; }
 select:disabled { opacity: 0.6; }
 
-.opcoes { display: flex; gap: 1.25rem; }
-.opcao { display: inline-flex; align-items: center; gap: 0.4rem; font-size: 0.9rem; cursor: pointer; }
-
 .erro {
   margin: 0;
   padding: 0.6rem 0.8rem;
@@ -78,6 +75,7 @@ select:disabled { opacity: 0.6; }
   cursor: pointer;
 }
 .botao:hover { background: var(--color-bg); }
+.botao:disabled { opacity: 0.6; cursor: default; }
 .botao:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 2px; }
 .botao--primario { background: var(--color-primary); border-color: var(--color-primary); color: var(--color-text-on-primary); }
 .botao--primario:hover { background: var(--color-primary-strong); }
