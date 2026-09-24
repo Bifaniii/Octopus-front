@@ -36,3 +36,26 @@ export const NOME_POR_ESQUEMA: Record<TipoEsquema, string> = {
   CONTINUO: 'Uso contínuo',
   SINTOMATICO: 'Sintomático',
 };
+
+/** Corpo de POST /api/medicacoes (MedicacaoRequest no back-end). */
+export interface DadosMedicacao {
+  nomeComercial: string;
+  principioAtivo: string;
+  concentracao: string;
+  formaFarmaceutica: string;
+  unidadeMedidaEmbalagem: string;
+  tipoEsquema: TipoEsquema;
+  dataVencimento: string; // LocalDateTime sem fuso, ex.: "2027-03-01T00:00:00"
+  fabricante: string;
+  numeroRegistroAnvisa: string; // exatamente 11 dígitos
+  interacoesProibidas: string[]; // ids das medicações
+}
+
+/** Corpo de erro do back-end (ErroResponse). */
+export interface ErroApi {
+  status: number;
+  erro: string;
+  mensagem: string;
+  path: string;
+  campos: Record<string, string> | null;
+}

@@ -57,7 +57,9 @@ export class CadastroBaiasPaginaComponent {
   /** Só o ADMIN pode criar/editar/desativar (regra do back-end). */
   protected readonly podeEditar = computed(() => this.auth.temRole(['ROLE_ADMIN']));
   /** O back-end conta todas as baias (inclusive inativas) no limite. */
-  protected readonly limiteAtingido = computed(() => this.baias().length >= LIMITE_BAIAS);
+  protected readonly limiteAtingido = computed(
+    () => this.baias().filter((b) => b.ativo).length >= LIMITE_BAIAS,
+  );
 
   /** Erro ao carregar a lista. */
   protected readonly erroLista = signal<string | null>(null);
@@ -123,6 +125,13 @@ export class CadastroBaiasPaginaComponent {
     const atual = this.dialogo()?.baia;
     if (atual) {
       this.executar(this.baiaService.desativar(atual.id));
+    }
+  }
+
+  protected reativar(): void {
+    const atual = this.dialogo()?.baia;
+    if (atual) {
+      this.executar(this.baiaService.ativar(atual.id));
     }
   }
 

@@ -10,8 +10,9 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { AppShellComponent } from '../../shared/app-shell/app-shell.component';
 import { AuthService } from '../../core/services/auth.service';
+import { MedicacaoDialogoComponent } from './medicacao-dialogo/medicacao-dialogo.component';
 import { MedicacaoService } from './medicacao.service';
-import { Medicacao, NOME_POR_ESQUEMA } from './medicacao.model';
+import { DadosMedicacao, Medicacao, NOME_POR_ESQUEMA } from './medicacao.model';
 
 /** Situação da validade, controla a cor da etiqueta — ver CSS. */
 type SituacaoValidade = 'ok' | 'proxima' | 'vencido';
@@ -41,7 +42,7 @@ const UM_DIA_MS = 24 * 60 * 60 * 1000;
 @Component({
   selector: 'app-medication',
   standalone: true,
-  imports: [AppShellComponent],
+  imports: [AppShellComponent, MedicacaoDialogoComponent],
   templateUrl: './medication.component.html',
   styleUrl: './medication.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -54,9 +55,13 @@ export class MedicationComponent {
   protected readonly dataHoje = this.formatarDataExtenso(new Date());
 
   private readonly medicacoes = signal<MedicacaoExibida[]>([]);
+  protected readonly catalogo = this.medicacoes.asReadonly();
+  protected readonly dialogoAberto = signal(false);
+  protected readonly salvando = signal(false);
+  protected readonly erroDialogo = signal<string | null>(null);
   protected readonly carregando = signal(false);
   protected readonly erro = signal<string | null>(null);
-
+  protected readonly podeCadastrar = computed(() => this.auth.temRole(['ROLE_ADMIN', 'ROLE_VETERINARIO']));
   protected readonly busca = signal('');
   protected readonly mostrarInativos = signal(false);
 
@@ -104,6 +109,38 @@ export class MedicationComponent {
             ? 'Não foi possível conectar ao servidor de medicamentos. Verifique se a API está no ar.'
             : 'Não foi possível carregar os medicamentos. Tente novamente.',
         );
+      },
+    });
+  }
+
+  protected novoMedicamento(): void {
+    this.erroDialogo.set(null);
+    this.salvando.set(false);
+    this.dialogoAberto.set(true);
+  }
+
+  protected fecharDialogo(): void {
+    this.dialogoAberto.set(false);
+  }
+
+  protected salvar(dados: DadosMedicacao): void {
+    this.salvando.set(true);
+    this.erroDialogo.set(null);
+    this.medicacaoService.criar(dados).subscribe({
+      next: () => {
+        this.salvando.set(false);
+        this.dialogoAberto.set(false);
+        // Recarrega tudo: as interações são gravadas nos dois sentidos, então os outros cards também mudam.
+        this.recarregar();
+      },
+      error: (e: HttpErrorResponse) => {
+        this.salvando.set(false);
+        if (e.status === 401) {
+          this.auth.logout();
+          this.router.navigateByUrl('/login');
+          return;
+        }
+        this.erroDialogo.set(this.medicacaoService.mensagemDeErro(e));
       },
     });
   }

@@ -39,9 +39,12 @@ export class BaiaDialogoComponent implements OnInit, AfterViewInit {
   @Input() salvando = false;
   /** Mensagem de erro vinda da API (ex.: nome duplicado, limite atingido). */
   @Input() erroApi: string | null = null;
+  @Input() podeReativar = true;
+  @Input() limite = 12;
 
   @Output() salvar = new EventEmitter<DadosBaia>();
   @Output() desativar = new EventEmitter<void>();
+   @Output() reativar = new EventEmitter<void>();
   @Output() fechar = new EventEmitter<void>();
 
   @ViewChild('dialogo', { static: true }) private dialogo!: ElementRef<HTMLDialogElement>;
