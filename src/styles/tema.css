@@ -32,6 +32,14 @@
   --radius-md: 10px;
   --radius-lg: 14px;
 
+  /* Status semânticos (livre/ocupada, sucesso/erro) — squad baias */
+  --color-success: #16a34a;
+  --color-success-soft: #dcfce7;
+  --color-success-border: #bbf7d0;
+  --color-danger: #dc2626;
+  --color-danger-soft: #fee2e2;
+  --color-danger-border: #fecaca;
+
   color-scheme: light;
 }
 
@@ -55,6 +63,14 @@ html.dark-theme {
   --color-border-strong: #3b82f6;
 
   --shadow-primary: 0 8px 20px -6px rgba(59, 130, 246, 0.55);
+
+  /* Status semânticos (livre/ocupada, sucesso/erro) — squad baias */
+  --color-success: #4ade80;
+  --color-success-soft: #0f2a1a;
+  --color-success-border: #14532d;
+  --color-danger: #f87171;
+  --color-danger-soft: #2a1515;
+  --color-danger-border: #7f1d1d;
 
   color-scheme: dark;
 }

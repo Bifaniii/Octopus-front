@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { authGuard } from './core/guards/auth.guard';
 
 /**
  * Rotas raiz da aplicação.
@@ -21,22 +22,31 @@ export const routes: Routes = [
       ),
   },
 
+  {
+    path: 'baias',
+   // canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/baias/cadastro-baias-pagina.component').then(
+        (m) => m.CadastroBaiasPaginaComponent,
+      ),
+  },
+
+  {
+    path: 'registro-medicamentos',
+    // canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/medication/medication.component').then(
+        (m) => m.MedicationComponent,
+      ),
+  },
+
   // ──────────────────────────────────────────────────────────────
   // EXEMPLOS de features futuras — descomente ao criar cada pasta.
   //
-  // import { authGuard } from './core/guards/auth.guard';
   // import { permissaoGuard } from './core/guards/permissao.guard';
   //
   // {
-  //   path: 'baias',                          
-  //   canActivate: [authGuard],
-  //   data: {roles: ['ROLE']},
-  //   loadComponent: () =>
-  //     import('./features/baias/cadastro-baia/cadastro-baia.component')
-  //       .then((m) => m.CadastroBaiaComponent),
-  // },
-  // {
-  //   path: 'painel',                        
+  //   path: 'painel',
   //   canActivate: [authGuard, permissaoGuard],
   //   data: { roles: ['ROLE'] },
   //   loadComponent: () =>

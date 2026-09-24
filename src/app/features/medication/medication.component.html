@@ -1,0 +1,123 @@
+<app-shell titulo="Medicamentos" [subtitulo]="dataHoje" itemAtivo="medicamentos">
+  <div class="medicamentos__topo">
+    <h2>
+      Catálogo de medicamentos
+      @if (!carregando() && !erro()) {
+        <span class="medicamentos__contagem">{{ totalAtivos() }} ativos</span>
+      }
+    </h2>
+
+    <div class="medicamentos__filtros">
+      <label class="medicamentos__busca">
+        <i class="bi bi-search" aria-hidden="true"></i>
+        <input
+          type="search"
+          placeholder="Buscar por nome, princípio ativo ou fabricante"
+          aria-label="Buscar medicamento"
+          [value]="busca()"
+          (input)="aoBuscar($event)"
+        />
+      </label>
+
+      @if (podeCadastrar()) {
+        <button type="button" class="botao-novo" (click)="novoMedicamento()">
+          <i class="bi bi-plus-lg"></i>
+          Novo medicamento
+        </button>
+      }
+
+      <label class="medicamentos__inativos">
+        <input type="checkbox" [checked]="mostrarInativos()" (change)="aoAlternarInativos($event)" />
+        Mostrar inativos
+      </label>
+    </div>
+  </div>
+
+  @if (erro(); as mensagem) {
+    <div class="aviso aviso--erro" role="alert">
+      <span>{{ mensagem }}</span>
+      <button type="button" class="aviso__acao" (click)="recarregar()">Tentar novamente</button>
+    </div>
+  } @else if (carregando()) {
+    <p class="aviso">Carregando medicamentos...</p>
+  } @else if (filtradas().length === 0) {
+    <p class="aviso">
+      @if (busca()) {
+        Nenhum medicamento encontrado para "{{ busca() }}".
+      } @else {
+        Nenhum medicamento cadastrado.
+      }
+    </p>
+  }
+
+  <div class="medicamentos__lista">
+    @for (m of filtradas(); track m.id) {
+      <article class="medicamento-card" [class.medicamento-card--inativo]="!m.ativo">
+        <header class="medicamento-card__header">
+          <div>
+            <h3>{{ m.nomeComercial }} <span class="medicamento-card__concentracao">{{ m.concentracao }}</span></h3>
+            <p>{{ m.principioAtivo }}</p>
+          </div>
+          <div class="medicamento-card__etiquetas">
+            @if (!m.ativo) {
+              <span class="etiqueta etiqueta--inativo">Inativo</span>
+            }
+            <span [class]="'etiqueta etiqueta--' + m.tipoEsquema.toLowerCase()">{{ m.esquema }}</span>
+          </div>
+        </header>
+
+        <dl class="medicamento-card__dados">
+          <div>
+            <dt>Apresentação</dt>
+            <dd>{{ m.formaFarmaceutica }} · {{ m.unidadeMedidaEmbalagem }}</dd>
+          </div>
+          <div>
+            <dt>Fabricante</dt>
+            <dd>{{ m.fabricante }}</dd>
+          </div>
+          <div>
+            <dt>Registro ANVISA</dt>
+            <dd>{{ m.numeroRegistroAnvisa }}</dd>
+          </div>
+          <div>
+            <dt>Validade</dt>
+            <dd>
+              <span [class]="'validade validade--' + m.validade">
+                {{ m.vencimento }}
+                @if (m.validade === 'vencido') {
+                  · vencido
+                } @else if (m.validade === 'proxima') {
+                  · vence em breve
+                }
+              </span>
+            </dd>
+          </div>
+        </dl>
+
+        @if (m.interacoesProibidas.length) {
+          <div class="medicamento-card__interacoes">
+            <span class="medicamento-card__interacoes-titulo">
+              <i class="bi bi-exclamation-triangle" aria-hidden="true"></i>
+              Não associar com
+            </span>
+            <ul>
+              @for (i of m.interacoesProibidas; track i.id) {
+                <li [attr.title]="i.principioAtivo">{{ i.nomeComercial }}</li>
+              }
+            </ul>
+          </div>
+        }
+      </article>
+    }
+  </div>
+</app-shell>
+
+@if (dialogoAberto()) {
+  <app-medicacao-dialogo
+    [medicacoes]="catalogo()"
+    [salvando]="salvando()"
+    [erroApi]="erroDialogo()"
+    (salvar)="salvar($event)"
+    (fechar)="fecharDialogo()"
+  />
+}

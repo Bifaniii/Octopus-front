@@ -1,0 +1,17 @@
+<button
+  type="button"
+  class="card"
+  [class.card--ativa]="baia.ativo"
+  [class.card--inativa]="!baia.ativo"
+  [disabled]="!editavel"
+  [attr.title]="editavel ? 'Editar ' + baia.nome : baia.nome"
+  (click)="selecionar.emit(baia)"
+>
+  <span class="card__topo">
+    <span class="card__titulo">{{ baia.nome }}</span>
+    <span class="selo">{{ baia.ativo ? 'Ativa' : 'Inativa' }}</span>
+  </span>
+
+  <span class="card__descricao">{{ baia.descricao || 'Sem descrição' }}</span>
+  <span class="card__detalhe">{{ rodape }}</span>
+</button>

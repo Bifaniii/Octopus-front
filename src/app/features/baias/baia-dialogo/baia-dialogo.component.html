@@ -1,0 +1,82 @@
+<dialog
+  #dialogo
+  class="dialogo"
+  aria-labelledby="dialogo-titulo"
+  (close)="fechar.emit()"
+  (click)="aoClicarFora($event)"
+>
+  <form class="form" [formGroup]="form" (ngSubmit)="enviar()">
+    <header class="form__topo">
+      <h2 id="dialogo-titulo" class="form__titulo">{{ titulo }}</h2>
+      <button type="button" class="fechar" aria-label="Fechar" (click)="fecharDialogo()">
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </header>
+
+    <label class="campo">
+      <span class="campo__rotulo">Nome</span>
+      <input type="text" formControlName="nome" maxlength="25" placeholder="Ex.: Baia 01" autofocus />
+    </label>
+
+    <div class="linha">
+      <label class="campo">
+        <span class="campo__rotulo">Tipo</span>
+        <select formControlName="tipo" (change)="aoMudarTipo()">
+          @for (t of tipos; track t.valor) {
+            <option [value]="t.valor">{{ t.nome }}</option>
+          }
+        </select>
+      </label>
+
+      <label class="campo campo--numero">
+        <span class="campo__rotulo">Capacidade</span>
+        <input type="number" min="1" [max]="capacidadeMaxima()" step="1" formControlName="capacidade" />
+      </label>
+    </div>
+
+    <label class="campo">
+      <span class="campo__rotulo">Descrição (opcional)</span>
+      <input type="text" formControlName="descricao" maxlength="255" placeholder="Ex.: Próxima à sala de cirurgia" />
+    </label>
+
+    @if (editando && !baia?.ativo && !podeReativar) {
+      <p class="aviso-limite" role="status">
+        Esta baia está inativa e já existem {{ limite }} baias ativas. Desative outra para liberar a vaga.
+      </p>
+    }
+
+    @if (erro() ?? erroApi; as mensagem) {
+      <p class="erro" role="alert">{{ mensagem }}</p>
+    }
+
+    <footer class="form__rodape">
+      @if (editando && baia?.ativo) {
+        <button type="button" class="botao botao--perigo" [disabled]="salvando" (click)="pedirDesativacao()">
+          {{ confirmandoDesativacao() ? 'Confirmar desativação' : 'Desativar baia' }}
+        </button>
+      }
+
+      @if (editando && !baia?.ativo) {
+        <button
+          type="button"
+          class="botao botao--sucesso"
+          [disabled]="salvando || !podeReativar"
+          [attr.title]="podeReativar ? null : 'Limite de ' + limite + ' baias ativas atingido'"
+          (click)="reativar.emit()"
+        >
+          Reativar baia
+        </button>
+      }
+
+      <span class="espaco"></span>
+      <button type="button" class="botao" (click)="fecharDialogo()">Cancelar</button>
+      <button type="submit" class="botao botao--primario" [disabled]="salvando">
+        @if (salvando) {
+          Salvando...
+        } @else {
+          {{ editando ? 'Salvar alterações' : 'Cadastrar baia' }}
+        }
+      </button>
+    </footer>
+  </form>
+</dialog>
