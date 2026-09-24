@@ -1,0 +1,13 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist/clinica-pet/browser",
+  "rewrites": [
+    { "source": "/api/medicacoes/:path*", "destination": "http://18.231.156.129:8082/api/medicacoes/:path*" },
+    { "source": "/api/medicacoes", "destination": "http://18.231.156.129:8082/api/medicacoes" },
+    { "source": "/api/baias/:path*", "destination": "http://18.231.156.129:8081/api/baias/:path*" },
+    { "source": "/api/baias", "destination": "http://18.231.156.129:8081/api/baias" },
+    { "source": "/api/:path*", "destination": "http://18.231.156.129:8080/api/:path*" },
+    { "source": "/((?!api/).*)", "destination": "/index.html" }
+  ]
+}
