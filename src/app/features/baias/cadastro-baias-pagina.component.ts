@@ -71,8 +71,7 @@ export class CadastroBaiasPaginaComponent {
 
   protected readonly servicos: Servico[] = [
     { nome: 'Agendamento', icone: 'bi-calendar-check' },
-    { nome: 'Prontuários', icone: 'bi-clipboard2-check' },
-    { nome: 'Estoque', icone: 'bi-box-seam' },
+    { nome: 'Prontuários', icone: 'bi-clipboard2-check' }
   ];
 
   protected readonly grupos = computed(() => {
