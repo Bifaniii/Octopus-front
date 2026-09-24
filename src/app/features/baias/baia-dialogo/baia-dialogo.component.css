@@ -45,6 +45,7 @@ select {
   color: var(--color-text);
   font: inherit;
   font-size: 0.9rem;
+  box-sizing: border-box;
 }
 input:focus-visible,
 select:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 1px; }
@@ -73,6 +74,7 @@ select:disabled { opacity: 0.6; }
   font-size: 0.85rem;
   font-weight: 600;
   cursor: pointer;
+  white-space: nowrap;
 }
 .botao:hover { background: var(--color-bg); }
 .botao:disabled { opacity: 0.6; cursor: default; }
@@ -80,3 +82,14 @@ select:disabled { opacity: 0.6; }
 .botao--primario { background: var(--color-primary); border-color: var(--color-primary); color: var(--color-text-on-primary); }
 .botao--primario:hover { background: var(--color-primary-strong); }
 .botao--perigo { color: var(--color-danger); border-color: var(--color-danger-border); }
+.botao--sucesso { color: var(--color-success); border-color: var(--color-success-border); }
+
+.aviso-limite {
+  margin: 0;
+  padding: 0.6rem 0.8rem;
+  border-radius: var(--radius-md);
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+  background: var(--color-bg);
+  border: 1px dashed var(--color-border);
+}

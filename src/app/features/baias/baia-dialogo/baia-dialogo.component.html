@@ -39,6 +39,12 @@
       <input type="text" formControlName="descricao" maxlength="255" placeholder="Ex.: Próxima à sala de cirurgia" />
     </label>
 
+    @if (editando && !baia?.ativo && !podeReativar) {
+      <p class="aviso-limite" role="status">
+        Esta baia está inativa e já existem {{ limite }} baias ativas. Desative outra para liberar a vaga.
+      </p>
+    }
+
     @if (erro() ?? erroApi; as mensagem) {
       <p class="erro" role="alert">{{ mensagem }}</p>
     }
@@ -49,6 +55,19 @@
           {{ confirmandoDesativacao() ? 'Confirmar desativação' : 'Desativar baia' }}
         </button>
       }
+
+      @if (editando && !baia?.ativo) {
+        <button
+          type="button"
+          class="botao botao--sucesso"
+          [disabled]="salvando || !podeReativar"
+          [attr.title]="podeReativar ? null : 'Limite de ' + limite + ' baias ativas atingido'"
+          (click)="reativar.emit()"
+        >
+          Reativar baia
+        </button>
+      }
+
       <span class="espaco"></span>
       <button type="button" class="botao" (click)="fecharDialogo()">Cancelar</button>
       <button type="submit" class="botao botao--primario" [disabled]="salvando">

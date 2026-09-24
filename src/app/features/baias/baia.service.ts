@@ -54,6 +54,13 @@ export class BaiaService {
       .pipe(tap((desativada) => this.substituir(desativada)));
   }
 
+  /** PATCH /api/baias/{id}/ativar — o back-end recusa (422) se já houver 12 baias ativas. */
+  ativar(id: string): Observable<Baia> {
+    return this.http
+      .patch<Baia>(`${this.baseUrl}/${id}/ativar`, null)
+      .pipe(tap((ativada) => this.substituir(ativada)));
+  }
+
   /** Traduz o erro HTTP em uma mensagem amigável para exibir na tela. */
   mensagemDeErro(e: HttpErrorResponse): string {
     const corpo = e.error as Partial<ErroApi> | null;

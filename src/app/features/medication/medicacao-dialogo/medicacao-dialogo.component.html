@@ -1,0 +1,101 @@
+<dialog
+  #dialogo
+  class="dialogo"
+  aria-labelledby="dialogo-titulo"
+  (close)="fechar.emit()"
+  (click)="aoClicarFora($event)"
+>
+  <form class="form" [formGroup]="form" (ngSubmit)="enviar()">
+    <header class="form__topo">
+      <h2 id="dialogo-titulo" class="form__titulo">Novo medicamento</h2>
+      <button type="button" class="fechar" aria-label="Fechar" (click)="fecharDialogo()">
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </header>
+
+    <div class="linha">
+      <label class="campo">
+        <span class="campo__rotulo">Nome comercial</span>
+        <input type="text" formControlName="nomeComercial" maxlength="100" placeholder="Ex.: Dipirona" autofocus />
+      </label>
+      <label class="campo campo--curto">
+        <span class="campo__rotulo">Concentração</span>
+        <input type="text" formControlName="concentracao" maxlength="50" placeholder="Ex.: 500mg" />
+      </label>
+    </div>
+
+    <label class="campo">
+      <span class="campo__rotulo">Princípio ativo</span>
+      <input type="text" formControlName="principioAtivo" maxlength="200" placeholder="Ex.: Dipirona monoidratada" />
+    </label>
+
+    <div class="linha">
+      <label class="campo">
+        <span class="campo__rotulo">Forma farmacêutica</span>
+        <input type="text" formControlName="formaFarmaceutica" maxlength="50" placeholder="Ex.: Comprimido" />
+      </label>
+      <label class="campo campo--curto">
+        <span class="campo__rotulo">Unidade</span>
+        <input type="text" formControlName="unidadeMedidaEmbalagem" maxlength="20" placeholder="Ex.: mg" />
+      </label>
+    </div>
+
+    <div class="linha">
+      <label class="campo">
+        <span class="campo__rotulo">Esquema</span>
+        <select formControlName="tipoEsquema">
+          @for (e of esquemas; track e.valor) {
+            <option [value]="e.valor">{{ e.nome }}</option>
+          }
+        </select>
+      </label>
+      <label class="campo">
+        <span class="campo__rotulo">Vencimento</span>
+        <input type="date" formControlName="dataVencimento" [min]="amanha" />
+      </label>
+    </div>
+
+    <div class="linha">
+      <label class="campo">
+        <span class="campo__rotulo">Fabricante</span>
+        <input type="text" formControlName="fabricante" maxlength="255" placeholder="Ex.: EMS" />
+      </label>
+      <label class="campo">
+        <span class="campo__rotulo">Registro ANVISA</span>
+        <input
+          type="text"
+          formControlName="numeroRegistroAnvisa"
+          inputmode="numeric"
+          maxlength="11"
+          placeholder="11 dígitos"
+        />
+      </label>
+    </div>
+
+    @if (ativas.length) {
+      <fieldset class="campo">
+        <legend class="campo__rotulo">Interações proibidas (opcional)</legend>
+        <div class="interacoes">
+          @for (m of ativas; track m.id) {
+            <label class="interacao">
+              <input type="checkbox" [checked]="interacoes().has(m.id)" (change)="alternarInteracao(m.id, $event)" />
+              {{ m.nomeComercial }} <span class="interacao__detalhe">{{ m.concentracao }}</span>
+            </label>
+          }
+        </div>
+      </fieldset>
+    }
+
+    @if (erro() ?? erroApi; as mensagem) {
+      <p class="erro" role="alert">{{ mensagem }}</p>
+    }
+
+    <footer class="form__rodape">
+      <span class="espaco"></span>
+      <button type="button" class="botao" (click)="fecharDialogo()">Cancelar</button>
+      <button type="submit" class="botao botao--primario" [disabled]="salvando">
+        {{ salvando ? 'Salvando...' : 'Cadastrar medicamento' }}
+      </button>
+    </footer>
+  </form>
+</dialog>

@@ -2,7 +2,7 @@
   @if (podeEditar()) {
     <div class="acoes">
       @if (limiteAtingido()) {
-        <span class="acoes__aviso">Limite de {{ limite }} baias atingido</span>
+      <span class="acoes__aviso">Limite de {{ limite }} baias ativas atingido</span>
       }
       <button type="button" class="botao-novo" [disabled]="limiteAtingido()" (click)="novaBaia()">
         <i class="bi bi-plus-lg"></i>
@@ -58,13 +58,16 @@
 </app-shell>
 
 @if (dialogo(); as estado) {
-  <app-baia-dialogo
+    <app-baia-dialogo
     [baia]="estado.baia"
     [baias]="baias()"
     [salvando]="salvando()"
     [erroApi]="erroDialogo()"
+    [podeReativar]="!limiteAtingido()"   
+    [limite]="limite"                    
     (salvar)="salvar($event)"
     (desativar)="desativar()"
+    (reativar)="reativar()"              
     (fechar)="fecharDialogo()"
   />
 }

@@ -19,6 +19,13 @@
         />
       </label>
 
+      @if (podeCadastrar()) {
+        <button type="button" class="botao-novo" (click)="novoMedicamento()">
+          <i class="bi bi-plus-lg"></i>
+          Novo medicamento
+        </button>
+      }
+
       <label class="medicamentos__inativos">
         <input type="checkbox" [checked]="mostrarInativos()" (change)="aoAlternarInativos($event)" />
         Mostrar inativos
@@ -104,3 +111,13 @@
     }
   </div>
 </app-shell>
+
+@if (dialogoAberto()) {
+  <app-medicacao-dialogo
+    [medicacoes]="catalogo()"
+    [salvando]="salvando()"
+    [erroApi]="erroDialogo()"
+    (salvar)="salvar($event)"
+    (fechar)="fecharDialogo()"
+  />
+}

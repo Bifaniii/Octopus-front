@@ -1,6 +1,6 @@
 {
   "/api/medicacoes": {
-    "target": "http://localhost:8082",
+    "target": "http://***REMOVIDO***:443",
     "secure": false,
     "changeOrigin": true,
     "logLevel": "debug"
