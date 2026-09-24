@@ -1,0 +1,73 @@
+<app-shell titulo="Painel de baias" [subtitulo]="dataHoje" itemAtivo="baias">
+  @if (podeEditar()) {
+    <div class="acoes">
+      @if (limiteAtingido()) {
+      <span class="acoes__aviso">Limite de {{ limite }} baias ativas atingido</span>
+      }
+      <button type="button" class="botao-novo" [disabled]="limiteAtingido()" (click)="novaBaia()">
+        <i class="bi bi-plus-lg"></i>
+        Nova baia
+      </button>
+    </div>
+  }
+
+  <section class="secao">
+    <h2 class="secao__titulo">Serviços</h2>
+    <div class="grade">
+      @for (servico of servicos; track servico.nome) {
+        <button type="button" class="servico">
+          <span class="servico__icone"><i [class]="'bi ' + servico.icone"></i></span>
+          {{ servico.nome }}
+        </button>
+      }
+    </div>
+  </section>
+
+  @if (erroLista(); as mensagem) {
+    <div class="aviso aviso--erro" role="alert">
+      <span>{{ mensagem }}</span>
+      <button type="button" class="aviso__acao" (click)="recarregar()">Tentar novamente</button>
+    </div>
+  } @else if (carregando() && baias().length === 0) {
+    <p class="aviso">Carregando baias...</p>
+  } @else if (grupos().length === 0) {
+    <p class="aviso">
+      Nenhuma baia cadastrada ainda.
+      @if (podeEditar()) {
+        Use o botão "Nova baia" para cadastrar a primeira.
+      }
+    </p>
+  }
+
+  @for (grupo of grupos(); track grupo.tipo) {
+    <section class="secao">
+      <div class="secao__cabecalho">
+        <h2 class="secao__titulo">{{ grupo.titulo }}</h2>
+        <div class="legenda">
+          <span class="legenda__item legenda__item--ativa">Ativa</span>
+          <span class="legenda__item legenda__item--inativa">Inativa</span>
+        </div>
+      </div>
+      <div class="grade">
+        @for (baia of grupo.baias; track baia.id) {
+          <app-baia-card [baia]="baia" [editavel]="podeEditar()" (selecionar)="editarBaia($event)" />
+        }
+      </div>
+    </section>
+  }
+</app-shell>
+
+@if (dialogo(); as estado) {
+    <app-baia-dialogo
+    [baia]="estado.baia"
+    [baias]="baias()"
+    [salvando]="salvando()"
+    [erroApi]="erroDialogo()"
+    [podeReativar]="!limiteAtingido()"   
+    [limite]="limite"                    
+    (salvar)="salvar($event)"
+    (desativar)="desativar()"
+    (reativar)="reativar()"              
+    (fechar)="fecharDialogo()"
+  />
+}

@@ -36,9 +36,7 @@ export class LoginPaginaComponent {
     this.auth.login(credenciais).subscribe({
       next: () => {
         this.carregando.set(false);
-        // TODO: quando a área logada existir, redirecione para ela.
-        // Ex.: this.router.navigateByUrl('/painel');
-        this.router.navigateByUrl('/login');
+        this.router.navigateByUrl('/baias');
       },
       error: (e: HttpErrorResponse) => {
         this.carregando.set(false);

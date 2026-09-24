@@ -1,0 +1,86 @@
+<div class="shell">
+  <aside class="shell__sidebar">
+    <div class="shell__logo" aria-hidden="true">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+        <circle cx="12" cy="14.5" r="4.2" />
+        <circle cx="5" cy="7.5" r="2.1" />
+        <circle cx="10.2" cy="4.3" r="2.1" />
+        <circle cx="14.8" cy="4.3" r="2.1" />
+        <circle cx="19" cy="7.5" r="2.1" />
+      </svg>
+    </div>
+
+    <nav class="shell__nav">
+      <a
+        class="shell__nav-item"
+        [class.shell__nav-item--ativo]="itemAtivo === 'baias'"
+        routerLink="/baias"
+        title="Painel de baias"
+      >
+        <i class="bi bi-grid-3x3-gap"></i>
+      </a>
+
+      <button
+        type="button"
+        class="shell__nav-item"
+        [class.shell__nav-item--ativo]="itemAtivo === 'internacao'"
+        title="Internação"
+      >
+        <i class="bi bi-plus-square"></i>
+      </button>
+
+      <button
+        type="button"
+        class="shell__nav-item"
+        [class.shell__nav-item--ativo]="itemAtivo === 'prontuarios'"
+        title="Prontuários"
+      >
+        <i class="bi bi-clipboard2-check"></i>
+      </button>
+
+      <button
+        type="button"
+        class="shell__nav-item"
+        [class.shell__nav-item--ativo]="itemAtivo === 'relat-dose'"
+        title="Relatório de Doses"
+      >
+        <i class="bi bi-clipboard-data"></i>
+      </button>
+
+      <a
+        class="shell__nav-item"
+        [class.shell__nav-item--ativo]="itemAtivo === 'medicamentos'"
+        routerLink="/registro-medicamentos"
+        title="Medicamentos"
+      >
+        <i class="bi bi-capsule"></i>
+      </a>
+    </nav>
+  </aside>
+
+  <div class="shell__main">
+    <header class="shell__header">
+      <div class="shell__heading">
+        <h1>{{ titulo }}</h1>
+        @if (subtitulo) {
+          <p>{{ subtitulo }}</p>
+        }
+      </div>
+
+      <div class="shell__header-acoes">
+        <app-modo-dark class="shell__theme-toggle" />
+
+        <span class="shell__status">
+          <span class="shell__status-dot" aria-hidden="true"></span>
+          Sistema online
+        </span>
+
+        <span class="shell__avatar">{{ iniciais() }}</span>
+      </div>
+    </header>
+
+    <main class="shell__conteudo">
+      <ng-content />
+    </main>
+  </div>
+</div>
