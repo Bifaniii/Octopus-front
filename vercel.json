@@ -3,11 +3,11 @@
   "buildCommand": "npm run build",
   "outputDirectory": "dist/clinica-pet/browser",
   "rewrites": [
-    { "source": "/api/medicacoes/:path*", "destination": "http://***REMOVIDO***:8082/api/medicacoes/:path*" },
     { "source": "/api/medicacoes", "destination": "http://***REMOVIDO***:8082/api/medicacoes" },
-    { "source": "/api/baias/:path*", "destination": "http://***REMOVIDO***:8081/api/baias/:path*" },
+    { "source": "/api/medicacoes/:path+", "destination": "http://***REMOVIDO***:8082/api/medicacoes/:path+" },
     { "source": "/api/baias", "destination": "http://***REMOVIDO***:8081/api/baias" },
-    { "source": "/api/:path*", "destination": "http://***REMOVIDO***:8080/api/:path*" },
+    { "source": "/api/baias/:path+", "destination": "http://***REMOVIDO***:8081/api/baias/:path+" },
+    { "source": "/api/:path+", "destination": "http://***REMOVIDO***:8080/api/:path+" },
     { "source": "/((?!api/).*)", "destination": "/index.html" }
   ]
 }
