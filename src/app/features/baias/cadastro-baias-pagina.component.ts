@@ -1,11 +1,12 @@
 import {
   ChangeDetectionStrategy,
   Component,
-  afterNextRender,
+  PLATFORM_ID,
   computed,
   inject,
   signal,
 } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { Observable } from 'rxjs';
@@ -86,7 +87,9 @@ export class CadastroBaiasPaginaComponent {
 
   constructor() {
     // Só no navegador: no SSR não há token (localStorage) nem proxy para /api.
-    afterNextRender(() => this.recarregar());
+   if (isPlatformBrowser(inject(PLATFORM_ID))) {
+      this.recarregar();
+    }
   }
 
   protected recarregar(): void {
