@@ -1,9 +1,38 @@
+.login-page {
+  position: relative;
+  display: flex;
+  min-height: 100vh;
+  background: var(--color-bg);
+}
+
+.login-page__theme-toggle {
+  position: absolute;
+  top: 24px;
+  right: 24px;
+  z-index: 10;
+}
+
+.login-page__form-area {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  box-sizing: border-box;
+}
+
 .login-form {
   display: flex;
   flex-direction: column;
   gap: 24px;
   width: 100%;
   max-width: 360px;
+}
+
+.login-form form {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
 }
 
 .login-form__heading {
@@ -64,22 +93,6 @@
   color: #ef4444;
 }
 
-.login-form__esqueci {
-  display: flex;
-  justify-content: flex-end;
-  margin-top: -12px;
-}
-
-.login-form__link {
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--color-primary);
-  text-decoration: none;
-}
-.login-form__link:hover {
-  text-decoration: underline;
-}
-
 .login-form__alert {
   margin: 0;
   padding: 10px 14px;
@@ -90,8 +103,23 @@
   font-size: 13px;
 }
 
+.login-form__aviso {
+  margin: 0;
+  padding: 12px 14px;
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--color-success) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-success) 35%, transparent);
+  color: var(--color-success);
+  font-size: 13.5px;
+  line-height: 1.45;
+}
+
 .login-form__submit {
+  display: block;
   height: 46px;
+  line-height: 46px;
+  text-align: center;
+  text-decoration: none;
   border: none;
   border-radius: var(--radius-md);
   background: var(--color-primary);
@@ -111,4 +139,36 @@
 .login-form__submit:disabled {
   opacity: 0.65;
   cursor: progress;
+}
+
+.login-form__voltar {
+  align-self: center;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-text-muted);
+  text-decoration: none;
+}
+.login-form__voltar:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 900px) {
+  .login-page {
+    flex-direction: column;
+  }
+
+  .login-page__form-area {
+    padding: 32px 20px 48px;
+  }
+}
+
+@media (max-width: 480px) {
+  .login-page__theme-toggle {
+    top: 16px;
+    right: 16px;
+  }
+
+  .login-page__form-area {
+    padding: 24px 16px 40px;
+  }
 }

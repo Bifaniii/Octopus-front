@@ -1,0 +1,118 @@
+<dialog
+  #dialogo
+  class="dialogo"
+  aria-labelledby="dialogo-titulo"
+  (close)="fechar.emit()"
+  (click)="aoClicarFora($event)"
+>
+  <form class="form" [formGroup]="form" (ngSubmit)="enviar()">
+    <header class="form__topo">
+      <h2 id="dialogo-titulo" class="form__titulo">Novo usuário</h2>
+      <button type="button" class="fechar" aria-label="Fechar" (click)="fecharDialogo()">
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </header>
+
+    <label class="campo">
+      <span class="campo__rotulo">Papel</span>
+      <select formControlName="role">
+        @for (p of papeis; track p.valor) {
+          <option [value]="p.valor">{{ p.nome }}</option>
+        }
+      </select>
+    </label>
+
+    <label class="campo">
+      <span class="campo__rotulo">Nome</span>
+      <input type="text" formControlName="nome" placeholder="Nome completo" autofocus />
+    </label>
+
+    <div class="linha">
+      <label class="campo">
+        <span class="campo__rotulo">E-mail</span>
+        <input type="email" formControlName="email" placeholder="nome@clinica.com" />
+      </label>
+
+      <label class="campo">
+        <span class="campo__rotulo">Senha</span>
+        <input type="password" formControlName="senha" placeholder="Mínimo 8 caracteres" />
+      </label>
+    </div>
+
+    @if (role !== 'ROLE_ADMIN') {
+      <div class="linha">
+        <label class="campo">
+          <span class="campo__rotulo">Telefone</span>
+          <input type="text" formControlName="telefone" placeholder="(11) 90000-0000" />
+        </label>
+
+        <label class="campo">
+          <span class="campo__rotulo">Data de nascimento</span>
+          <input type="date" formControlName="dataNascimento" />
+        </label>
+      </div>
+    }
+
+    @if (role === 'ROLE_AUXILIAR' || role === 'ROLE_RECEPCIONISTA') {
+      <label class="campo">
+        <span class="campo__rotulo">CPF</span>
+        <input type="text" formControlName="cpf" placeholder="Somente números" maxlength="14" />
+      </label>
+    }
+
+    @if (role === 'ROLE_VETERINARIO') {
+      <div class="linha">
+        <label class="campo">
+          <span class="campo__rotulo">CPF ou CNPJ</span>
+          <input type="text" formControlName="cpfCnpj" placeholder="Somente números" />
+        </label>
+
+        <label class="campo campo--numero">
+          <span class="campo__rotulo">Tipo</span>
+          <select formControlName="tipoPessoa">
+            <option value="PF">Pessoa física</option>
+            <option value="PJ">Pessoa jurídica</option>
+          </select>
+        </label>
+      </div>
+
+      <div class="linha">
+        <label class="campo">
+          <span class="campo__rotulo">CRMV</span>
+          <input type="text" formControlName="crmv" placeholder="Ex.: 12345" />
+        </label>
+
+        <label class="campo campo--numero">
+          <span class="campo__rotulo">UF do CRMV</span>
+          <input type="text" formControlName="crmvUf" placeholder="SP" maxlength="2" />
+        </label>
+      </div>
+
+      <label class="campo">
+        <span class="campo__rotulo">Especialização (opcional)</span>
+        <select formControlName="especializacao">
+          <option value="">Sem especialização (Geral)</option>
+          @for (esp of especializacoes; track esp.valor) {
+            <option [value]="esp.valor">{{ esp.nome }}</option>
+          }
+        </select>
+      </label>
+    }
+
+    @if (erro() ?? erroApi; as mensagem) {
+      <p class="erro" role="alert">{{ mensagem }}</p>
+    }
+
+    <footer class="form__rodape">
+      <span class="espaco"></span>
+      <button type="button" class="botao" (click)="fecharDialogo()">Cancelar</button>
+      <button type="submit" class="botao botao--primario" [disabled]="salvando">
+        @if (salvando) {
+          Salvando...
+        } @else {
+          Cadastrar usuário
+        }
+      </button>
+    </footer>
+  </form>
+</dialog>

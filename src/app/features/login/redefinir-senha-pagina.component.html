@@ -1,0 +1,76 @@
+<div class="login-page">
+
+  <app-modo-dark class="login-page__theme-toggle" />
+
+  <app-painel-marca />
+
+  <main class="login-page__form-area">
+    <div class="login-form">
+      <div class="login-form__heading">
+        <h2>Redefinir senha</h2>
+        <p>Informe o código recebido por e-mail e escolha uma nova senha.</p>
+      </div>
+
+      @if (concluido()) {
+        <p class="login-form__aviso" role="status">
+          Senha redefinida com sucesso. Já pode entrar com a nova senha.
+        </p>
+        <a routerLink="/login" class="login-form__submit">
+          Ir para o login
+        </a>
+      } @else {
+        <form [formGroup]="form" (ngSubmit)="enviar()" novalidate>
+          <div class="login-form__field">
+            <label for="token">Código</label>
+            <input
+              id="token"
+              type="text"
+              formControlName="token"
+              placeholder="Código recebido por e-mail"
+              autocomplete="one-time-code"
+            />
+            @if (form.controls.token.invalid && form.controls.token.touched) {
+              <span class="login-form__error">Informe o código recebido por e-mail.</span>
+            }
+          </div>
+
+          <div class="login-form__field">
+            <label for="novaSenha">Nova senha</label>
+            <input
+              id="novaSenha"
+              type="password"
+              formControlName="novaSenha"
+              placeholder="Mínimo 6 caracteres"
+              autocomplete="new-password"
+            />
+            @if (form.controls.novaSenha.invalid && form.controls.novaSenha.touched) {
+              <span class="login-form__error">A senha precisa ter ao menos 6 caracteres.</span>
+            }
+          </div>
+
+          <div class="login-form__field">
+            <label for="confirmarSenha">Confirmar nova senha</label>
+            <input
+              id="confirmarSenha"
+              type="password"
+              formControlName="confirmarSenha"
+              placeholder="Repita a nova senha"
+              autocomplete="new-password"
+            />
+          </div>
+
+          @if (erro(); as mensagem) {
+            <p class="login-form__alert" role="alert">{{ mensagem }}</p>
+          }
+
+          <button type="submit" class="login-form__submit" [disabled]="enviando()">
+            {{ enviando() ? 'Redefinindo...' : 'Redefinir senha' }}
+          </button>
+        </form>
+      }
+
+      <a routerLink="/esqueci-senha" class="login-form__voltar">Pedir um novo código</a>
+    </div>
+  </main>
+
+</div>
