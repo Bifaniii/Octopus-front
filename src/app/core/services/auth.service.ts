@@ -42,6 +42,23 @@ export class AuthService {
       .pipe(tap((resp) => this.guardarSessao(resp)));
   }
 
+  /**
+   * POST /api/auth/esqueci-senha — sempre responde 204, exista ou não
+   * o e-mail (o back-end não revela quem tem conta). A tela deve
+   * mostrar a mesma mensagem genérica em qualquer caso de sucesso.
+   */
+  esqueciSenha(email: string): Observable<void> {
+    return this.http.post<void>(`${this.baseUrl}/esqueci-senha`, { email });
+  }
+
+  /**
+   * POST /api/auth/redefinir-senha — `token` é o código enviado por
+   * e-mail (válido por 30 minutos, de uso único).
+   */
+  redefinirSenha(token: string, novaSenha: string): Observable<void> {
+    return this.http.post<void>(`${this.baseUrl}/redefinir-senha`, { token, novaSenha });
+  }
+
   logout(): void {
     if (isPlatformBrowser(this.platformId)) {
       localStorage.removeItem(AuthService.TOKEN_KEY);

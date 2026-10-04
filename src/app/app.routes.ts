@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
+import { permissaoGuard } from './core/guards/permissao.guard';
 
 /**
  * Rotas raiz da aplicação.
@@ -23,6 +24,22 @@ export const routes: Routes = [
   },
 
   {
+    path: 'esqueci-senha',
+    loadComponent: () =>
+      import('./features/login/esqueci-senha-pagina.component').then(
+        (m) => m.EsqueciSenhaPaginaComponent,
+      ),
+  },
+
+  {
+    path: 'redefinir-senha',
+    loadComponent: () =>
+      import('./features/login/redefinir-senha-pagina.component').then(
+        (m) => m.RedefinirSenhaPaginaComponent,
+      ),
+  },
+
+  {
     path: 'baias',
    // canActivate: [authGuard],
     loadComponent: () =>
@@ -37,6 +54,16 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./features/medication/medication.component').then(
         (m) => m.MedicationComponent,
+      ),
+  },
+
+  {
+    path: 'usuarios',
+    canActivate: [authGuard, permissaoGuard],
+    data: { roles: ['ROLE_ADMIN'] },
+    loadComponent: () =>
+      import('./features/usuarios/cadastro-usuarios-pagina.component').then(
+        (m) => m.CadastroUsuariosPaginaComponent,
       ),
   },
 

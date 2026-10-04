@@ -1,0 +1,51 @@
+<app-shell titulo="Usuários" subtitulo="Gerencie quem tem acesso ao sistema" itemAtivo="usuarios">
+  <div class="acoes">
+    <button type="button" class="botao-novo" (click)="novoUsuario()">
+      <i class="bi bi-person-plus"></i>
+      Novo usuário
+    </button>
+  </div>
+
+  @if (erroLista(); as mensagem) {
+    <div class="aviso aviso--erro" role="alert">
+      <span>{{ mensagem }}</span>
+      <button type="button" class="aviso__acao" (click)="recarregar()">Tentar novamente</button>
+    </div>
+  } @else if (carregando() && usuarios().length === 0) {
+    <p class="aviso">Carregando usuários...</p>
+  } @else if (usuarios().length === 0) {
+    <p class="aviso">Nenhum usuário cadastrado ainda. Use o botão "Novo usuário" para cadastrar o primeiro.</p>
+  }
+
+  @if (usuarios().length > 0) {
+    <table class="tabela">
+      <thead>
+        <tr>
+          <th>Nome</th>
+          <th>E-mail</th>
+          <th>Papel</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (u of usuarios(); track u.id) {
+          <tr>
+            <td>{{ u.nome }}</td>
+            <td>{{ u.email }}</td>
+            <td>{{ $any(nomePorRole)[u.role] ?? u.role }}</td>
+            <td>{{ u.ativo ? 'Ativo' : 'Inativo' }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  }
+</app-shell>
+
+@if (dialogoAberto()) {
+  <app-usuario-dialogo
+    [salvando]="salvando()"
+    [erroApi]="erroDialogo()"
+    (salvar)="salvar($event)"
+    (fechar)="fecharDialogo()"
+  />
+}
