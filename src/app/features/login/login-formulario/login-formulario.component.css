@@ -64,6 +64,22 @@
   color: #ef4444;
 }
 
+.login-form__esqueci {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: -12px;
+}
+
+.login-form__link {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-primary);
+  text-decoration: none;
+}
+.login-form__link:hover {
+  text-decoration: underline;
+}
+
 .login-form__alert {
   margin: 0;
   padding: 10px 14px;

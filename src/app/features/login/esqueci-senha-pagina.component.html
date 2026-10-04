@@ -1,0 +1,52 @@
+<div class="login-page">
+
+  <app-modo-dark class="login-page__theme-toggle" />
+
+  <app-painel-marca />
+
+  <main class="login-page__form-area">
+    <div class="login-form">
+      <div class="login-form__heading">
+        <h2>Esqueceu sua senha?</h2>
+        <p>Informe seu e-mail e enviaremos um código de redefinição.</p>
+      </div>
+
+      @if (enviado()) {
+        <p class="login-form__aviso" role="status">
+          Se esse e-mail estiver cadastrado, você vai receber um código de redefinição em
+          instantes. Confira sua caixa de entrada (e o spam).
+        </p>
+        <a routerLink="/redefinir-senha" class="login-form__submit">
+          Já tenho um código
+        </a>
+      } @else {
+        <form [formGroup]="form" (ngSubmit)="enviar()" novalidate>
+          <div class="login-form__field">
+            <label for="email">E-mail</label>
+            <input
+              id="email"
+              type="email"
+              formControlName="email"
+              placeholder="voce@clinica.com"
+              autocomplete="username"
+            />
+            @if (form.controls.email.invalid && form.controls.email.touched) {
+              <span class="login-form__error">Informe um e-mail válido.</span>
+            }
+          </div>
+
+          @if (erro(); as mensagem) {
+            <p class="login-form__alert" role="alert">{{ mensagem }}</p>
+          }
+
+          <button type="submit" class="login-form__submit" [disabled]="enviando()">
+            {{ enviando() ? 'Enviando...' : 'Enviar código' }}
+          </button>
+        </form>
+      }
+
+      <a routerLink="/login" class="login-form__voltar">Voltar para o login</a>
+    </div>
+  </main>
+
+</div>

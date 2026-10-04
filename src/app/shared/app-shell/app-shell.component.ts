@@ -15,7 +15,8 @@ export type ItemNavegacao =
   | 'internacao'
   | 'prontuarios'
   | 'relat-dose'
-  | 'medicamentos';
+  | 'medicamentos'
+  | 'usuarios';
 
 /**
  * AppShellComponent

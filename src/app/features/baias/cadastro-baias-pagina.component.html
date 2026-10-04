@@ -4,6 +4,10 @@
       @if (limiteAtingido()) {
       <span class="acoes__aviso">Limite de {{ limite }} baias ativas atingido</span>
       }
+      <button type="button" class="botao-novo" (click)="irParaUsuarios()">
+        <i class="bi bi-person-plus"></i>
+        Criar usuário
+      </button>
       <button type="button" class="botao-novo" [disabled]="limiteAtingido()" (click)="novaBaia()">
         <i class="bi bi-plus-lg"></i>
         Nova baia

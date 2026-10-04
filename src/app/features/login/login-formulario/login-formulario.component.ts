@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
+import { RouterLink } from '@angular/router';
 
 /** Formato dos dados emitidos quando o usuário envia o formulário. */
 export interface Credenciais {
@@ -19,7 +20,7 @@ export interface Credenciais {
 @Component({
   selector: 'app-login-formulario',
   standalone: true,
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, RouterLink],
   templateUrl: './login-formulario.component.html',
   styleUrl: './login-formulario.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,

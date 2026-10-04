@@ -137,6 +137,11 @@ export class CadastroBaiasPaginaComponent {
     }
   }
 
+  /** Atalho do cabeçalho, visível só pro ADMIN (mesma regra de `podeEditar`). */
+  protected irParaUsuarios(): void {
+    this.router.navigateByUrl('/usuarios');
+  }
+
   private abrirDialogo(baia: Baia | null): void {
     this.erroDialogo.set(null);
     this.salvando.set(false);
