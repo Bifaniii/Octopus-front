@@ -24,18 +24,18 @@
 
     <label class="campo">
       <span class="campo__rotulo">Nome</span>
-      <input type="text" formControlName="nome" placeholder="Nome completo" autofocus />
+      <input type="text" formControlName="nome" placeholder="Nome completo" autofocus maxlength="100" />
     </label>
 
     <div class="linha">
       <label class="campo">
         <span class="campo__rotulo">E-mail</span>
-        <input type="email" formControlName="email" placeholder="nome@clinica.com" />
+        <input type="email" formControlName="email" placeholder="nome@clinica.com" maxlength="100" />
       </label>
 
       <label class="campo">
         <span class="campo__rotulo">Senha</span>
-        <input type="password" formControlName="senha" placeholder="Mínimo 8 caracteres" />
+        <input type="password" formControlName="senha" placeholder="Mínimo 6 caracteres" />
       </label>
     </div>
 
@@ -43,7 +43,7 @@
       <div class="linha">
         <label class="campo">
           <span class="campo__rotulo">Telefone</span>
-          <input type="text" formControlName="telefone" placeholder="(11) 90000-0000" />
+          <input type="text" formControlName="telefone" placeholder="(11) 90000-0000" maxlength="11" />
         </label>
 
         <label class="campo">
@@ -56,7 +56,7 @@
     @if (role === 'ROLE_AUXILIAR' || role === 'ROLE_RECEPCIONISTA') {
       <label class="campo">
         <span class="campo__rotulo">CPF</span>
-        <input type="text" formControlName="cpf" placeholder="Somente números" maxlength="14" />
+        <input type="text" formControlName="cpf" placeholder="Somente números" maxlength="11" />
       </label>
     }
 
@@ -64,7 +64,7 @@
       <div class="linha">
         <label class="campo">
           <span class="campo__rotulo">CPF ou CNPJ</span>
-          <input type="text" formControlName="cpfCnpj" placeholder="Somente números" />
+          <input type="text" formControlName="cpfCnpj" placeholder="Somente números" maxlength="14" />
         </label>
 
         <label class="campo campo--numero">
@@ -79,7 +79,7 @@
       <div class="linha">
         <label class="campo">
           <span class="campo__rotulo">CRMV</span>
-          <input type="text" formControlName="crmv" placeholder="Ex.: 12345" />
+          <input type="text" formControlName="crmv" placeholder="Ex.: 12345" maxlength="6" />
         </label>
 
         <label class="campo campo--numero">
