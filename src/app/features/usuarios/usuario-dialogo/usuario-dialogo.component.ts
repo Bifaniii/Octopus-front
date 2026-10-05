@@ -110,7 +110,7 @@ export class UsuarioDialogoComponent implements AfterViewInit {
 
     if (!nome) return this.setErro('Informe o nome.');
     if (!email) return this.setErro('Informe o e-mail.');
-    if (!senha || senha.length < 8) return this.setErro('A senha deve ter pelo menos 8 caracteres.');
+    if (!senha || senha.length < 6) return this.setErro('A senha deve ter pelo menos 6 caracteres.');
 
     if (v.role === 'ROLE_ADMIN') {
       this.setErro(null);
