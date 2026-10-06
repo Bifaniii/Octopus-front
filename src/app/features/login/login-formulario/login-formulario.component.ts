@@ -35,6 +35,8 @@ export class LoginFormularioComponent {
   /** Emite os dados do formulário quando ele é enviado e é válido. */
   @Output() login = new EventEmitter<Credenciais>();
 
+  protected esconderSenha = true;
+
   private readonly fb = new FormBuilder();
 
   protected readonly form = this.fb.nonNullable.group({
