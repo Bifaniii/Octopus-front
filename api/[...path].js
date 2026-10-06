@@ -72,9 +72,17 @@ module.exports = async function handler(req, res) {
     });
     res.send(Buffer.from(await resposta.arrayBuffer()));
   } catch (e) {
+    // O código do erro é o que diz onde está o problema, e sem ele o 502 não ajuda em nada:
+    // ETIMEDOUT costuma ser security group barrando a entrada, ECONNREFUSED é nada escutando
+    // naquela porta, ENOTFOUND é endereço que não resolve. O endereço em si não vai na resposta.
+    const causa = e.cause?.code || e.code || e.name || 'desconhecido';
+    // O detalhe traz o endereço tentado, então fica só no log da Vercel. Na resposta vai o código,
+    // que já diz o suficiente e não entrega infraestrutura para quem abrir o DevTools.
+    console.error(`[proxy] ${variavel} falhou: ${causa}`, e.cause?.message || e.message);
     res.status(502).json({
       erro: 'Backend indisponível',
       mensagem: `Não foi possível falar com o serviço em ${variavel}.`,
+      causa,
     });
   }
 };
