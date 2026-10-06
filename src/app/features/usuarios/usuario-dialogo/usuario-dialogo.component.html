@@ -84,7 +84,7 @@
 
         <label class="campo campo--numero">
           <span class="campo__rotulo">UF do CRMV</span>
-          <input type="text" formControlName="crmvUf" placeholder="SP" maxlength="2" />
+          <input type="text" formControlName="crmvUf" placeholder="SP" maxlength="2" (input)="form.get('crmvUf')?.setValue($any($event.target).value.toUpperCase(), {emitEvent: false})"/>
         </label>
       </div>
 
