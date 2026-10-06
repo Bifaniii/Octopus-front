@@ -1,25 +1,19 @@
 import dotenv from 'dotenv';
 dotenv.config();
 
+// Proxy do `ng serve`. Usa as mesmas variáveis que a função api/[...path].js usa em produção, então o
+// front se comporta igual nos dois lugares. Sem .env, cai nas portas locais de cada microsserviço.
+const alvo = (variavel, padraoLocal) => ({
+  target: process.env[variavel] || padraoLocal,
+  secure: false,
+  changeOrigin: true,
+  logLevel: 'debug',
+});
+
 export default function setupProxy() {
   return {
-    "/api/medicacoes": {
-      "target": "http://localhost:443",
-      "secure": false,
-      "changeOrigin": true,
-      "logLevel": "debug"
-    },
-    "/api/baias": {
-      "target": "http://localhost:8081",
-      "secure": false,
-      "changeOrigin": true,
-      "logLevel": "debug"
-    },
-    "/api": {
-      "target": "http://localhost:8080",
-      "secure": false,
-      "changeOrigin": true,
-      "logLevel": "debug"
-    }
+    '/api/medicacoes': alvo('API_MEDICACOES_URL', 'http://localhost:8082'),
+    '/api/baias': alvo('API_BAIAS_URL', 'http://localhost:8081'),
+    '/api': alvo('API_DEFAULT_URL', 'http://localhost:8080'),
   };
 }
