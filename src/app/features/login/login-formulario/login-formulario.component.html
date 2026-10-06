@@ -13,6 +13,7 @@
       formControlName="email"
       placeholder="voce@clinica.com"
       autocomplete="username"
+      maxlength="150"
     />
     @if (form.controls.email.invalid && form.controls.email.touched) {
       <span class="login-form__error">Informe um e-mail válido.</span>
@@ -21,13 +22,18 @@
 
   <div class="login-form__field">
     <label for="senha">Senha</label>
-    <input
-      id="senha"
-      type="password"
-      formControlName="senha"
-      placeholder="••••••••"
-      autocomplete="current-password"
-    />
+    <div class="login-form__password-wrapper">
+      <input
+        id="senha"
+        [type]="esconderSenha ? 'password' : 'text'"
+        formControlName="senha"
+        placeholder="••••••••"
+        autocomplete="current-password"
+      />
+      <button type="button" id="togglePassword" (click)="esconderSenha = !esconderSenha">
+        {{ esconderSenha ? 'Mostrar' : 'Esconder' }}
+      </button>
+      </div>
     @if (form.controls.senha.invalid && form.controls.senha.touched) {
       <span class="login-form__error">A senha precisa ter ao menos 6 caracteres.</span>
     }
