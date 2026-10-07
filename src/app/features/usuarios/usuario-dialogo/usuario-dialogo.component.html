@@ -3,7 +3,6 @@
   class="dialogo"
   aria-labelledby="dialogo-titulo"
   (close)="fechar.emit()"
-  (click)="aoClicarFora($event)"
 >
   <form class="form" [formGroup]="form" (ngSubmit)="enviar()">
     <header class="form__topo">
