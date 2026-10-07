@@ -89,13 +89,6 @@ export class UsuarioDialogoComponent implements AfterViewInit {
     return this.form.controls.role.value;
   }
 
-  protected aoClicarFora(evento: MouseEvent): void {
-    // Clique no fundo escurecido (o alvo é o próprio <dialog>).
-    if (evento.target === this.dialogo.nativeElement) {
-      this.fecharDialogo();
-    }
-  }
-
   protected fecharDialogo(): void {
     this.dialogo.nativeElement.close(); // dispara o evento `close`, que emite `fechar`
   }
