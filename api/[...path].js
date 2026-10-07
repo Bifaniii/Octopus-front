@@ -38,8 +38,15 @@ function corpoDaRequisicao(req) {
 
 module.exports = async function handler(req, res) {
   const url = new URL(req.url, 'http://interno');
+  // O vercel.json reescreve /api/<caminho> para /api/proxy?caminho=<caminho>: um arquivo [...path].js
+  // só casa um segmento fora do Next.js, e /api/auth/login caía no 404 da Vercel.
+  const caminho = url.searchParams.get('caminho');
+  url.searchParams.delete('caminho');
+  if (caminho !== null) {
+    url.pathname = `/api/${caminho}`;
+  }
+  
   const { variavel, base } = resolverBase(url.pathname);
-
   if (!base) {
     res.status(500).json({
       erro: 'Proxy sem destino configurado',
