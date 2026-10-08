@@ -1,0 +1,86 @@
+<dialog #dialogo class="dialogo dialogo--largo" aria-labelledby="admissao-titulo" (close)="fechar.emit()">
+  <form class="form" [formGroup]="form" (ngSubmit)="enviar()">
+    <header class="form__topo">
+      <h2 id="admissao-titulo" class="form__titulo">Nova internação</h2>
+      <button type="button" class="fechar" aria-label="Fechar" (click)="fecharDialogo()">
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </header>
+
+    <label class="campo">
+      <span class="campo__rotulo">Animal</span>
+      @if (animais === null) {
+        <select disabled><option>Carregando animais...</option></select>
+      } @else {
+        <select formControlName="animalId" (change)="aoEscolherAnimal()">
+          <option value="">Selecione</option>
+          @for (a of disponiveis; track a.id) {
+            <option [value]="a.id">{{ a.nome }} · {{ a.especie }}</option>
+          }
+        </select>
+        @if (disponiveis.length === 0) {
+          <span class="campo__ajuda">Nenhum animal disponível: todos já estão internados ou não há cadastro.</span>
+        }
+      }
+    </label>
+
+    @if (animal(); as a) {
+      @if (vacinaVencida) {
+        <p class="alerta alerta--perigo">
+          RN-02: antirrábica {{ a.dataUltimaAntirrabica ? 'vencida' : 'sem registro' }}. Este animal só pode ser
+          internado em baia de isolamento.
+        </p>
+      } @else {
+        <p class="alerta alerta--ok">Antirrábica em dia.</p>
+      }
+    }
+
+    <fieldset class="campo">
+      <legend class="campo__rotulo">Baia</legend>
+      @if (opcoes.length === 0) {
+        <span class="campo__ajuda">Nenhuma baia ativa cadastrada.</span>
+      }
+      <div class="baias" role="radiogroup" aria-label="Baia">
+        @for (o of opcoes; track o.baia.id) {
+          <button
+            type="button"
+            role="radio"
+            class="baia"
+            [class.baia--selecionada]="form.controls.baiaId.value === o.baia.id"
+            [class.baia--bloqueada]="o.bloqueio !== null"
+            [attr.aria-checked]="form.controls.baiaId.value === o.baia.id"
+            [disabled]="o.bloqueio !== null"
+            (click)="escolherBaia(o.baia.id)"
+          >
+            <span class="baia__topo">
+              <span class="baia__nome">{{ o.baia.nome }}</span>
+              <span class="baia__ocupacao">{{ o.ocupadas }}/{{ o.capacidade }}</span>
+            </span>
+            <span class="baia__tipo">{{ o.tipo }}</span>
+            @if (o.bloqueio) {
+              <span class="baia__motivo"><i class="bi bi-slash-circle"></i> {{ o.bloqueio }}</span>
+            } @else if (o.baia.descricao) {
+              <span class="baia__descricao">{{ o.baia.descricao }}</span>
+            }
+          </button>
+        }
+      </div>
+    </fieldset>
+
+    <label class="campo">
+      <span class="campo__rotulo">Motivo</span>
+      <textarea formControlName="motivo" maxlength="500" placeholder="Ex.: Gastroenterite, observação 48h"></textarea>
+    </label>
+
+    @if (erro() ?? erroApi; as mensagem) {
+      <p class="erro" role="alert">{{ mensagem }}</p>
+    }
+
+    <footer class="form__rodape">
+      <button type="button" class="botao" (click)="fecharDialogo()">Cancelar</button>
+      <button type="submit" class="botao botao--primario" [disabled]="salvando">
+        {{ salvando ? 'Internando...' : 'Internar' }}
+      </button>
+    </footer>
+  </form>
+</dialog>

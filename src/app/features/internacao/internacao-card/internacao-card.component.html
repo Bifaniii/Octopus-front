@@ -1,0 +1,28 @@
+<article class="card" [class]="classeStatus">
+  <header class="card__topo">
+    <span class="card__titulo" [attr.title]="internacao.animalNome">{{ internacao.animalNome }}</span>
+    <span class="selo">{{ nomes[internacao.status] }}</span>
+  </header>
+
+  <span class="card__especie">{{ internacao.animalEspecie }}</span>
+  <span class="card__motivo" [attr.title]="internacao.motivo">{{ internacao.motivo }}</span>
+
+  <span class="card__detalhe">
+    Admitido em {{ formatar(internacao.dataAdmissao) }}
+    @if (internacao.dataAlta) {
+      · alta em {{ formatar(internacao.dataAlta) }}
+    }
+  </span>
+
+  <footer class="card__acoes">
+    @for (a of acoes; track a) {
+      <button type="button" class="acao" (click)="acao.emit(a)">
+        <i [class]="'bi ' + definicoes[a].icone"></i>
+        {{ definicoes[a].rotulo }}
+      </button>
+    }
+    <button type="button" class="acao acao--discreta" title="Histórico" (click)="historico.emit()">
+      <i class="bi bi-clock-history"></i>
+    </button>
+  </footer>
+</article>

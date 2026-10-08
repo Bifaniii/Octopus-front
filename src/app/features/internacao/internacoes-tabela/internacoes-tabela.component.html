@@ -1,0 +1,44 @@
+<div class="moldura">
+  <table class="tabela">
+    <thead>
+      <tr>
+        <th scope="col">Animal</th>
+        <th scope="col">Baia</th>
+        <th scope="col">Admissão</th>
+        <th scope="col">Alta</th>
+        <th scope="col">Saída</th>
+        <th scope="col">Desfecho</th>
+        <th scope="col"><span class="oculto">Ações</span></th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (i of internacoes; track i.id) {
+        <tr>
+          <td>
+            @if (linkAnimal) {
+              <button type="button" class="link" title="Ver todas as passagens deste animal" (click)="animal.emit(i)">
+                {{ i.animalNome }}
+              </button>
+            } @else {
+              <strong>{{ i.animalNome }}</strong>
+            }
+            <span class="secundario">{{ i.animalEspecie }}</span>
+          </td>
+          <td>{{ nomesBaias[i.baiaId] ?? '—' }}</td>
+          <td>{{ formatar(i.dataAdmissao) }}</td>
+          <td>{{ formatar(i.dataAlta) }}</td>
+          <td>{{ formatar(i.dataSaida) }}</td>
+          <td>
+            {{ desfecho(i) }}
+            <span class="secundario" [attr.title]="i.motivo">{{ i.motivo }}</span>
+          </td>
+          <td class="acoes">
+            <button type="button" class="icone" title="Histórico" aria-label="Histórico" (click)="historico.emit(i)">
+              <i class="bi bi-clock-history"></i>
+            </button>
+          </td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>
