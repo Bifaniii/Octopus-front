@@ -1,0 +1,61 @@
+:host { display: block; }
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  padding: 0.85rem 1rem;
+  border: 1px solid var(--color-border);
+  border-left-width: 4px;
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  color: var(--color-text);
+}
+
+/* Cor da borda e do selo por status. */
+.card--admitida { border-left-color: var(--color-primary); }
+.card--em_tratamento { border-left-color: var(--color-success); }
+.card--isolamento { border-left-color: var(--color-danger); }
+.card--alta_autorizada,
+.card--alta_a_pedido_do_tutor { border-left-color: var(--color-text-muted); }
+
+.card__topo { display: flex; justify-content: space-between; align-items: center; gap: 0.5rem; }
+.card__titulo { font-size: 0.95rem; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.card__especie { font-size: 0.75rem; color: var(--color-text-muted); }
+.card__motivo { font-size: 0.85rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.card__detalhe { font-size: 0.72rem; color: var(--color-text-muted); }
+
+.selo {
+  padding: 0.15rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: #fff;
+  background: var(--color-text-muted);
+}
+.card--admitida .selo { background: var(--color-primary); }
+.card--em_tratamento .selo { background: var(--color-success); }
+.card--isolamento .selo { background: var(--color-danger); }
+
+.card__acoes { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.4rem; }
+
+.acao {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.3rem 0.6rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-bg);
+  color: var(--color-text);
+  font: inherit;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+.acao:hover { border-color: var(--color-primary); color: var(--color-primary); }
+.acao:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 2px; }
+.acao--discreta { margin-left: auto; color: var(--color-text-muted); }
