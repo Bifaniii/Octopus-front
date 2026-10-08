@@ -10,10 +10,12 @@ const alvo = (variavel, padraoLocal) => ({
   logLevel: 'debug',
 });
 
-export default function setupProxy() {
-  return {
-    '/api/medicacoes': alvo('API_MEDICACOES_URL', 'http://localhost:8082'),
-    '/api/baias': alvo('API_BAIAS_URL', 'http://localhost:8081'),
-    '/api': alvo('API_DEFAULT_URL', 'http://localhost:8080'),
-  };
-}
+// EXPORTAÇÃO CORRIGIDA: Exportando diretamente o objeto de configuração
+const PROXY_CONFIG = {
+  '/api/medicacoes': alvo('API_MEDICACOES_URL', 'http://localhost:8082'),
+  '/api/baias': alvo('API_BAIAS_URL', 'http://localhost:8081'),
+  '/api': alvo('API_DEFAULT_URL', 'http://localhost:8080'),
+};
+
+export default PROXY_CONFIG;
+
