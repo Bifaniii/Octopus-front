@@ -20,15 +20,15 @@
         <i class="bi bi-grid-3x3-gap"></i>
       </a>
 
-      <button
-        type="button"
-        class="shell__nav-item"
-        [class.shell__nav-item--ativo]="itemAtivo === 'internacao'"
-        title="Internação"
-      >
-        <i class="bi bi-plus-square"></i>
-      </button>
+<a
+  class="shell__nav-item"
+  [class.shell__nav-item--ativo]="itemAtivo === 'internacao'"
+  routerLink="/internacao"
+  title="Internação"
+>
+  <i class="bi bi-plus-square"></i>
 
+</a>
       <button
         type="button"
         class="shell__nav-item"

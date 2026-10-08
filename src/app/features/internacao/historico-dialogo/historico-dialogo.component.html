@@ -1,0 +1,38 @@
+<dialog #dialogo class="dialogo" aria-labelledby="historico-titulo" (close)="fechar.emit()">
+  <div class="form">
+    <header class="form__topo">
+      <h2 id="historico-titulo" class="form__titulo">Histórico · {{ internacao.animalNome }}</h2>
+      <button type="button" class="fechar" aria-label="Fechar" (click)="fecharDialogo()">
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </header>
+
+    <p class="texto">{{ internacao.motivo }}</p>
+    @if (internacao.termoResponsabilidade) {
+      <p class="alerta">Termo do tutor: {{ internacao.termoResponsabilidade }}</p>
+    }
+
+    @if (erroApi) {
+      <p class="erro" role="alert">{{ erroApi }}</p>
+    } @else if (eventos === null) {
+      <p class="texto">Carregando histórico...</p>
+    } @else {
+      <ol class="linha-do-tempo">
+        @for (e of eventos; track $index) {
+          <li class="passo">
+            <span class="passo__quando">{{ formatar(e.dataHora) }}</span>
+            <span class="passo__o-que">
+              <strong>{{ nomes[e.statusNovo] }}</strong>
+              · {{ nomesBaias[e.baiaId] ?? 'baia removida' }}
+            </span>
+            <span class="passo__quem">{{ e.usuario }}</span>
+          </li>
+        }
+      </ol>
+    }
+
+    <footer class="form__rodape">
+      <button type="button" class="botao" (click)="fecharDialogo()">Fechar</button>
+    </footer>
+  </div>
+</dialog>

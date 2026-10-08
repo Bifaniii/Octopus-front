@@ -67,6 +67,15 @@ export const routes: Routes = [
       ),
   },
 
+  {
+  path: 'internacao',
+  canActivate: [authGuard, permissaoGuard],
+  data: { roles: ['ROLE_ADMIN', 'ROLE_RECEPCIONISTA', 'ROLE_VETERINARIO', 'ROLE_AUXILIAR'] },
+  loadComponent: () =>
+    import('./features/internacao/internacao-pagina.component')
+      .then((m) => m.InternacaoPaginaComponent),
+},
+
   // ──────────────────────────────────────────────────────────────
   // EXEMPLOS de features futuras — descomente ao criar cada pasta.
   //

@@ -1,0 +1,63 @@
+<dialog #dialogo class="dialogo" aria-labelledby="acao-titulo" (close)="fechar.emit()">
+  <form class="form" (ngSubmit)="enviar()">
+    <header class="form__topo">
+      <h2 id="acao-titulo" class="form__titulo">{{ definicoes[acao].rotulo }} · {{ internacao.animalNome }}</h2>
+      <button type="button" class="fechar" aria-label="Fechar" (click)="fecharDialogo()">
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </header>
+
+    @switch (acao) {
+      @case ('iniciar-tratamento') {
+        <p class="texto">Marca o início do tratamento de {{ internacao.animalNome }}. Na Sprint 3 isso acontece
+          sozinho quando a primeira prescrição for criada.</p>
+      }
+      @case ('autorizar-alta') {
+        <p class="texto">Autoriza a alta de {{ internacao.animalNome }}. A baia continua ocupada até a saída
+          física ser registrada (RN-08).</p>
+      }
+      @case ('isolar') {
+        <p class="texto">RN-02: o isolamento só é aceito para animal com a antirrábica vencida ou sem registro.</p>
+        <label class="campo">
+          <span class="campo__rotulo">Baia de isolamento</span>
+          <select name="baiaId" [(ngModel)]="baiaId">
+            <option value="">Selecione</option>
+            @for (o of isolamentos; track o.baia.id) {
+              <option [value]="o.baia.id" [disabled]="!o.livre">
+                {{ o.baia.nome }}{{ o.livre ? '' : ' (ocupada)' }}
+              </option>
+            }
+          </select>
+          @if (isolamentos.length === 0) {
+            <span class="campo__ajuda">Não há baia de isolamento ativa cadastrada.</span>
+          }
+        </label>
+      }
+      @case ('alta-a-pedido-do-tutor') {
+        <label class="campo">
+          <span class="campo__rotulo">Termo de responsabilidade</span>
+          <textarea name="termo" [(ngModel)]="termo" maxlength="500"
+                    placeholder="Número do termo ou resumo do que o tutor assinou"></textarea>
+        </label>
+      }
+      @case ('encerrar') {
+        <label class="campo">
+          <span class="campo__rotulo">Saída física do animal</span>
+          <input type="datetime-local" name="dataSaida" [(ngModel)]="dataSaida" />
+          <span class="campo__ajuda">Com a saída registrada a internação é encerrada e a baia é liberada (RN-08).</span>
+        </label>
+      }
+    }
+
+    @if (erro() ?? erroApi; as mensagem) {
+      <p class="erro" role="alert">{{ mensagem }}</p>
+    }
+
+    <footer class="form__rodape">
+      <button type="button" class="botao" (click)="fecharDialogo()">Cancelar</button>
+      <button type="submit" class="botao botao--primario" [disabled]="salvando">
+        {{ salvando ? 'Salvando...' : 'Confirmar' }}
+      </button>
+    </footer>
+  </form>
+</dialog>
