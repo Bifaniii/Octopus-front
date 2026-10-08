@@ -46,7 +46,7 @@ export const NOME_POR_TIPO: Record<TipoBaia, string> = {
 /** Capacidade máxima por tipo (mesma regra do enum `Tipo` do back-end). */
 export const CAPACIDADE_MAXIMA: Record<TipoBaia, number> = {
   ISOLAMENTO: 1,
-  COLETIVA: 6,
+  COLETIVA: 1,
   NINHADA: 6,
 };
 
