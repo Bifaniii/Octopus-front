@@ -109,6 +109,7 @@ a.shell__nav-item {
   display: flex;
   align-items: center;
   gap: 14px;
+  position: relative;
 }
 
 .shell__theme-toggle {
@@ -147,6 +148,8 @@ a.shell__nav-item {
   color: var(--color-text-on-primary);
   background: var(--color-primary);
   flex-shrink: 0;
+  cursor: pointer;
+  user-select: none;
 }
 
 .shell__conteudo {
@@ -180,5 +183,49 @@ a.shell__nav-item {
 
   .shell__conteudo {
     padding: 20px 16px 40px;
+  }
+}
+
+/* ---------- NOVO: Menu Dropdown de Opções ---------- */
+
+.shell__dropdown-menu {
+  position: absolute;
+  top: calc(100% + 8px); /* Posiciona logo abaixo do cabeçalho com um pequeno espaçamento */
+  right: 0;              /* Alinha o menu com a borda direita da tela */
+  background: var(--color-surface); /* Acompanha o fundo do tema (claro/escuro) */
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md, 8px);
+  padding: 8px;
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.08); /* Sombra suave */
+  z-index: 50;           /* Garante que fique por cima do conteúdo principal */
+  min-width: 120px;
+  display: flex;
+  flex-direction: column;
+}
+
+.shell__logout {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 12px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #dc2626; /* Vermelho padrão para ações destrutivas (logout/delete) */
+  background: transparent;
+  border-radius: var(--radius-sm, 4px);
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+/* Efeito visual ao passar o mouse sobre o botão de logout */
+.shell__logout:hover {
+  background: color-mix(in srgb, #dc2626 10%, transparent); /* Fundo vermelho bem suave */
+}
+
+/* ---------- Ajuste de Layout Responsivo ---------- */
+@media (max-width: 720px) {
+  /* Se o cabeçalho quebrar em telas pequenas, garante que o menu ainda alinhe certo */
+  .shell__header-acoes {
+    position: relative;
   }
 }

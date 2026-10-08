@@ -67,16 +67,26 @@
         }
       </div>
 
-      <div class="shell__header-acoes">
-        <app-modo-dark class="shell__theme-toggle" />
 
-        <span class="shell__status">
-          <span class="shell__status-dot" aria-hidden="true"></span>
-          Sistema online
-        </span>
+<div class="shell__header-acoes">
+  <app-modo-dark class="shell__theme-toggle" />
 
-        <span class="shell__avatar">{{ iniciais() }}</span>
-      </div>
+  <span class="shell__status">
+    <span class="shell__status-dot" aria-hidden="true"></span>
+    Sistema online
+  </span>
+
+  <!-- 1. Executa a função toggleMenu ao clicar no avatar -->
+  <span class="shell__avatar" (click)="toggleMenu()">{{ iniciais() }}</span>
+
+  <!-- 2. Verifica se o Signal menuAberto() é verdadeiro usando a nova sintaxe @if -->
+  @if (menuAberto()) {
+    <div class="shell__dropdown-menu">
+      <span class="shell__logout" (click)="fazerLogout()">Logout</span>
+    </div>
+  }
+</div>
+
     </header>
 
     <main class="shell__conteudo">
