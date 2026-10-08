@@ -1,0 +1,169 @@
+<app-shell titulo="Internação" subtitulo="Mapa de baias e animais internados" itemAtivo="internacao">
+  <div class="acoes">
+    <div class="abas" role="tablist" aria-label="Visão">
+      <button type="button" role="tab" class="aba" [class.aba--ativa]="aba() === 'mapa'"
+              [attr.aria-selected]="aba() === 'mapa'" (click)="mudarAba('mapa')">
+        <i class="bi bi-grid-3x3-gap"></i> Mapa
+      </button>
+      <button type="button" role="tab" class="aba" [class.aba--ativa]="aba() === 'encerradas'"
+              [attr.aria-selected]="aba() === 'encerradas'" (click)="mudarAba('encerradas')">
+        <i class="bi bi-archive"></i> Encerradas
+      </button>
+    </div>
+    <span class="espaco"></span>
+    <button type="button" class="botao-secundario" [disabled]="carregando()" (click)="recarregar()">
+      <i class="bi bi-arrow-clockwise"></i>
+      {{ carregando() ? 'Atualizando...' : 'Atualizar' }}
+    </button>
+    @if (podeAdmitir()) {
+      <button type="button" class="botao-novo" (click)="novaInternacao()">
+        <i class="bi bi-plus-lg"></i>
+        Nova internação
+      </button>
+    }
+  </div>
+
+  @if (erroLista(); as mensagem) {
+    <div class="aviso aviso--erro" role="alert">
+      <span>{{ mensagem }}</span>
+      <button type="button" class="aviso__acao" (click)="recarregar()">Tentar novamente</button>
+    </div>
+  }
+
+  @if (aba() === 'mapa') {
+    <section class="resumo" aria-label="Resumo do plantão">
+      <div class="resumo__item">
+        <span class="resumo__numero">{{ resumo().internados }}</span>
+        <span class="resumo__rotulo">internados</span>
+      </div>
+      <div class="resumo__item resumo__item--perigo">
+        <span class="resumo__numero">{{ resumo().isolamento }}</span>
+        <span class="resumo__rotulo">em isolamento</span>
+      </div>
+      <div class="resumo__item">
+        <span class="resumo__numero">{{ resumo().aguardandoSaida }}</span>
+        <span class="resumo__rotulo">com alta, aguardando saída</span>
+      </div>
+      <div class="resumo__item resumo__item--ok">
+        <span class="resumo__numero">{{ resumo().vagas }}</span>
+        <span class="resumo__rotulo">vagas livres</span>
+      </div>
+    </section>
+
+    @if (carregando() && blocos().length === 0) {
+      <p class="aviso">Carregando painel...</p>
+    } @else if (!erroLista() && blocos().length === 0) {
+      <p class="aviso">Nenhuma baia ativa cadastrada. Cadastre as baias no Painel de baias.</p>
+    }
+
+    <div class="mapa">
+      @for (bloco of blocos(); track bloco.id) {
+        <section
+          class="baia"
+          [class.baia--livre]="bloco.internacoes.length === 0"
+          [class.baia--lotada]="bloco.capacidade > 0 && bloco.internacoes.length >= bloco.capacidade"
+        >
+          <header class="baia__topo">
+            <div>
+              <h2 class="baia__nome">{{ bloco.titulo }}</h2>
+              <span class="baia__detalhe">{{ bloco.detalhe }}</span>
+            </div>
+            <span class="baia__ocupacao">{{ bloco.internacoes.length }}/{{ bloco.capacidade }}</span>
+          </header>
+
+          @for (internacao of bloco.internacoes; track internacao.id) {
+            <app-internacao-card
+              [internacao]="internacao"
+              [acoes]="acoes(internacao)"
+              (acao)="abrirAcao(internacao, $event)"
+              (historico)="abrirHistorico(internacao)"
+            />
+          } @empty {
+            <p class="baia__vazia">Livre</p>
+          }
+        </section>
+      }
+    </div>
+  } @else {
+    @if (animalFiltro(); as filtro) {
+      <div class="filtro">
+        <button type="button" class="botao-secundario" (click)="limparAnimal()">
+          <i class="bi bi-arrow-left"></i> Voltar
+        </button>
+        <h2 class="filtro__titulo">Todas as passagens de {{ filtro.nome }}</h2>
+      </div>
+      @if (filtro.passagens === null) {
+        <p class="aviso">Carregando passagens...</p>
+      } @else {
+        <app-internacoes-tabela
+          [internacoes]="filtro.passagens"
+          [nomesBaias]="nomesBaias()"
+          [linkAnimal]="false"
+          (historico)="abrirHistorico($event)"
+        />
+      }
+    } @else {
+      <div class="filtro">
+        <label class="busca">
+          <i class="bi bi-search"></i>
+          <input type="search" placeholder="Buscar pelo nome do animal" [value]="busca()" (input)="buscar($event)" />
+        </label>
+        <span class="filtro__total">{{ encerradas().length }} encerrada(s)</span>
+      </div>
+      @if (encerradas().length === 0) {
+        <p class="aviso">
+          {{ busca() ? 'Nenhuma internação encerrada com esse nome.' : 'Nenhuma internação encerrada ainda.' }}
+        </p>
+      } @else {
+        <app-internacoes-tabela
+          [internacoes]="encerradas()"
+          [nomesBaias]="nomesBaias()"
+          (historico)="abrirHistorico($event)"
+          (animal)="verAnimal($event)"
+        />
+      }
+    }
+  }
+</app-shell>
+
+@if (dialogo(); as estado) {
+  @switch (estado.tipo) {
+    @case ('admissao') {
+      <app-admissao-dialogo
+        [animais]="animais()"
+        [internados]="internados()"
+        [baias]="baiasAtivas()"
+        [ocupacao]="ocupacao()"
+        [salvando]="salvando()"
+        [erroApi]="erroDialogo()"
+        (salvar)="admitir($event)"
+        (fechar)="fecharDialogo()"
+      />
+    }
+    @case ('acao') {
+      @if (estado.tipo === 'acao') {
+        <app-acao-dialogo
+          [internacao]="estado.internacao"
+          [acao]="estado.acao"
+          [baias]="baiasAtivas()"
+          [ocupacao]="ocupacao()"
+          [salvando]="salvando()"
+          [erroApi]="erroDialogo()"
+          (confirmar)="confirmarAcao($event)"
+          (fechar)="fecharDialogo()"
+        />
+      }
+    }
+    @case ('historico') {
+      @if (estado.tipo === 'historico') {
+        <app-historico-dialogo
+          [internacao]="estado.internacao"
+          [eventos]="eventos()"
+          [nomesBaias]="nomesBaias()"
+          [erroApi]="erroDialogo()"
+          (fechar)="fecharDialogo()"
+        />
+      }
+    }
+  }
+}

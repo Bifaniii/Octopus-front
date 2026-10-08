@@ -1,0 +1,13 @@
+.linha-do-tempo { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 0.75rem; }
+
+.passo {
+  display: grid;
+  grid-template-columns: 6.5rem 1fr;
+  gap: 0.15rem 0.75rem;
+  padding-left: 0.75rem;
+  border-left: 2px solid var(--color-border);
+}
+.passo:last-child { border-left-color: var(--color-primary); }
+.passo__quando { font-size: 0.8rem; color: var(--color-text-muted); }
+.passo__o-que { font-size: 0.9rem; }
+.passo__quem { grid-column: 2; font-size: 0.75rem; color: var(--color-text-muted); }
