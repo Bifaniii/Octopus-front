@@ -4,7 +4,7 @@ Este arquivo fornece orientações ao Claude Code (claude.ai/code) ao trabalhar 
 
 > Este arquivo é versionado e vale para toda a squad. Não coloque nele valores de `.env`, senhas, tokens nem
 > endereços de servidor, só nomes de variáveis. A seção "Estado das branches" é um retrato datado: atualize
-> quando mexer numa branch. Última revisão: 08/10/2026 (Sprint 2 em andamento).
+> quando mexer numa branch. Última revisão: 09/10/2026 (Sprint 2 em andamento).
 
 ## Visão geral
 
@@ -118,6 +118,7 @@ O front chama sempre `/api/...` (`environment.apiBaseUrl`) e o proxy escolhe o m
   - Diálogos: `admissao-dialogo` (baias em cards, como no painel de baias; bloqueia baia lotada, ninhada sem mãe
     e, com antirrábica vencida, tudo que não é isolamento, mostrando o motivo no card), `acao-dialogo` (pede a baia de isolamento, o termo do tutor ou a hora da saída) e
     `historico-dialogo`.
+  - O id da internação é `number` (`Long` no back); `animalId`, `baiaId` e `maeId` são `string` (UUID).
   - A lista de animais vem de `GET /api/animais` (`msusuario`), liberado só para admin e recepcionista, os mesmos
     perfis que admitem. O nome do animal no card vem da própria internação.
   - Admitir depende do `GET /api/animais/{id}` da branch `feature/animal_mae` do back, que ainda não está
