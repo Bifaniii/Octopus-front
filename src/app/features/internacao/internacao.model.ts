@@ -15,7 +15,7 @@ export type StatusInternacao =
 
 /** Resposta de GET/POST/PATCH em /api/internacoes. Datas são LocalDateTime, sem fuso: "2026-10-08T10:00:00". */
 export interface Internacao {
-  id: string;
+  id: number; // Long no back; animal e baia continuam UUID
   animalId: string;
   animalNome: string;
   animalEspecie: string;
