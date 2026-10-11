@@ -4,7 +4,7 @@ Este arquivo fornece orientações ao Claude Code (claude.ai/code) ao trabalhar 
 
 > Este arquivo é versionado e vale para toda a squad. Não coloque nele valores de `.env`, senhas, tokens nem
 > endereços de servidor, só nomes de variáveis. A seção "Estado das branches" é um retrato datado: atualize
-> quando mexer numa branch. Última revisão: 09/10/2026 (Sprint 2 em andamento).
+> quando mexer numa branch. Última revisão: 11/10/2026 (fechamento da Sprint 2).
 
 ## Visão geral
 
@@ -41,7 +41,8 @@ de `src/styles/tema.css`.
 
 Três gavetas fixas; todo arquivo novo cai em uma delas:
 
-- `features/<nome>/`: uma pasta por tela (`login`, `baias`, `medication`, `usuarios`, `internacao`).
+- `features/<nome>/`: uma pasta por tela (`login`, `baias`, `medication`, `usuarios`, `internacao`,
+  `cadastro-tutor-animal`, `prescricao`).
 - `shared/`: reutilizado em várias telas (`app-shell` com a sidebar e o cabeçalho, `modo-dark`).
 - `core/`: global, uma instância na app inteira: `services` (`AuthService`, `TemaService`), `guards`
   (`authGuard`, `permissaoGuard`), `interceptors` (`authInterceptor`) e `models`.
@@ -80,8 +81,12 @@ Dentro de uma feature, o padrão (use `features/baias` como referência):
 
 Em `app.routes.ts`, cada tela é `loadComponent` e as novas entram antes do curinga `{ path: '**' }`, que precisa
 ser a última. Rota protegida usa `canActivate: [authGuard, permissaoGuard]` com `data: { roles: [...] }`.
-`baias` e `registro-medicamentos` estão com o `authGuard` comentado; reativar antes da entrega. O link da tela na
-sidebar fica em `shared/app-shell/app-shell.component.html` (um `<a routerLink>` por item).
+Todas as telas além do login têm guarda. O link da tela na sidebar fica em
+`shared/app-shell/app-shell.component.html` (um `<a routerLink>` por item). A tela de usuários não está na sidebar:
+o admin chega nela pelo botão "Criar usuário" do painel de baias.
+
+**Ids.** Todo id é `number` (`Long` no back), menos os de usuário (`id` e `perfilId` em `usuarios`), que são
+`string` (UUID). Em `<select>` com id, use `[ngValue]`, e não `[value]`, que transforma o número em texto.
 
 ## Proxy e ambientes
 
@@ -92,6 +97,8 @@ O front chama sempre `/api/...` (`environment.apiBaseUrl`) e o proxy escolhe o m
 | `/api/medicacoes` | `API_MEDICACOES_URL` | `octopus-msmedications` (:8082) |
 | `/api/baias` | `API_BAIAS_URL` | `ms-cadastro-baias` (:8081) |
 | `/api/internacoes` | `API_INTERNACOES_URL` | `ms-internacao` (:8083) |
+| `/api/prescricoes` | `API_PRESCRICOES_URL` | `octopus-msprescricao` (:8084) |
+| `/api/doses` | `API_DOSES_URL` | `octopus-msdoses` (:8085) |
 | `/api` (o resto) | `API_DEFAULT_URL` | `octopus-msusuario` (:8080): login, usuários, tutores, animais |
 
 - Desenvolvimento: `proxy.conf.mjs`, lendo o `.env` da raiz (modelo em `.env-example`). A primeira entrada que
@@ -104,7 +111,18 @@ O front chama sempre `/api/...` (`environment.apiBaseUrl`) e o proxy escolhe o m
 ## Telas
 
 - `login`: login, esqueci a senha e redefinição (código de 6 dígitos por e-mail).
-- `usuarios` (só `ROLE_ADMIN`): cadastro de veterinário, auxiliar, recepcionista e admin.
+- `usuarios` (só `ROLE_ADMIN`): lista de `GET /api/usuarios` com filtros de nome, perfil, situação e período de
+  cadastro (aplicados no back ao clicar em "Filtrar"), cadastro de veterinário, auxiliar, recepcionista e admin, e
+  desativação em dois cliques (o admin não tem desativação no back).
+- `cadastro-tutor-animal` (tela 1, `ROLE_ADMIN` e `ROLE_RECEPCIONISTA`): tutores com os seus animais. Todo animal
+  tem um tutor e pode ter uma mãe (outro animal já cadastrado, de qualquer tutor). "Novo tutor" é um assistente em
+  dois passos (tutor, depois primeiro animal) gravado numa chamada só (`POST /api/tutores` com `animais`). Cada
+  linha permite acrescentar animal (`POST /api/tutores/{id}/animais`), editar o tutor (`PUT /api/tutores/{id}`) e
+  editar um animal (`PUT /api/animais/{id}`, inclusive mãe e antirrábica). A leitura vem só de `GET /api/tutores`,
+  que já traz os animais. A antirrábica vencida aparece destacada, com a mesma conta da RN-02.
+- `prescricoes` (tela 5): o veterinário prescreve para uma internação aberta (medicamento, dosagem, intervalo,
+  número de doses e início). O card mostra os horários gerados pelo back. Desativar cancela as doses pendentes no
+  `octopus-msdoses`.
 - `baias`: painel de baias por tipo; só o admin cadastra, edita, desativa e reativa (limite de 12 ativas).
 - `registro-medicamentos`: cadastro de medicamentos com esquema e interações proibidas.
 - `internacao` (tela 4), com duas abas:
@@ -118,18 +136,21 @@ O front chama sempre `/api/...` (`environment.apiBaseUrl`) e o proxy escolhe o m
   - Diálogos: `admissao-dialogo` (baias em cards, como no painel de baias; bloqueia baia lotada, ninhada sem mãe
     e, com antirrábica vencida, tudo que não é isolamento, mostrando o motivo no card), `acao-dialogo` (pede a baia de isolamento, o termo do tutor ou a hora da saída) e
     `historico-dialogo`.
-  - O id da internação é `number` (`Long` no back); `animalId`, `baiaId` e `maeId` são `string` (UUID).
+  - Todos os ids da internação são `number`, inclusive `animalId`, `baiaId` e `maeId`.
   - A lista de animais vem de `GET /api/animais` (`msusuario`), liberado só para admin e recepcionista, os mesmos
     perfis que admitem. O nome do animal no card vem da própria internação.
-  - Admitir depende do `GET /api/animais/{id}` da branch `feature/animal_mae` do back, que ainda não está
-    publicado.
+  - Admitir usa o `GET /api/animais/{id}` do msusuario, já na `main` do back.
 
-## Estado das branches (08/10/2026)
+## Estado das branches (11/10/2026)
 
-- `main`: login, usuários, baias e medicamentos.
-- `feature/internacao` (Douglas): tela de internação (mapa, encerradas, admissão, transições e histórico),
-  entradas de proxy para `/api/internacoes` e link na sidebar. Ainda não mesclada na `main`; em produção
-  depende da variável `API_INTERNACOES_URL` na Vercel.
+- `main`: login, usuários, baias, medicamentos e internação.
+- `feature/sprint2-integracao`: parte da `main` e junta `feature/internacao` (id numérico),
+  `feature/cadastro-tutor-animal` (Miliani) e `feature/prescricao` (Marcos), com os ids numéricos em todas as telas,
+  a tela de tutores ligada ao msusuario, os filtros de usuários, a prescrição com dosagem e horários e o proxy
+  de `/api/doses`. Em produção depende de `API_PRESCRICOES_URL` e `API_DOSES_URL` na Vercel, além das que já
+  existem.
+- `feature/internacao`, `feature/cadastro-tutor-animal` e `feature/prescricao`: conteúdo já incluído na
+  `feature/sprint2-integracao`.
 - `feature/cadastro-baias`, `feature/medication` e `feature/login`: já mescladas na `main`.
 - `cadastros-baias`: tem commits que não estão na `main`; conferir com a squad antes de apagar ou mesclar.
 
