@@ -136,7 +136,7 @@ export function antirrabicaVencida(data: string | null, hoje = new Date()): bool
 
 /** "2026-10-08T10:00:00" → "08/10 10:00". A string não tem fuso: é lida como hora local (a da clínica). */
 export function formatarDataHora(valor: string | null): string {
-  if (!valor) return '—';
+  if (!valor) return 'Sem registro';
   return new Intl.DateTimeFormat('pt-BR', {
     day: '2-digit',
     month: '2-digit',

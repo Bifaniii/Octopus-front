@@ -124,8 +124,14 @@ export interface FiltrosUsuario {
 
 export const FILTROS_VAZIOS: FiltrosUsuario = { nome: '', perfil: '', situacao: '', cadastradoDe: '', cadastradoAte: '' };
 
-/** Recurso REST de cada perfil que pode ser desativado. O admin não tem desativação no back. */
-export const RECURSO_DESATIVAVEL: Partial<Record<RoleCriavel, string>> = {
+/** Dados completos do perfil, de GET /api/<perfil>/{id}. O admin não tem esse endpoint nem dados além do nome. */
+export type DetalheUsuario = VeterinarioResponse | AuxiliarOuRecepcionistaResponse;
+
+/**
+ * Recurso REST de cada perfil com detalhe e desativação (GET /{id} e PATCH /{id}/desativar). O admin não tem
+ * nenhum dos dois no back.
+ */
+export const RECURSO_POR_PERFIL: Partial<Record<RoleCriavel, string>> = {
   ROLE_VETERINARIO: 'veterinarios',
   ROLE_AUXILIAR: 'auxiliares',
   ROLE_RECEPCIONISTA: 'recepcionistas',

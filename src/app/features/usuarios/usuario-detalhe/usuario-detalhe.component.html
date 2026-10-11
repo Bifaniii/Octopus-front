@@ -1,0 +1,61 @@
+<dialog #dialogo class="dialogo" aria-labelledby="detalhe-titulo" (close)="fechar.emit()">
+  <div class="ficha">
+    <header class="ficha__topo">
+      <div>
+        <h2 id="detalhe-titulo" class="ficha__titulo">{{ usuario.nome }}</h2>
+        <span class="selo" [class.selo--inativo]="!usuario.ativo">{{ papel }} · {{ usuario.ativo ? 'ativo' : 'inativo' }}</span>
+      </div>
+      <button type="button" class="fechar" aria-label="Fechar" (click)="fecharDialogo()">
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </header>
+
+    <section>
+      <h3 class="ficha__secao">Conta</h3>
+      <dl class="dados">
+        @for (c of conta; track c.rotulo) {
+          <div class="dado">
+            <dt>{{ c.rotulo }}</dt>
+            <dd>{{ c.valor }}</dd>
+          </div>
+        }
+      </dl>
+    </section>
+
+    @if (usuario.role !== 'ROLE_ADMIN') {
+      <section>
+        <h3 class="ficha__secao">Dados pessoais e profissionais</h3>
+        @if (carregando) {
+          <p class="aviso">Carregando dados...</p>
+        } @else if (erro) {
+          <p class="erro" role="alert">{{ erro }}</p>
+        } @else {
+          <dl class="dados">
+            @for (c of perfil; track c.rotulo) {
+              <div class="dado">
+                <dt>{{ c.rotulo }}</dt>
+                <dd>{{ c.valor }}</dd>
+              </div>
+            }
+          </dl>
+        }
+      </section>
+    }
+
+    <footer class="ficha__rodape">
+      @if (podeDesativar) {
+        <button
+          type="button"
+          class="botao botao--perigo"
+          [disabled]="desativando"
+          (click)="clicarDesativar()"
+          (blur)="confirmando = false"
+        >
+          {{ desativando ? 'Desativando...' : confirmando ? 'Confirmar desativação' : 'Desativar conta' }}
+        </button>
+      }
+      <span class="espaco"></span>
+      <button type="button" class="botao" (click)="fecharDialogo()">Fechar</button>
+    </footer>
+  </div>
+</dialog>

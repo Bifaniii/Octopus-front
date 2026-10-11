@@ -82,8 +82,12 @@
       </thead>
       <tbody>
         @for (u of usuarios(); track u.id) {
-          <tr [class.inativo]="!u.ativo">
-            <td>{{ u.nome }}</td>
+          <tr class="clicavel" [class.inativo]="!u.ativo" (click)="abrirFicha(u)">
+            <td>
+              <button type="button" class="link-nome" (click)="$event.stopPropagation(); abrirFicha(u)">
+                {{ u.nome }}
+              </button>
+            </td>
             <td>{{ u.email }}</td>
             <td>{{ $any(nomePorRole)[u.role] ?? u.role }}</td>
             <td>{{ data(u.criadoEm) }}</td>
@@ -93,7 +97,7 @@
                 <button
                   type="button"
                   class="botao botao--perigo"
-                  (click)="desativar(u)"
+                  (click)="$event.stopPropagation(); desativar(u)"
                   (blur)="confirmandoDesativar.set(null)"
                 >
                   {{ confirmandoDesativar() === u.id ? 'Confirmar desativação' : 'Desativar' }}
@@ -106,6 +110,19 @@
     </table>
   }
 </app-shell>
+
+@if (selecionado(); as u) {
+  <app-usuario-detalhe
+    [usuario]="u"
+    [detalhe]="detalhe()"
+    [carregando]="carregandoDetalhe()"
+    [erro]="erroDetalhe()"
+    [podeDesativar]="podeDesativar(u)"
+    [desativando]="desativando()"
+    (desativar)="desativarDaFicha($event)"
+    (fechar)="fecharFicha()"
+  />
+}
 
 @if (dialogoAberto()) {
   <app-usuario-dialogo

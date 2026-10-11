@@ -37,7 +37,7 @@ export function formatarTelefone(telefone: string): string {
 
 /** aaaa-MM-dd → dd/MM/aaaa, sem passar por Date (que converteria fuso). */
 export function formatarData(data: string | null): string {
-  if (!data) return '—';
+  if (!data) return 'Sem registro';
   const [ano, mes, dia] = data.split('-');
   return `${dia}/${mes}/${ano}`;
 }

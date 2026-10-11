@@ -5,9 +5,17 @@ import { Observable } from 'rxjs';
 import { Router } from '@angular/router';
 import { AppShellComponent } from '../../shared/app-shell/app-shell.component';
 import { AuthService } from '../../core/services/auth.service';
+import { UsuarioDetalheComponent } from './usuario-detalhe/usuario-detalhe.component';
 import { UsuarioDialogoComponent } from './usuario-dialogo/usuario-dialogo.component';
 import { UsuarioService } from './usuario.service';
-import { FILTROS_VAZIOS, FiltrosUsuario, NOME_POR_ROLE, NovoUsuarioEvento, UsuarioListagem } from './usuario.model';
+import {
+  DetalheUsuario,
+  FILTROS_VAZIOS,
+  FiltrosUsuario,
+  NOME_POR_ROLE,
+  NovoUsuarioEvento,
+  UsuarioListagem,
+} from './usuario.model';
 
 /**
  * CadastroUsuariosPaginaComponent
@@ -21,7 +29,7 @@ import { FILTROS_VAZIOS, FiltrosUsuario, NOME_POR_ROLE, NovoUsuarioEvento, Usuar
 @Component({
   selector: 'app-cadastro-usuarios-pagina',
   standalone: true,
-  imports: [AppShellComponent, UsuarioDialogoComponent],
+  imports: [AppShellComponent, UsuarioDialogoComponent, UsuarioDetalheComponent],
   templateUrl: './cadastro-usuarios-pagina.component.html',
   styleUrl: './cadastro-usuarios-pagina.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -42,6 +50,13 @@ export class CadastroUsuariosPaginaComponent {
   /** Linha aguardando o segundo clique de "Desativar". */
   protected readonly confirmandoDesativar = signal<string | null>(null);
   protected readonly erroAcao = signal<string | null>(null);
+
+  /** Usuário com a ficha aberta e o estado da busca dos dados do perfil. */
+  protected readonly selecionado = signal<UsuarioListagem | null>(null);
+  protected readonly detalhe = signal<DetalheUsuario | null>(null);
+  protected readonly carregandoDetalhe = signal(false);
+  protected readonly erroDetalhe = signal<string | null>(null);
+  protected readonly desativando = signal(false);
 
   /** Erro ao carregar a lista. */
   protected readonly erroLista = signal<string | null>(null);
@@ -79,6 +94,46 @@ export class CadastroUsuariosPaginaComponent {
 
   protected podeDesativar(u: UsuarioListagem): boolean {
     return this.usuarioService.podeDesativar(u);
+  }
+
+  protected abrirFicha(u: UsuarioListagem): void {
+    this.selecionado.set(u);
+    this.detalhe.set(null);
+    this.erroDetalhe.set(null);
+    if (!this.usuarioService.temDetalhe(u)) return;
+    this.carregandoDetalhe.set(true);
+    this.usuarioService.detalhe(u).subscribe({
+      next: (d) => {
+        this.carregandoDetalhe.set(false);
+        this.detalhe.set(d);
+      },
+      error: (e: HttpErrorResponse) => {
+        this.carregandoDetalhe.set(false);
+        if (this.sessaoExpirou(e)) return;
+        this.erroDetalhe.set(this.usuarioService.mensagemDeErro(e));
+      },
+    });
+  }
+
+  protected fecharFicha(): void {
+    this.selecionado.set(null);
+  }
+
+  /** Desativação pedida dentro da ficha, que já confirmou com o segundo clique. */
+  protected desativarDaFicha(u: UsuarioListagem): void {
+    this.desativando.set(true);
+    this.erroDetalhe.set(null);
+    this.usuarioService.desativar(u).subscribe({
+      next: () => {
+        this.desativando.set(false);
+        this.selecionado.set({ ...u, ativo: false });
+      },
+      error: (e: HttpErrorResponse) => {
+        this.desativando.set(false);
+        if (this.sessaoExpirou(e)) return;
+        this.erroDetalhe.set(this.usuarioService.mensagemDeErro(e));
+      },
+    });
   }
 
   /** Dois cliques: o primeiro pede confirmação na própria linha, sem diálogo do navegador. */

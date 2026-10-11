@@ -19,10 +19,10 @@
     <h2 class="secao__titulo">Serviços</h2>
     <div class="grade">
       @for (servico of servicos; track servico.nome) {
-        <button type="button" class="servico">
+        <a class="servico" [routerLink]="servico.rota">
           <span class="servico__icone"><i [class]="'bi ' + servico.icone"></i></span>
           {{ servico.nome }}
-        </button>
+        </a>
       }
     </div>
   </section>

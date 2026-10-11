@@ -8,9 +8,10 @@ import {
   DadosAdmin,
   DadosAuxiliarOuRecepcionista,
   DadosVeterinario,
+  DetalheUsuario,
   ErroApi,
   FiltrosUsuario,
-  RECURSO_DESATIVAVEL,
+  RECURSO_POR_PERFIL,
   RoleCriavel,
   UsuarioListagem,
   VeterinarioResponse,
@@ -72,12 +73,22 @@ export class UsuarioService {
   }
 
   podeDesativar(usuario: UsuarioListagem): boolean {
-    return usuario.ativo && RECURSO_DESATIVAVEL[usuario.role as RoleCriavel] !== undefined;
+    return usuario.ativo && RECURSO_POR_PERFIL[usuario.role as RoleCriavel] !== undefined;
+  }
+
+  temDetalhe(usuario: UsuarioListagem): boolean {
+    return RECURSO_POR_PERFIL[usuario.role as RoleCriavel] !== undefined;
+  }
+
+  /** GET /api/<perfil>/{perfilId}: CPF ou CNPJ, nascimento, telefone e, para o veterinário, CRMV e especialização. */
+  detalhe(usuario: UsuarioListagem): Observable<DetalheUsuario> {
+    const recurso = RECURSO_POR_PERFIL[usuario.role as RoleCriavel];
+    return this.http.get<DetalheUsuario>(`${this.apiBase}/${recurso}/${usuario.perfilId}`);
   }
 
   /** PATCH /api/<perfil>/{perfilId}/desativar. Nada é apagado: a conta fica inativa e perde o acesso. */
   desativar(usuario: UsuarioListagem): Observable<void> {
-    const recurso = RECURSO_DESATIVAVEL[usuario.role as RoleCriavel];
+    const recurso = RECURSO_POR_PERFIL[usuario.role as RoleCriavel];
     return this.http.patch(`${this.apiBase}/${recurso}/${usuario.perfilId}/desativar`, null).pipe(
       tap(() => this._usuarios.update((lista) => lista.map((u) => (u.id === usuario.id ? { ...u, ativo: false } : u)))),
       map(() => undefined),

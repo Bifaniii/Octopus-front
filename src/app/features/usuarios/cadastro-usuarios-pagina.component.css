@@ -134,3 +134,18 @@
   clip: rect(0 0 0 0);
   white-space: nowrap;
 }
+
+.clicavel { cursor: pointer; }
+.clicavel:hover td { background: var(--color-surface-alt); }
+.link-nome {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--color-text);
+  font: inherit;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+}
+.link-nome:hover { color: var(--color-primary); text-decoration: underline; }
+.link-nome:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 2px; }

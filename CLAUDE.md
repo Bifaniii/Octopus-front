@@ -113,7 +113,10 @@ O front chama sempre `/api/...` (`environment.apiBaseUrl`) e o proxy escolhe o m
 - `login`: login, esqueci a senha e redefinição (código de 6 dígitos por e-mail).
 - `usuarios` (só `ROLE_ADMIN`): lista de `GET /api/usuarios` com filtros de nome, perfil, situação e período de
   cadastro (aplicados no back ao clicar em "Filtrar"), cadastro de veterinário, auxiliar, recepcionista e admin, e
-  desativação em dois cliques (o admin não tem desativação no back).
+  desativação em dois cliques (o admin não tem desativação no back). Clicar na linha abre a ficha do usuário
+  (`usuario-detalhe`): conta, mais os dados do perfil buscados em `GET /api/<perfil>/{perfilId}` (CPF ou CNPJ,
+  nascimento, telefone e, no veterinário, CRMV e especialização). O admin só tem nome e conta.
+- Textos de tela: sem travessão. Para valor vazio, escreva "Sem registro" ou equivalente.
 - `cadastro-tutor-animal` (tela 1, `ROLE_ADMIN` e `ROLE_RECEPCIONISTA`): tutores com os seus animais. Todo animal
   tem um tutor e pode ter uma mãe (outro animal já cadastrado, de qualquer tutor). "Novo tutor" é um assistente em
   dois passos (tutor, depois primeiro animal) gravado numa chamada só (`POST /api/tutores` com `animais`). Cada

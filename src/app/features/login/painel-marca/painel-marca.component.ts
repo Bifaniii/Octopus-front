@@ -17,7 +17,7 @@ import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 })
 export class PainelMarcaComponent {
   @Input() brandName = 'VidaPet';
-  @Input() title = 'Cuidado veterinário, organizado com carinho.';
+  @Input() title = 'Plantão da VidaPet';
   @Input() subtitle =
-    'Prontuários, agenda e histórico de cada paciente em um só lugar para sua equipe.';
+    'A qualquer hora do plantão, veja o que está atrasado, o que vence na próxima hora e o que foi perdido.';
 }

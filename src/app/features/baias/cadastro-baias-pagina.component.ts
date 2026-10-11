@@ -8,7 +8,7 @@ import {
 } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { Observable } from 'rxjs';
 import { AppShellComponent } from '../../shared/app-shell/app-shell.component';
 import { AuthService } from '../../core/services/auth.service';
@@ -24,9 +24,11 @@ const SECOES: { tipo: TipoBaia; titulo: string }[] = [
 ];
 
 /** Atalho de serviço mostrado no topo da tela. O ícone é uma classe do bootstrap-icons. */
+/** Atalho do painel para outra tela do plantão. */
 interface Servico {
   nome: string;
   icone: string;
+  rota: string;
 }
 
 /**
@@ -40,7 +42,7 @@ interface Servico {
 @Component({
   selector: 'app-cadastro-baias-pagina',
   standalone: true,
-  imports: [AppShellComponent, BaiaCardComponent, BaiaDialogoComponent],
+  imports: [AppShellComponent, BaiaCardComponent, BaiaDialogoComponent, RouterLink],
   templateUrl: './cadastro-baias-pagina.component.html',
   styleUrl: './cadastro-baias-pagina.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -71,8 +73,8 @@ export class CadastroBaiasPaginaComponent {
   protected readonly erroDialogo = signal<string | null>(null);
 
   protected readonly servicos: Servico[] = [
-    { nome: 'Agendamento', icone: 'bi-calendar-check' },
-    { nome: 'Prontuários', icone: 'bi-clipboard2-check' }
+    { nome: 'Internação', icone: 'bi-plus-square', rota: '/internacao' },
+    { nome: 'Prescrições', icone: 'bi-clipboard2-check', rota: '/prescricoes' }
   ];
 
   protected readonly grupos = computed(() => {

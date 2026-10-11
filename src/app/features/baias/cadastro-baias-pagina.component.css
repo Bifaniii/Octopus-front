@@ -47,6 +47,7 @@
   font-size: 0.85rem;
   font-weight: 500;
   text-align: left;
+  text-decoration: none;
   cursor: pointer;
 }
 .servico:hover { border-color: var(--color-border-strong); }
