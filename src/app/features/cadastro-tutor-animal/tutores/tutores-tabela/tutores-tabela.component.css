@@ -1,0 +1,25 @@
+:host { display: block; }
+
+/* Rola na horizontal em tela estreita, sem quebrar a página. */
+.moldura {
+  overflow-x: auto;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+}
+
+.tabela { width: 100%; border-collapse: collapse; font-size: 0.85rem; color: var(--color-text); }
+
+th {
+  padding: 0.7rem 0.9rem;
+  border-bottom: 1px solid var(--color-border);
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-align: left;
+  white-space: nowrap;
+  color: var(--color-text-muted);
+  background: var(--color-surface-alt);
+}
+
+td { padding: 0.65rem 0.9rem; border-bottom: 1px solid var(--color-border); vertical-align: top; }
+tr:last-child td { border-bottom: 0; }

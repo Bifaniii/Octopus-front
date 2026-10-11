@@ -1,0 +1,43 @@
+<form class="form" [formGroup]="form" (ngSubmit)="enviar()">
+  <h3 class="form__titulo">Passo 2 de 2 · Animal</h3>
+
+  <label class="campo">
+    <span class="campo__rotulo">Nome</span>
+    <input type="text" formControlName="nome" maxlength="100" placeholder="Ex.: Thor" />
+  </label>
+
+  <div class="linha">
+    <label class="campo">
+      <span class="campo__rotulo">Espécie</span>
+      <input type="text" formControlName="especie" maxlength="50" placeholder="Ex.: Cão" />
+    </label>
+
+    <label class="campo">
+      <span class="campo__rotulo">Última antirrábica (opcional)</span>
+      <input type="date" formControlName="dataUltimaAntirrabica" [max]="hoje" />
+    </label>
+  </div>
+
+  <label class="check">
+    <input type="checkbox" formControlName="precisaInternar" />
+    <span>Precisa internar?</span>
+  </label>
+
+  @if (erro() ?? erroApi; as mensagem) {
+    <p class="erro" role="alert">{{ mensagem }}</p>
+  }
+
+  <footer class="form__rodape">
+    @if (podeVoltar) {
+      <button type="button" class="botao" [disabled]="salvando" (click)="voltar.emit()">Voltar</button>
+    }
+    <span class="espaco"></span>
+    <button type="submit" class="botao botao--primario" [disabled]="salvando">
+      @if (salvando) {
+        Salvando...
+      } @else {
+        Cadastrar tutor e animal
+      }
+    </button>
+  </footer>
+</form>

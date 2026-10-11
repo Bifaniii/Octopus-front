@@ -75,7 +75,20 @@ export const routes: Routes = [
     import('./features/internacao/internacao-pagina.component')
       .then((m) => m.InternacaoPaginaComponent),
 },
-
+// ──────────────────────────────────────────────────────────────
+  // ROTA DO CADASTRO DE TUTOR E ANIMAL 
+  // ──────────────────────────────────────────────────────────────
+  {
+    path: 'cadastro-tutor-animal',
+    // As guardas estão comentadas para você testar livremente
+    // canActivate: [authGuard, permissaoGuard],
+    // data: { roles: ['ROLE_ADMIN', 'ROLE_RECEPCIONISTA'] },
+    loadComponent: () =>
+      import('./features/cadastro-tutor-animal/tutores/cadastro-tutores-pagina.component').then(
+        (m) => m.CadastroTutoresPaginaComponent
+      ),
+  },
+  
   // ──────────────────────────────────────────────────────────────
   // EXEMPLOS de features futuras — descomente ao criar cada pasta.
   //

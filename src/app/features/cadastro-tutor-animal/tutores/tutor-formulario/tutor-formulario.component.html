@@ -1,0 +1,35 @@
+<form class="form" [formGroup]="form" (ngSubmit)="enviar()">
+  <h3 class="form__titulo">Passo 1 de 2 · Tutor</h3>
+
+  <label class="campo">
+    <span class="campo__rotulo">Nome</span>
+    <input type="text" formControlName="nome" maxlength="100" placeholder="Nome completo" />
+  </label>
+
+  <div class="linha">
+    <label class="campo">
+      <span class="campo__rotulo">CPF</span>
+      <input type="text" formControlName="cpf" inputmode="numeric" maxlength="14" placeholder="000.000.000-00" />
+    </label>
+
+    <label class="campo">
+      <span class="campo__rotulo">Telefone</span>
+      <input type="tel" formControlName="telefone" maxlength="15" placeholder="(11) 98765-4321" />
+    </label>
+  </div>
+
+  <label class="campo">
+    <span class="campo__rotulo">E-mail (opcional)</span>
+    <input type="email" formControlName="email" maxlength="100" placeholder="tutor@exemplo.com" />
+  </label>
+
+  @if (erro(); as mensagem) {
+    <p class="erro" role="alert">{{ mensagem }}</p>
+  }
+
+  <footer class="form__rodape">
+    <button type="button" class="botao" (click)="cancelar.emit()">Cancelar</button>
+    <span class="espaco"></span>
+    <button type="submit" class="botao botao--primario">Próximo</button>
+  </footer>
+</form>

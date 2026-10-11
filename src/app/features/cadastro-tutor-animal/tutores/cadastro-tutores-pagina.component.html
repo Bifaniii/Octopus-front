@@ -1,0 +1,60 @@
+<app-shell titulo="Tutores e animais" [subtitulo]="dataHoje">
+  
+  @if (podeCadastrar()) {
+    <div class="acoes">
+      <button type="button" class="botao-novo" [disabled]="formAberto()" (click)="novoCadastro()">
+        <i class="bi bi-person-plus"></i>
+        Novo tutor
+      </button>
+    </div>
+  }
+
+  @if (sucesso(); as s) {
+    <div class="aviso aviso--sucesso" role="status">
+      <span>Tutor {{ s.tutor }} e animal {{ s.animal }} cadastrados.</span>
+      <span class="aviso__botoes">
+        @if (s.precisaInternar) {
+          <button type="button" class="aviso__acao" (click)="irParaInternacao()">Ir para internação</button>
+        }
+        <button type="button" class="aviso__acao" (click)="fecharSucesso()">Fechar</button>
+      </span>
+    </div>
+  }
+
+  @if (formAberto()) {
+    <section class="painel" aria-label="Cadastro de tutor e animal">
+      @if (passo() === 1) {
+        <app-tutor-formulario [tutor]="rascunhoTutor()" (avancar)="avancar($event)" (cancelar)="cancelar()" />
+      } @else {
+        <app-animal-formulario
+          [salvando]="salvando()"
+          [erroApi]="erroForm()"
+          [podeVoltar]="tutorCriado() === null"
+          (salvar)="salvar($event)"
+          (voltar)="voltar()"
+        />
+      }
+    </section>
+  }
+
+  @if (erroLista(); as mensagem) {
+    <div class="aviso aviso--erro" role="alert">
+      <span>{{ mensagem }}</span>
+      <button type="button" class="aviso__acao" (click)="recarregar()">Tentar novamente</button>
+    </div>
+  } @else if (carregando() && tutores().length === 0) {
+    <p class="aviso">Carregando tutores...</p>
+  } @else if (tutores().length === 0) {
+    <p class="aviso">
+      Nenhum tutor cadastrado ainda.
+      @if (podeCadastrar()) {
+        Use o botão "Novo tutor" para cadastrar o primeiro.
+      }
+    </p>
+  } @else {
+    <section class="secao">
+      <h2 class="secao__titulo">Tutores cadastrados</h2>
+      <app-tutores-tabela [tutores]="tutores()" />
+    </section>
+  }
+</app-shell>
