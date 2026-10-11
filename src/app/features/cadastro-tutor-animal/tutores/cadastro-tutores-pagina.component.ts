@@ -63,7 +63,8 @@ export class CadastroTutoresPaginaComponent {
   /** Erro ao carregar a lista. */
   protected readonly erroLista = signal<string | null>(null);
 
-  protected readonly formAberto = signal(false);
+  // ALTERAÇÃO 1: Começa como 'true' para o formulário aparecer logo aberto
+  protected readonly formAberto = signal(true);
   protected readonly passo = signal<1 | 2>(1);
   /** Dados do passo 1, guardados enquanto o usuário preenche o passo 2. */
   protected readonly rascunhoTutor = signal<DadosTutor | null>(null);
@@ -82,12 +83,16 @@ export class CadastroTutoresPaginaComponent {
 
   protected recarregar(): void {
     this.erroLista.set(null);
+    
+    // ALTERAÇÃO 2: Chamada ao backend comentada para evitar o erro 401/Ligação na interface
+    /*
     this.tutorService.carregar().subscribe({
       error: (e: HttpErrorResponse) => {
         if (this.sessaoExpirou(e)) return;
         this.erroLista.set(this.tutorService.mensagemDeErro(e));
       },
     });
+    */
   }
 
   protected novoCadastro(): void {

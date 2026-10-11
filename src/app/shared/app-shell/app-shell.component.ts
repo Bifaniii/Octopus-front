@@ -1,11 +1,10 @@
-
 import {
   ChangeDetectionStrategy,
   Component,
   Input,
   computed,
   inject,
-  signal, // <-- 1. Importe o signal aqui
+  signal,
 } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
@@ -18,7 +17,8 @@ export type ItemNavegacao =
   | 'prontuarios'
   | 'relat-dose'
   | 'medicamentos'
-  | 'usuarios';
+  | 'usuarios'
+  | 'tutores'; // <-- ADICIONADO AQUI
 
 @Component({
   selector: 'app-shell',
@@ -36,7 +36,6 @@ export class AppShellComponent {
   @Input() subtitulo = '';
   @Input() itemAtivo: ItemNavegacao = 'medicamentos';
 
-  // 2. Criado um Signal para controlar o estado do menu (funciona perfeitamente com OnPush)
   protected readonly menuAberto = signal(false);
 
   protected readonly iniciais = computed(() => {
@@ -45,16 +44,13 @@ export class AppShellComponent {
     return nome.slice(0, 2).toUpperCase() || '?';
   });
 
-  // 3. Função para alternar o estado do menu
   protected toggleMenu(): void {
     this.menuAberto.update(estado => !estado);
   }
 
-  // 4. Função para redirecionar para a rota de logout externa
   protected fazerLogout(): void {
     this.auth.logout();
     this.menuAberto.set(false);
     this.router.navigate(['/login']);
   }
 }
-
