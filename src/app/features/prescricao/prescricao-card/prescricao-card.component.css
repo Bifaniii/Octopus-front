@@ -29,8 +29,8 @@
   border-radius: 999px;
   font-size: 0.8rem;
   white-space: nowrap;
-  background: var(--color-primary-soft);
-  color: var(--color-primary-strong);
+  background: var(--color-primary);
+  color: var(--color-text-on-primary);
 }
 .card__itens {
   list-style: none;
