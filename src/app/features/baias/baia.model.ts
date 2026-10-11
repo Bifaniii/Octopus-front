@@ -11,7 +11,7 @@ export type TipoBaia = 'ISOLAMENTO' | 'COLETIVA' | 'NINHADA';
 
 /** Resposta de GET/POST/PUT/PATCH em /api/baias. */
 export interface Baia {
-  id: string; // UUID
+  id: number;
   tipo: TipoBaia;
   nome: string;
   descricao: string | null;

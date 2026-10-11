@@ -53,7 +53,7 @@ export class InternacaoService {
   }
 
   /** GET /api/internacoes?animalId= — todas as passagens do animal pela clínica, abertas e encerradas. */
-  doAnimal(animalId: string): Observable<Internacao[]> {
+  doAnimal(animalId: number): Observable<Internacao[]> {
     return this.http.get<Internacao[]>(this.baseUrl, { params: { animalId } });
   }
 

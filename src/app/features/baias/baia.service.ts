@@ -41,21 +41,21 @@ export class BaiaService {
   }
 
   /** PUT /api/baias/{id} */
-  atualizar(id: string, dados: DadosBaia): Observable<Baia> {
+  atualizar(id: number, dados: DadosBaia): Observable<Baia> {
     return this.http
       .put<Baia>(`${this.baseUrl}/${id}`, dados)
       .pipe(tap((atualizada) => this.substituir(atualizada)));
   }
 
   /** PATCH /api/baias/{id}/desativar — o back-end não apaga baias, só arquiva. */
-  desativar(id: string): Observable<Baia> {
+  desativar(id: number): Observable<Baia> {
     return this.http
       .patch<Baia>(`${this.baseUrl}/${id}/desativar`, null)
       .pipe(tap((desativada) => this.substituir(desativada)));
   }
 
   /** PATCH /api/baias/{id}/ativar — o back-end recusa (422) se já houver 12 baias ativas. */
-  ativar(id: string): Observable<Baia> {
+  ativar(id: number): Observable<Baia> {
     return this.http
       .patch<Baia>(`${this.baseUrl}/${id}/ativar`, null)
       .pipe(tap((ativada) => this.substituir(ativada)));

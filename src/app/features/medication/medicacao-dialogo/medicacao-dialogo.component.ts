@@ -62,7 +62,7 @@ export class MedicacaoDialogoComponent implements AfterViewInit {
   });
 
   /** Ids marcados como interação proibida. */
-  protected readonly interacoes = signal<ReadonlySet<string>>(new Set());
+  protected readonly interacoes = signal<ReadonlySet<number>>(new Set());
   protected readonly erro = signal<string | null>(null);
 
   /** O back-end exige data futura: o mínimo do calendário é amanhã. */
@@ -76,7 +76,7 @@ export class MedicacaoDialogoComponent implements AfterViewInit {
     this.dialogo.nativeElement.showModal();
   }
 
-  protected alternarInteracao(id: string, evento: Event): void {
+  protected alternarInteracao(id: number, evento: Event): void {
     const marcado = (evento.target as HTMLInputElement).checked;
     this.interacoes.update((atual) => {
       const novo = new Set(atual);

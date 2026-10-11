@@ -15,12 +15,12 @@ export type StatusInternacao =
 
 /** Resposta de GET/POST/PATCH em /api/internacoes. Datas são LocalDateTime, sem fuso: "2026-10-08T10:00:00". */
 export interface Internacao {
-  id: number; // Long no back; animal e baia continuam UUID
-  animalId: string;
+  id: number;
+  animalId: number;
   animalNome: string;
   animalEspecie: string;
-  baiaId: string;
-  maeId: string | null;
+  baiaId: number;
+  maeId: number | null;
   status: StatusInternacao;
   motivo: string;
   termoResponsabilidade: string | null;
@@ -34,25 +34,25 @@ export interface Internacao {
 export interface InternacaoEvento {
   statusAnterior: StatusInternacao | null;
   statusNovo: StatusInternacao;
-  baiaId: string;
+  baiaId: number;
   usuario: string;
   dataHora: string;
 }
 
 /** Corpo do POST /api/internacoes. */
 export interface DadosAdmissao {
-  animalId: string;
-  baiaId: string;
+  animalId: number;
+  baiaId: number;
   motivo: string;
 }
 
 /** Animal como o GET /api/animais do msusuario devolve (só os campos usados aqui). */
 export interface Animal {
-  id: string;
+  id: number;
   nome: string;
   especie: string;
   dataUltimaAntirrabica: string | null;
-  maeId?: string | null;
+  maeId?: number | null;
 }
 
 export const NOME_POR_STATUS: Record<StatusInternacao, string> = {

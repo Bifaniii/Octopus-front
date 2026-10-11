@@ -34,7 +34,7 @@ export class AcaoDialogoComponent implements OnInit, AfterViewInit {
   @Input({ required: true }) acao!: Acao;
   /** Baias ativas, para escolher a de isolamento. */
   @Input() baias: Baia[] = [];
-  @Input() ocupacao: Record<string, number> = {};
+  @Input() ocupacao: Record<number, number> = {};
   @Input() salvando = false;
   @Input() erroApi: string | null = null;
 
@@ -46,7 +46,7 @@ export class AcaoDialogoComponent implements OnInit, AfterViewInit {
   protected readonly definicoes = ACOES;
   protected readonly erro = signal<string | null>(null);
 
-  protected baiaId = '';
+  protected baiaId: number | null = null;
   protected termo = '';
   protected dataSaida = '';
 

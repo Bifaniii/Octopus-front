@@ -21,9 +21,9 @@
         <label class="campo">
           <span class="campo__rotulo">Baia de isolamento</span>
           <select name="baiaId" [(ngModel)]="baiaId">
-            <option value="">Selecione</option>
+            <option [ngValue]="null">Selecione</option>
             @for (o of isolamentos; track o.baia.id) {
-              <option [value]="o.baia.id" [disabled]="!o.livre">
+              <option [ngValue]="o.baia.id" [disabled]="!o.livre">
                 {{ o.baia.nome }}{{ o.livre ? '' : ' (ocupada)' }}
               </option>
             }

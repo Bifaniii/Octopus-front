@@ -46,7 +46,7 @@ type EstadoDialogo =
 
 /** Uma baia do mapa com os animais que estão nela (capacidade 0 = baia que não veio do msbaias). */
 interface BlocoBaia {
-  id: string;
+  id: number;
   titulo: string;
   detalhe: string;
   capacidade: number;
@@ -97,7 +97,7 @@ export class InternacaoPaginaComponent {
   protected readonly baiasAtivas = computed(() => this.baiaService.baias().filter((b) => b.ativo));
 
   protected readonly ocupacao = computed(() => {
-    const mapa: Record<string, number> = {};
+    const mapa: Record<number, number> = {};
     for (const i of this.abertas()) {
       mapa[i.baiaId] = (mapa[i.baiaId] ?? 0) + 1;
     }
@@ -112,7 +112,7 @@ export class InternacaoPaginaComponent {
 
   /** Mapa: baias ativas em ordem de nome, cada uma com seus animais; depois as baias inativas ou desconhecidas que ainda têm alguém. */
   protected readonly blocos = computed<BlocoBaia[]>(() => {
-    const porBaia = new Map<string, Internacao[]>();
+    const porBaia = new Map<number, Internacao[]>();
     for (const i of this.abertas()) {
       porBaia.set(i.baiaId, [...(porBaia.get(i.baiaId) ?? []), i]);
     }
@@ -124,7 +124,7 @@ export class InternacaoPaginaComponent {
     const blocos: BlocoBaia[] = visiveis.map((b) => this.bloco(b, porBaia.get(b.id) ?? []));
     for (const [baiaId, internacoes] of porBaia) {
       if (!todas.some((b) => b.id === baiaId)) {
-        blocos.push({ id: baiaId, titulo: 'Baia não encontrada', detalhe: baiaId, capacidade: 0, internacoes });
+        blocos.push({ id: baiaId, titulo: 'Baia não encontrada', detalhe: `id ${baiaId}`, capacidade: 0, internacoes });
       }
     }
     return blocos;

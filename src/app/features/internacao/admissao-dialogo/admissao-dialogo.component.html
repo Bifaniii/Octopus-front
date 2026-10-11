@@ -13,9 +13,9 @@
         <select disabled><option>Carregando animais...</option></select>
       } @else {
         <select formControlName="animalId" (change)="aoEscolherAnimal()">
-          <option value="">Selecione</option>
+          <option [ngValue]="null">Selecione</option>
           @for (a of disponiveis; track a.id) {
-            <option [value]="a.id">{{ a.nome }} · {{ a.especie }}</option>
+            <option [ngValue]="a.id">{{ a.nome }} · {{ a.especie }}</option>
           }
         </select>
         @if (disponiveis.length === 0) {

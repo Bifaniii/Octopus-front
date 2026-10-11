@@ -45,11 +45,11 @@ export class AdmissaoDialogoComponent implements AfterViewInit {
   /** `null` enquanto a lista de animais carrega. */
   @Input() animais: Animal[] | null = null;
   /** Ids dos animais com internação aberta (não podem ser admitidos de novo). */
-  @Input() internados = new Set<string>();
+  @Input() internados = new Set<number>();
   /** Baias ativas. */
   @Input({ required: true }) baias!: Baia[];
   /** Quantas internações abertas há em cada baia (baiaId → ocupação). */
-  @Input() ocupacao: Record<string, number> = {};
+  @Input() ocupacao: Record<number, number> = {};
   @Input() salvando = false;
   @Input() erroApi: string | null = null;
 
@@ -61,8 +61,8 @@ export class AdmissaoDialogoComponent implements AfterViewInit {
   private readonly fb = inject(FormBuilder);
 
   protected readonly form = this.fb.nonNullable.group({
-    animalId: [''],
-    baiaId: [''],
+    animalId: this.fb.control<number | null>(null),
+    baiaId: this.fb.control<number | null>(null),
     motivo: [''],
   });
 
@@ -111,11 +111,11 @@ export class AdmissaoDialogoComponent implements AfterViewInit {
     // A baia escolhida antes pode ter ficado bloqueada para este animal.
     const baia = this.opcoes.find((o) => o.baia.id === this.form.controls.baiaId.value);
     if (baia?.bloqueio) {
-      this.form.controls.baiaId.setValue('');
+      this.form.controls.baiaId.setValue(null);
     }
   }
 
-  protected escolherBaia(id: string): void {
+  protected escolherBaia(id: number): void {
     this.form.controls.baiaId.setValue(id);
   }
 

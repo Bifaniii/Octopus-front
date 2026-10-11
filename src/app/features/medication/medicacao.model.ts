@@ -11,14 +11,14 @@ export type TipoEsquema = 'CONTINUO' | 'SINTOMATICO';
 
 /** Resumo de um medicamento com o qual a interação é proibida. */
 export interface InteracaoProibida {
-  id: string;
+  id: number;
   nomeComercial: string;
   principioAtivo: string;
 }
 
 /** Resposta de GET /api/medicacoes. */
 export interface Medicacao {
-  id: string; // UUID
+  id: number;
   nomeComercial: string;
   principioAtivo: string;
   concentracao: string; // Ex.: "500mg", "10ml"
@@ -48,7 +48,7 @@ export interface DadosMedicacao {
   dataVencimento: string; // LocalDateTime sem fuso, ex.: "2027-03-01T00:00:00"
   fabricante: string;
   numeroRegistroAnvisa: string; // exatamente 11 dígitos
-  interacoesProibidas: string[]; // ids das medicações
+  interacoesProibidas: number[]; // ids das medicações
 }
 
 /** Corpo de erro do back-end (ErroResponse). */
