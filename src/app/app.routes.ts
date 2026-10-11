@@ -78,10 +78,11 @@ export const routes: Routes = [
   },
 
   {
-    // Mesmos perfis do @PreAuthorize de /api/tutores e /api/animais no msusuario.
+    // Mesmos perfis do @PreAuthorize de leitura de /api/tutores no msusuario. O veterinário só consulta: os botões
+    // de cadastro e edição aparecem só para admin e recepção (`podeCadastrar` na página).
     path: 'cadastro-tutor-animal',
     canActivate: [authGuard, permissaoGuard],
-    data: { roles: ['ROLE_ADMIN', 'ROLE_RECEPCIONISTA'] },
+    data: { roles: ['ROLE_ADMIN', 'ROLE_RECEPCIONISTA', 'ROLE_VETERINARIO'] },
     loadComponent: () =>
       import('./features/cadastro-tutor-animal/tutores/cadastro-tutores-pagina.component').then(
         (m) => m.CadastroTutoresPaginaComponent,

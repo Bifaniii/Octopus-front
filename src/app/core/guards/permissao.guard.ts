@@ -20,5 +20,6 @@ export const permissaoGuard: CanActivateFn = (route) => {
 
   const roles = (route.data['roles'] as Role[] | undefined) ?? [];
 
-  return auth.temRole(roles) ? true : router.createUrlTree(['/login']);
+  // Logado mas sem o papel: volta ao painel, que todo perfil vê. Mandar para o login parecia um logout.
+  return auth.temRole(roles) ? true : router.createUrlTree(['/baias']);
 };

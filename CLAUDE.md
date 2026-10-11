@@ -81,7 +81,8 @@ Dentro de uma feature, o padrão (use `features/baias` como referência):
 
 Em `app.routes.ts`, cada tela é `loadComponent` e as novas entram antes do curinga `{ path: '**' }`, que precisa
 ser a última. Rota protegida usa `canActivate: [authGuard, permissaoGuard]` com `data: { roles: [...] }`.
-Todas as telas além do login têm guarda. O link da tela na sidebar fica em
+Todas as telas além do login têm guarda. Quem está logado sem o papel exigido volta para `/baias`, e os links da
+sidebar só aparecem para quem pode abrir a tela. O link da tela na sidebar fica em
 `shared/app-shell/app-shell.component.html` (um `<a routerLink>` por item). A tela de usuários não está na sidebar:
 o admin chega nela pelo botão "Criar usuário" do painel de baias.
 
@@ -120,7 +121,7 @@ O front chama sempre `/api/...` (`environment.apiBaseUrl`) e o proxy escolhe o m
   campos e as regras do cadastro, sem a senha. Trocar o e-mail derruba as sessões abertas daquela conta.
 - Senha no cadastro de usuário: mínimo de 8 caracteres, como no back (na redefinição o back aceita 6).
 - Textos de tela: sem travessão. Para valor vazio, escreva "Sem registro" ou equivalente.
-- `cadastro-tutor-animal` (tela 1, `ROLE_ADMIN` e `ROLE_RECEPCIONISTA`): tutores com os seus animais. Todo animal
+- `cadastro-tutor-animal` (tela 1; admin e recepção cadastram e editam, o veterinário só consulta): tutores com os seus animais. Todo animal
   tem um tutor e pode ter uma mãe (outro animal já cadastrado, de qualquer tutor). "Novo tutor" é um assistente em
   dois passos (tutor, depois primeiro animal) gravado numa chamada só (`POST /api/tutores` com `animais`). Cada
   linha permite acrescentar animal (`POST /api/tutores/{id}/animais`), editar o tutor (`PUT /api/tutores/{id}`) e

@@ -38,6 +38,11 @@ export class AppShellComponent {
 
   protected readonly menuAberto = signal(false);
 
+  /** Mesmos perfis da rota `cadastro-tutor-animal`: quem não acessa nem vê o link. */
+  protected readonly veTutores = computed(() =>
+    this.auth.temRole(['ROLE_ADMIN', 'ROLE_RECEPCIONISTA', 'ROLE_VETERINARIO']),
+  );
+
   protected readonly iniciais = computed(() => {
     const email = this.auth.usuario()?.email ?? '';
     const nome = email.split('@')[0] ?? '';
