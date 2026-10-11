@@ -22,7 +22,7 @@ export class PrescricaoCardComponent {
   @Input() animalNome = '';
   @Input() animalEspecie = '';
   @Input() status = '';
-  @Input() nomesDosMedicamentos: Record<string, string> = {};
+  @Input() nomesDosMedicamentos: Partial<Record<number, string>> = {};
   @Input() podeDesativar = false;
   @Output() desativar = new EventEmitter<number>();
 
@@ -30,10 +30,7 @@ export class PrescricaoCardComponent {
     return NOME_DO_STATUS[this.status] ?? '';
   }
 
-  nomeDe(medicacaoId: string | number): string {
-    return (
-      this.nomesDosMedicamentos[String(medicacaoId)] ??
-      `Medicamento #${medicacaoId}`
-    );
+  nomeDe(medicacaoId: number): string {
+    return this.nomesDosMedicamentos[medicacaoId] ?? `Medicamento #${medicacaoId}`;
   }
 }

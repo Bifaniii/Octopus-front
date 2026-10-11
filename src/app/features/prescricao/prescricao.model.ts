@@ -1,15 +1,15 @@
-// Espelha os DTOs do octopus-msprescricao (porta 8084).
-
-// O back de prescrição usa Long em medicacaoId, mas o msmedications usa UUID (decisão pendente da squad).
-// O front não converte: manda o id exatamente como veio de GET /api/medicacoes.
-export type IdMedicacao = string | number;
+// Espelha os DTOs do octopus-msprescricao (porta 8084). Todos os ids são Long; só os usuários usam UUID.
 
 export interface ItemPrescricao {
   id: number;
-  medicacaoId: IdMedicacao;
+  medicacaoId: number;
+  dosagem: string;
   intervaloHoras: number;
+  quantidadeDoses: number;
   inicio: string; // LocalDateTime sem fuso, ex.: "2026-10-10T08:00:00"
   observacao?: string | null;
+  /** Gerados pelo back: inicio + n * intervaloHoras. Cada um vira uma dose no octopus-msdoses. */
+  horarios: string[];
 }
 
 export interface Prescricao {
@@ -23,8 +23,10 @@ export interface Prescricao {
 }
 
 export interface ItemPrescricaoRequest {
-  medicacaoId: IdMedicacao;
+  medicacaoId: number;
+  dosagem: string;
   intervaloHoras: number;
+  quantidadeDoses: number;
   inicio: string;
   observacao?: string;
 }
@@ -44,7 +46,7 @@ export interface InternacaoOpcao {
 }
 
 export interface MedicacaoOpcao {
-  id: IdMedicacao;
+  id: number;
   nomeComercial: string;
 }
 

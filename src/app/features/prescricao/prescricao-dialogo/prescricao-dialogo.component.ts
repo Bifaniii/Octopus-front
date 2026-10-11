@@ -16,7 +16,6 @@ import {
   Validators,
 } from '@angular/forms';
 import {
-  IdMedicacao,
   InternacaoOpcao,
   MedicacaoOpcao,
   PrescricaoRequest,
@@ -79,8 +78,10 @@ export class PrescricaoDialogoComponent implements AfterViewInit {
       internacaoId: v.internacaoId as number,
       observacao: v.observacao.trim() || undefined,
       itens: v.itens.map((i: any) => ({
-        medicacaoId: i.medicacaoId as IdMedicacao, // sem conversão: o mesmo id que veio do msmedications
+        medicacaoId: i.medicacaoId as number,
+        dosagem: i.dosagem.trim(),
         intervaloHoras: Number(i.intervaloHoras),
+        quantidadeDoses: Number(i.quantidadeDoses),
         // O datetime-local vem como "2026-10-10T08:00": enviar como está (nunca toISOString), só com segundos.
         inicio: i.inicio.length === 16 ? `${i.inicio}:00` : i.inicio,
         observacao: i.observacao.trim() || undefined,
@@ -90,15 +91,15 @@ export class PrescricaoDialogoComponent implements AfterViewInit {
 
   private novoItem() {
     return this.fb.group({
-      medicacaoId: this.fb.control<IdMedicacao | null>(
-        null,
-        Validators.required,
-      ),
+      medicacaoId: this.fb.control<number | null>(null, Validators.required),
+      dosagem: this.fb.control('', [Validators.required, Validators.maxLength(100)]),
       intervaloHoras: this.fb.control(8, [
         Validators.required,
         Validators.min(1),
         Validators.max(168),
       ]),
+      // Os tetos são os mesmos do ItemPrescricaoRequest no back.
+      quantidadeDoses: this.fb.control(3, [Validators.required, Validators.min(1), Validators.max(200)]),
       inicio: this.fb.control(this.agoraLocal(), Validators.required),
       observacao: this.fb.control('', Validators.maxLength(500)),
     });

@@ -12,6 +12,7 @@ const ROTAS = [
   { prefixo: "/api/baias", variavel: "API_BAIAS_URL" },
   { prefixo: "/api/internacoes", variavel: "API_INTERNACOES_URL" },
   { prefixo: "/api/prescricoes", variavel: "API_PRESCRICOES_URL" },
+  { prefixo: "/api/doses", variavel: "API_DOSES_URL" },
 ];
 const VARIAVEL_PADRAO = "API_DEFAULT_URL";
 

@@ -30,6 +30,11 @@
             </select>
           </label>
 
+          <label class="campo">
+            Dosagem
+            <input type="text" maxlength="100" placeholder="Ex.: 5 mg, 1 comprimido" formControlName="dosagem" />
+          </label>
+
           <div class="linha">
             <label class="campo">
               Intervalo (horas)
@@ -39,6 +44,10 @@
                 max="168"
                 formControlName="intervaloHoras"
               />
+            </label>
+            <label class="campo">
+              Nº de doses
+              <input type="number" min="1" max="200" formControlName="quantidadeDoses" />
             </label>
             <label class="campo">
               Primeira dose

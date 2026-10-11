@@ -52,7 +52,7 @@ export class PrescricaoService {
           lista
             .filter((r) => r.ativo !== false)
             .map((r) => ({
-              id: r.id,
+              id: r.id as number,
               nomeComercial: r.nomeComercial as string,
             })),
         ),

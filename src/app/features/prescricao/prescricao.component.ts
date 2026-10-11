@@ -66,7 +66,7 @@ export class PrescricaoComponent implements OnInit {
 
   readonly nomesDosMedicamentos = computed(() =>
     Object.fromEntries(
-      this.medicacoes().map((m) => [String(m.id), m.nomeComercial]),
+      this.medicacoes().map((m) => [m.id, m.nomeComercial]),
     ),
   );
 
