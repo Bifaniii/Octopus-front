@@ -46,7 +46,7 @@ export class InternacaoService {
    * PATCH /api/internacoes/{id}/<acao>. O corpo depende da ação: `{ baiaId }` para isolar,
    * `{ termoResponsabilidade }` para a alta a pedido, `{ dataSaida }` para encerrar; as outras não têm corpo.
    */
-  executar(id: string, acao: Acao, corpo: object | null = null): Observable<Internacao> {
+  executar(id: number, acao: Acao, corpo: object | null = null): Observable<Internacao> {
     return this.http
       .patch<Internacao>(`${this.baseUrl}/${id}/${acao}`, corpo)
       .pipe(tap((atualizada) => this.substituir(atualizada)));
@@ -58,7 +58,7 @@ export class InternacaoService {
   }
 
   /** GET /api/internacoes/{id}/eventos — histórico, do mais antigo para o mais recente. */
-  eventos(id: string): Observable<InternacaoEvento[]> {
+  eventos(id: number): Observable<InternacaoEvento[]> {
     return this.http.get<InternacaoEvento[]>(`${this.baseUrl}/${id}/eventos`);
   }
 
