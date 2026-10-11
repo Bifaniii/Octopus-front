@@ -72,3 +72,16 @@
   white-space: nowrap;
   cursor: pointer;
 }
+
+.busca {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin-right: auto;
+  padding: 0.45rem 0.7rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  color: var(--color-text-muted);
+}
+.busca input { width: 220px; border: 0; outline: 0; background: transparent; color: var(--color-text); font: inherit; font-size: 0.85rem; }

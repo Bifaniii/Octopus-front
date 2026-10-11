@@ -1,17 +1,26 @@
 <app-shell titulo="Tutores e animais" [subtitulo]="dataHoje" itemAtivo="tutores">
-  
-  @if (podeCadastrar()) {
-    <div class="acoes">
-      <button type="button" class="botao-novo" [disabled]="formAberto()" (click)="novoCadastro()">
+  <div class="acoes">
+    <label class="busca">
+      <i class="bi bi-search" aria-hidden="true"></i>
+      <input
+        type="search"
+        placeholder="Buscar tutor ou animal"
+        aria-label="Buscar tutor ou animal"
+        [value]="busca()"
+        (input)="busca.set($any($event.target).value)"
+      />
+    </label>
+    @if (podeCadastrar()) {
+      <button type="button" class="botao-novo" [disabled]="painel()?.tipo === 'novo'" (click)="novoCadastro()">
         <i class="bi bi-person-plus"></i>
         Novo tutor
       </button>
-    </div>
-  }
+    }
+  </div>
 
   @if (sucesso(); as s) {
     <div class="aviso aviso--sucesso" role="status">
-      <span>Tutor {{ s.tutor }} e animal {{ s.animal }} cadastrados.</span>
+      <span>{{ s.mensagem }}</span>
       <span class="aviso__botoes">
         @if (s.precisaInternar) {
           <button type="button" class="aviso__acao" (click)="irParaInternacao()">Ir para internação</button>
@@ -21,18 +30,59 @@
     </div>
   }
 
-  @if (formAberto()) {
+  @if (painel(); as p) {
     <section class="painel" aria-label="Cadastro de tutor e animal">
-      @if (passo() === 1) {
-        <app-tutor-formulario [tutor]="rascunhoTutor()" (avancar)="avancar($event)" (cancelar)="cancelar()" />
-      } @else {
-        <app-animal-formulario
-          [salvando]="salvando()"
-          [erroApi]="erroForm()"
-          [podeVoltar]="tutorCriado() === null"
-          (salvar)="salvar($event)"
-          (voltar)="voltar()"
-        />
+      @switch (p.tipo) {
+        @case ('novo') {
+          @if (p.passo === 1) {
+            <app-tutor-formulario [tutor]="p.rascunho" (avancar)="avancar($event)" (cancelar)="fecharPainel()" />
+          } @else {
+            <app-animal-formulario
+              [opcoesMae]="opcoesMae()"
+              [salvando]="salvando()"
+              [erroApi]="erroForm()"
+              (salvar)="cadastrar($event)"
+              (voltar)="voltarAoTutor()"
+            />
+          }
+        }
+        @case ('editarTutor') {
+          <app-tutor-formulario
+            [tutor]="p.tutor"
+            titulo="Editar tutor"
+            textoBotao="Salvar"
+            [salvando]="salvando()"
+            [erroApi]="erroForm()"
+            (avancar)="salvarTutor($event)"
+            (cancelar)="fecharPainel()"
+          />
+        }
+        @case ('novoAnimal') {
+          <app-animal-formulario
+            [titulo]="'Novo animal de ' + p.tutor.nome"
+            textoBotao="Cadastrar animal"
+            textoVoltar="Cancelar"
+            [opcoesMae]="opcoesMae()"
+            [salvando]="salvando()"
+            [erroApi]="erroForm()"
+            (salvar)="salvarAnimal($event)"
+            (voltar)="fecharPainel()"
+          />
+        }
+        @case ('editarAnimal') {
+          <app-animal-formulario
+            [animal]="p.animal"
+            [titulo]="'Editar ' + p.animal.nome + ' (' + p.tutor.nome + ')'"
+            textoBotao="Salvar"
+            textoVoltar="Cancelar"
+            [perguntarInternacao]="false"
+            [opcoesMae]="opcoesMae()"
+            [salvando]="salvando()"
+            [erroApi]="erroForm()"
+            (salvar)="salvarAnimal($event)"
+            (voltar)="fecharPainel()"
+          />
+        }
       }
     </section>
   }
@@ -53,8 +103,19 @@
     </p>
   } @else {
     <section class="secao">
-      <h2 class="secao__titulo">Tutores cadastrados</h2>
-      <app-tutores-tabela [tutores]="tutores()" />
+      <h2 class="secao__titulo">Tutores cadastrados ({{ tutoresFiltrados().length }})</h2>
+      @if (tutoresFiltrados().length === 0) {
+        <p class="aviso">Nenhum tutor ou animal com "{{ busca() }}".</p>
+      } @else {
+        <app-tutores-tabela
+          [tutores]="tutoresFiltrados()"
+          [nomesAnimais]="nomesAnimais()"
+          [podeEditar]="podeCadastrar()"
+          (editarTutor)="editarTutor($event)"
+          (adicionarAnimal)="adicionarAnimal($event)"
+          (editarAnimal)="editarAnimal($event)"
+        />
+      }
     </section>
   }
 </app-shell>

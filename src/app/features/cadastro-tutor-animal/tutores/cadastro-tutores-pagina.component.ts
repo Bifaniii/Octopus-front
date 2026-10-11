@@ -9,38 +9,44 @@ import {
 import { isPlatformBrowser } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { map, of, switchMap, tap } from 'rxjs';
+import { Observable } from 'rxjs';
 import { AppShellComponent } from '../../../shared/app-shell/app-shell.component';
 import { AuthService } from '../../../core/services/auth.service';
 import { AnimalFormularioComponent } from '../animais/animal-formulario/animal-formulario.component';
 import { AnimalService } from '../animais/animal.service';
-import { NovoAnimalEvento } from '../animais/animal.model';
+import { Animal, NovoAnimalEvento, OpcaoMae } from '../animais/animal.model';
 import { TutorFormularioComponent } from './tutor-formulario/tutor-formulario.component';
-import { TutoresTabelaComponent } from './tutores-tabela/tutores-tabela.component';
+import { AnimalDoTutor, TutoresTabelaComponent } from './tutores-tabela/tutores-tabela.component';
 import { TutorService } from './tutor.service';
 import { DadosTutor, Tutor } from './tutor.model';
 
-/** Resultado do último cadastro, mostrado no aviso verde acima da tabela. */
+/** O que o painel acima da tabela está mostrando. */
+type Painel =
+  | { tipo: 'novo'; passo: 1 | 2; rascunho: DadosTutor | null }
+  | { tipo: 'editarTutor'; tutor: Tutor }
+  | { tipo: 'novoAnimal'; tutor: Tutor }
+  | { tipo: 'editarAnimal'; tutor: Tutor; animal: Animal };
+
+/** Resultado da última gravação, mostrado no aviso verde acima da tabela. */
 interface Sucesso {
-  tutor: string;
-  animal: string;
+  mensagem: string;
   precisaInternar: boolean;
 }
+
+const normalizar = (texto: string) =>
+  texto.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().trim();
 
 /**
  * CadastroTutoresPaginaComponent
  * ------------------------------
- * Componente de ROTA da tela "animais e tutores" (uma tela só).
+ * Componente de ROTA da tela 1, "animais e tutores". Todo animal pertence a um tutor: o cadastro começa pelo
+ * tutor (com o primeiro animal, gravados juntos), e cada linha da tabela permite acrescentar outro animal ao
+ * tutor, editar o tutor ou editar um animal, inclusive a mãe e a antirrábica.
  */
 @Component({
   selector: 'app-cadastro-tutores-pagina',
   standalone: true,
-  imports: [
-    AppShellComponent,
-    TutorFormularioComponent,
-    AnimalFormularioComponent,
-    TutoresTabelaComponent,
-  ],
+  imports: [AppShellComponent, TutorFormularioComponent, AnimalFormularioComponent, TutoresTabelaComponent],
   templateUrl: './cadastro-tutores-pagina.component.html',
   styleUrl: './cadastro-tutores-pagina.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -56,20 +62,31 @@ export class CadastroTutoresPaginaComponent {
   protected readonly dataHoje = this.formatarData(new Date());
 
   /** Mesmos perfis do back-end para tutores e animais: ADMIN e RECEPCIONISTA. */
-  protected readonly podeCadastrar = computed(() =>
-    this.auth.temRole(['ROLE_ADMIN', 'ROLE_RECEPCIONISTA']),
+  protected readonly podeCadastrar = computed(() => this.auth.temRole(['ROLE_ADMIN', 'ROLE_RECEPCIONISTA']));
+
+  protected readonly busca = signal('');
+  protected readonly tutoresFiltrados = computed(() => {
+    const termo = normalizar(this.busca());
+    const lista = [...this.tutores()].sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR'));
+    if (!termo) return lista;
+    return lista.filter(
+      (t) => normalizar(t.nome).includes(termo) || t.animais.some((a) => normalizar(a.nome).includes(termo)),
+    );
+  });
+
+  protected readonly nomesAnimais = computed<Record<number, string>>(() =>
+    Object.fromEntries(this.tutores().flatMap((t) => t.animais.map((a) => [a.id, a.nome]))),
   );
 
-  /** Erro ao carregar a lista. */
-  protected readonly erroLista = signal<string | null>(null);
+  /** Qualquer animal já cadastrado pode ser indicado como mãe; o rótulo leva o tutor para diferenciar homônimos. */
+  protected readonly opcoesMae = computed<OpcaoMae[]>(() =>
+    this.tutores()
+      .flatMap((t) => t.animais.map((a) => ({ id: a.id, rotulo: `${a.nome} · ${a.especie} (${t.nome})` })))
+      .sort((a, b) => a.rotulo.localeCompare(b.rotulo, 'pt-BR')),
+  );
 
-  // ALTERAÇÃO 1: Começa como 'true' para o formulário aparecer logo aberto
-  protected readonly formAberto = signal(true);
-  protected readonly passo = signal<1 | 2>(1);
-  /** Dados do passo 1, guardados enquanto o usuário preenche o passo 2. */
-  protected readonly rascunhoTutor = signal<DadosTutor | null>(null);
-  /** Tutor já gravado nesta tentativa (o animal falhou e o usuário tenta de novo). */
-  protected readonly tutorCriado = signal<Tutor | null>(null);
+  protected readonly erroLista = signal<string | null>(null);
+  protected readonly painel = signal<Painel | null>(null);
   protected readonly salvando = signal(false);
   protected readonly erroForm = signal<string | null>(null);
   protected readonly sucesso = signal<Sucesso | null>(null);
@@ -83,82 +100,87 @@ export class CadastroTutoresPaginaComponent {
 
   protected recarregar(): void {
     this.erroLista.set(null);
-    
-    // ALTERAÇÃO 2: Chamada ao backend comentada para evitar o erro 401/Ligação na interface
-    /*
     this.tutorService.carregar().subscribe({
       error: (e: HttpErrorResponse) => {
         if (this.sessaoExpirou(e)) return;
         this.erroLista.set(this.tutorService.mensagemDeErro(e));
       },
     });
-    */
+  }
+
+  protected abrir(painel: Painel): void {
+    this.erroForm.set(null);
+    this.sucesso.set(null);
+    this.salvando.set(false);
+    this.painel.set(painel);
   }
 
   protected novoCadastro(): void {
-    this.rascunhoTutor.set(null);
-    this.tutorCriado.set(null);
-    this.erroForm.set(null);
-    this.sucesso.set(null);
-    this.passo.set(1);
-    this.formAberto.set(true);
+    this.abrir({ tipo: 'novo', passo: 1, rascunho: null });
   }
 
-  protected cancelar(): void {
-    this.formAberto.set(false);
+  protected editarTutor(tutor: Tutor): void {
+    this.abrir({ tipo: 'editarTutor', tutor });
   }
 
+  protected adicionarAnimal(tutor: Tutor): void {
+    this.abrir({ tipo: 'novoAnimal', tutor });
+  }
+
+  protected editarAnimal({ tutor, animal }: AnimalDoTutor): void {
+    this.abrir({ tipo: 'editarAnimal', tutor, animal });
+  }
+
+  protected fecharPainel(): void {
+    this.painel.set(null);
+  }
+
+  /** Passo 1 do cadastro: guarda o tutor e vai para o animal. */
   protected avancar(dados: DadosTutor): void {
-    this.rascunhoTutor.set(dados);
     this.erroForm.set(null);
-    this.passo.set(2);
+    this.painel.set({ tipo: 'novo', passo: 2, rascunho: dados });
   }
 
-  protected voltar(): void {
-    this.erroForm.set(null);
-    this.passo.set(1);
+  protected voltarAoTutor(): void {
+    const p = this.painel();
+    if (p?.tipo === 'novo') {
+      this.erroForm.set(null);
+      this.painel.set({ ...p, passo: 1 });
+    }
   }
 
-  protected salvar(evento: NovoAnimalEvento): void {
-    const rascunho = this.rascunhoTutor();
-    if (!rascunho || this.salvando()) return;
+  /** Último passo do cadastro: tutor e primeiro animal numa chamada só. */
+  protected cadastrar(evento: NovoAnimalEvento): void {
+    const p = this.painel();
+    if (p?.tipo !== 'novo' || !p.rascunho) return;
+    this.gravar(this.tutorService.criar({ ...p.rascunho, animais: [evento.dados] }), (t: Tutor) => ({
+      mensagem: `Tutor ${t.nome} e animal ${evento.dados.nome} cadastrados.`,
+      precisaInternar: evento.precisaInternar,
+    }));
+  }
 
-    this.salvando.set(true);
-    this.erroForm.set(null);
+  protected salvarTutor(dados: DadosTutor): void {
+    const p = this.painel();
+    if (p?.tipo !== 'editarTutor') return;
+    this.gravar(this.tutorService.atualizar(p.tutor.id, dados), (t: Tutor) => ({
+      mensagem: `Dados de ${t.nome} atualizados.`,
+      precisaInternar: false,
+    }));
+  }
 
-    const jaCriado = this.tutorCriado();
-    const tutor$ = jaCriado
-      ? of(jaCriado)
-      : this.tutorService.criar(rascunho).pipe(tap((t) => this.tutorCriado.set(t)));
-
-    tutor$
-      .pipe(
-        switchMap((tutor) =>
-          this.animalService
-            .criar({ ...evento.dados, tutorId: tutor.id })
-            .pipe(map((animal) => ({ tutor, animal }))),
-        ),
-      )
-      .subscribe({
-        next: ({ tutor, animal }) => {
-          this.salvando.set(false);
-          this.formAberto.set(false);
-          this.sucesso.set({
-            tutor: tutor.nome,
-            animal: animal.nome,
-            precisaInternar: evento.precisaInternar,
-          });
-        },
-        error: (e: HttpErrorResponse) => {
-          this.salvando.set(false);
-          if (this.sessaoExpirou(e)) return;
-          this.erroForm.set(
-            this.tutorCriado()
-              ? `O tutor foi cadastrado, mas o animal não: ${this.animalService.mensagemDeErro(e)}`
-              : this.tutorService.mensagemDeErro(e),
-          );
-        },
-      });
+  protected salvarAnimal(evento: NovoAnimalEvento): void {
+    const p = this.painel();
+    if (p?.tipo === 'novoAnimal') {
+      this.gravar(this.animalService.criar(p.tutor.id, evento.dados), (a: Animal) => ({
+        mensagem: `${a.nome} cadastrado para ${p.tutor.nome}.`,
+        precisaInternar: evento.precisaInternar,
+      }));
+    } else if (p?.tipo === 'editarAnimal') {
+      this.gravar(this.animalService.atualizar(p.animal.id, evento.dados), (a: Animal) => ({
+        mensagem: `Dados de ${a.nome} atualizados.`,
+        precisaInternar: false,
+      }));
+    }
   }
 
   protected irParaInternacao(): void {
@@ -169,6 +191,24 @@ export class CadastroTutoresPaginaComponent {
     this.sucesso.set(null);
   }
 
+  private gravar<T>(chamada: Observable<T>, mensagem: (resposta: T) => Sucesso): void {
+    if (this.salvando()) return;
+    this.salvando.set(true);
+    this.erroForm.set(null);
+    chamada.subscribe({
+      next: (resposta) => {
+        this.salvando.set(false);
+        this.painel.set(null);
+        this.sucesso.set(mensagem(resposta));
+      },
+      error: (e: HttpErrorResponse) => {
+        this.salvando.set(false);
+        if (this.sessaoExpirou(e)) return;
+        this.erroForm.set(this.tutorService.mensagemDeErro(e));
+      },
+    });
+  }
+
   private sessaoExpirou(e: HttpErrorResponse): boolean {
     if (e.status !== 401) return false;
     this.auth.logout();
@@ -177,11 +217,7 @@ export class CadastroTutoresPaginaComponent {
   }
 
   private formatarData(data: Date): string {
-    const texto = new Intl.DateTimeFormat('pt-BR', {
-      weekday: 'long',
-      day: 'numeric',
-      month: 'long',
-    }).format(data);
+    const texto = new Intl.DateTimeFormat('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' }).format(data);
     return texto.charAt(0).toUpperCase() + texto.slice(1);
   }
 }

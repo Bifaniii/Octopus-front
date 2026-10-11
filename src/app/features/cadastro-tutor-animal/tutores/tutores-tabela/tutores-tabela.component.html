@@ -2,19 +2,66 @@
   <table class="tabela">
     <thead>
       <tr>
-        <th scope="col">Nome</th>
-        <th scope="col">CPF</th>
+        <th scope="col">Tutor</th>
         <th scope="col">Telefone</th>
-        <th scope="col">E-mail</th>
+        <th scope="col">Animais</th>
+        @if (podeEditar) {
+          <th scope="col"><span class="visualmente-oculto">Ações</span></th>
+        }
       </tr>
     </thead>
     <tbody>
       @for (t of tutores; track t.id) {
         <tr>
-          <td><strong>{{ t.nome }}</strong></td>
-          <td>{{ cpf(t.cpf) }}</td>
-          <td>{{ telefone(t.telefone) }}</td>
-          <td>{{ t.email ?? '—' }}</td>
+          <td>
+            <strong>{{ t.nome }}</strong>
+            <span class="detalhe">{{ t.endereco }}</span>
+          </td>
+          <td class="nowrap">{{ telefone(t.telefone) }}</td>
+          <td>
+            @if (t.animais.length === 0) {
+              <span class="detalhe">Nenhum animal</span>
+            }
+            <ul class="animais">
+              @for (a of t.animais; track a.id) {
+                <li class="animal">
+                  <span class="animal__nome">{{ a.nome }}</span>
+                  <span class="animal__info">{{ a.especie }}</span>
+                  <span class="vacina" [class.vacina--vencida]="vencida(a.dataUltimaAntirrabica)">
+                    @if (a.dataUltimaAntirrabica) {
+                      Antirrábica {{ data(a.dataUltimaAntirrabica) }}{{ vencida(a.dataUltimaAntirrabica) ? ' · vencida' : '' }}
+                    } @else {
+                      Sem antirrábica
+                    }
+                  </span>
+                  @if (a.maeId) {
+                    <span class="animal__info">filhote de {{ nomesAnimais[a.maeId] ?? 'animal ' + a.maeId }}</span>
+                  }
+                  @if (podeEditar) {
+                    <button
+                      type="button"
+                      class="icone"
+                      title="Editar animal"
+                      [attr.aria-label]="'Editar ' + a.nome"
+                      (click)="editarAnimal.emit({ tutor: t, animal: a })"
+                    >
+                      <i class="bi bi-pencil"></i>
+                    </button>
+                  }
+                </li>
+              }
+            </ul>
+          </td>
+          @if (podeEditar) {
+            <td class="acoes">
+              <button type="button" class="botao" (click)="adicionarAnimal.emit(t)">
+                <i class="bi bi-plus-lg"></i> Animal
+              </button>
+              <button type="button" class="botao" (click)="editarTutor.emit(t)">
+                <i class="bi bi-pencil"></i> Tutor
+              </button>
+            </td>
+          }
         </tr>
       }
     </tbody>

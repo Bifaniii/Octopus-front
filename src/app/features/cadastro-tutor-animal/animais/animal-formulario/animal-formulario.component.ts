@@ -3,18 +3,20 @@ import {
   Component,
   EventEmitter,
   Input,
+  OnInit,
   Output,
   inject,
   signal,
 } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
-import { NovoAnimalEvento } from '../animal.model';
+import { Animal, NovoAnimalEvento, OpcaoMae } from '../animal.model';
 
 /**
  * AnimalFormularioComponent
  * -------------------------
- * Formulário do passo 2 (dados do animal e "precisa internar?"). Não conhece serviços: valida e avisa o
- * container por eventos (`salvar`, `voltar`) e recebe de volta o estado da chamada (`salvando`, `erroApi`).
+ * Dados do animal: passo 2 do cadastro, novo animal de um tutor existente ou edição. Não conhece serviços:
+ * valida com as regras do AnimalRequest do back e avisa o container por eventos (`salvar`, `voltar`).
+ * A mãe é opcional e sai da lista `opcoesMae`; quem garante que ela é válida (existe e não cria ciclo) é o back.
  */
 @Component({
   selector: 'app-animal-formulario',
@@ -24,13 +26,19 @@ import { NovoAnimalEvento } from '../animal.model';
   styleUrl: './animal-formulario.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class AnimalFormularioComponent {
+export class AnimalFormularioComponent implements OnInit {
+  /** Animal em edição; `null` = cadastro. */
+  @Input() animal: Animal | null = null;
+  @Input() opcoesMae: OpcaoMae[] = [];
+  @Input() titulo = 'Passo 2 de 2 · Animal';
+  @Input() textoBotao = 'Cadastrar tutor e animal';
+  /** "Precisa internar?" só faz sentido no cadastro. */
+  @Input() perguntarInternacao = true;
   /** Enquanto true, os botões ficam desabilitados. */
   @Input() salvando = false;
   /** Mensagem de erro vinda da API. */
   @Input() erroApi: string | null = null;
-  /** false quando o tutor já foi gravado e voltar ao passo 1 não mudaria nada. */
-  @Input() podeVoltar = true;
+  @Input() textoVoltar = 'Voltar';
 
   @Output() salvar = new EventEmitter<NovoAnimalEvento>();
   @Output() voltar = new EventEmitter<void>();
@@ -40,19 +48,36 @@ export class AnimalFormularioComponent {
   /** Hoje na hora local (aaaa-MM-dd). Sem toISOString(), que converte para UTC e pode virar o dia. */
   protected readonly hoje = (() => {
     const d = new Date();
-    const mes = String(d.getMonth() + 1).padStart(2, '0');
-    const dia = String(d.getDate()).padStart(2, '0');
-    return `${d.getFullYear()}-${mes}-${dia}`;
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
   })();
 
   protected readonly form = this.fb.nonNullable.group({
     nome: [''],
     especie: [''],
-    dataUltimaAntirrabica: [''],
+    dataAntirrabica: [''],
+    maeId: this.fb.control<number | null>(null),
     precisaInternar: [false],
   });
 
   protected readonly erro = signal<string | null>(null);
+
+  ngOnInit(): void {
+    const a = this.animal;
+    if (a) {
+      this.form.reset({
+        nome: a.nome,
+        especie: a.especie,
+        dataAntirrabica: a.dataUltimaAntirrabica ?? '',
+        maeId: a.maeId,
+        precisaInternar: false,
+      });
+    }
+  }
+
+  /** A própria opção some da lista quando o animal está em edição. */
+  protected get maes(): OpcaoMae[] {
+    return this.opcoesMae.filter((o) => o.id !== this.animal?.id);
+  }
 
   protected enviar(): void {
     if (this.salvando) return;
@@ -64,18 +89,14 @@ export class AnimalFormularioComponent {
     if (!nome) return this.setErro('Informe o nome do animal.');
     if (nome.length > 100) return this.setErro('O nome pode ter no máximo 100 caracteres.');
     if (!especie) return this.setErro('Informe a espécie (ex.: Cão, Gato).');
-    if (especie.length > 50) return this.setErro('A espécie pode ter no máximo 50 caracteres.');
-    if (v.dataUltimaAntirrabica && v.dataUltimaAntirrabica > this.hoje) {
+    if (especie.length > 250) return this.setErro('A espécie pode ter no máximo 250 caracteres.');
+    if (v.dataAntirrabica && v.dataAntirrabica > this.hoje) {
       return this.setErro('A data da última antirrábica não pode ser futura.');
     }
 
     this.erro.set(null);
     this.salvar.emit({
-      dados: {
-        nome,
-        especie,
-        dataUltimaAntirrabica: v.dataUltimaAntirrabica || null,
-      },
+      dados: { nome, especie, dataAntirrabica: v.dataAntirrabica || null, maeId: v.maeId },
       precisaInternar: v.precisaInternar,
     });
   }

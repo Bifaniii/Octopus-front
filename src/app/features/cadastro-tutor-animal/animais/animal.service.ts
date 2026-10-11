@@ -1,41 +1,35 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { Injectable, inject, signal } from '@angular/core';
-import { Observable, finalize, tap } from 'rxjs';
+import { Injectable, inject } from '@angular/core';
+import { Observable, tap } from 'rxjs';
 import { environment } from '../../../../environments/environment';
+import { TutorService } from '../tutores/tutor.service';
 import { Animal, DadosAnimal, ErroApi } from './animal.model';
 
 /**
  * AnimalService
  * -------------
- * Consome o octopus-msusuario (/api/animais), dono do "animal". Guarda a lista em um signal e atualiza esse
- * signal depois de cada escrita. O token JWT é anexado pelo `authInterceptor`. Leitura e escrita: ADMIN e
- * RECEPCIONISTA (mesmos perfis da admissão).
+ * Escrita de animais no octopus-msusuario. A leitura vem junto com os tutores (cada TutorResponse traz os
+ * seus animais), então este serviço não guarda lista: depois de cada escrita avisa o TutorService. Perfis:
+ * ADMIN e RECEPCIONISTA (mesmos da admissão).
  */
 @Injectable({ providedIn: 'root' })
 export class AnimalService {
   private readonly http = inject(HttpClient);
-  private readonly baseUrl = `${environment.apiBaseUrl}/animais`;
+  private readonly tutorService = inject(TutorService);
+  private readonly apiBase = environment.apiBaseUrl;
 
-  private readonly _animais = signal<Animal[]>([]);
-  private readonly _carregando = signal(false);
-
-  readonly animais = this._animais.asReadonly();
-  readonly carregando = this._carregando.asReadonly();
-
-  /** GET /api/animais — recarrega a lista inteira. */
-  carregar(): Observable<Animal[]> {
-    this._carregando.set(true);
-    return this.http.get<Animal[]>(this.baseUrl).pipe(
-      tap((lista) => this._animais.set(lista)),
-      finalize(() => this._carregando.set(false)),
-    );
+  /** POST /api/tutores/{tutorId}/animais */
+  criar(tutorId: number, dados: DadosAnimal): Observable<Animal> {
+    return this.http
+      .post<Animal>(`${this.apiBase}/tutores/${tutorId}/animais`, dados)
+      .pipe(tap((novo) => this.tutorService.registrarAnimal(novo)));
   }
 
-  /** POST /api/animais */
-  criar(dados: DadosAnimal): Observable<Animal> {
+  /** PUT /api/animais/{id} — corrige dados, antirrábica e mãe. O tutor não muda. */
+  atualizar(id: number, dados: DadosAnimal): Observable<Animal> {
     return this.http
-      .post<Animal>(this.baseUrl, dados)
-      .pipe(tap((novo) => this._animais.update((lista) => [...lista, novo])));
+      .put<Animal>(`${this.apiBase}/animais/${id}`, dados)
+      .pipe(tap((atualizado) => this.tutorService.registrarAnimal(atualizado)));
   }
 
   /** Traduz o erro HTTP em uma mensagem amigável para exibir na tela. */

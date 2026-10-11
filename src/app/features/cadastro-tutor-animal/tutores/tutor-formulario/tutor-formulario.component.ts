@@ -11,14 +11,12 @@ import {
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { DadosTutor, SOMENTE_DIGITOS } from '../tutor.model';
 
-const EMAIL_VALIDO = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
 /**
  * TutorFormularioComponent
  * ------------------------
- * Formulário do passo 1 (dados do tutor). Não conhece serviços: valida com as mesmas regras do back e avisa
- * o container por eventos (`avancar`, `cancelar`). Recebe `tutor` para reabrir preenchido quando o usuário
- * volta do passo 2.
+ * Dados do tutor: passo 1 do cadastro ou edição de um tutor existente. Não conhece serviços: valida com as
+ * mesmas regras do TutorRequest do back e avisa o container por eventos (`avancar`, `cancelar`). Recebe
+ * `tutor` para reabrir preenchido (ao voltar do passo 2 ou ao editar).
  */
 @Component({
   selector: 'app-tutor-formulario',
@@ -29,18 +27,28 @@ const EMAIL_VALIDO = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TutorFormularioComponent implements OnInit {
-  /** Dados já digitados (ao voltar do passo 2). `null` = formulário vazio. */
-  @Input() tutor: DadosTutor | null = null;
+  /** Dados já digitados ou do tutor em edição. `null` = formulário vazio. */
+  @Input() tutor: Omit<DadosTutor, 'animais'> | null = null;
+  @Input() titulo = 'Passo 1 de 2 · Tutor';
+  @Input() textoBotao = 'Próximo';
+  @Input() salvando = false;
+  @Input() erroApi: string | null = null;
   @Output() avancar = new EventEmitter<DadosTutor>();
   @Output() cancelar = new EventEmitter<void>();
 
   private readonly fb = inject(FormBuilder);
 
+  /** Hoje na hora local (aaaa-MM-dd). Sem toISOString(), que converte para UTC e pode virar o dia. */
+  protected readonly hoje = (() => {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  })();
+
   protected readonly form = this.fb.nonNullable.group({
     nome: [''],
-    cpf: [''],
+    endereco: [''],
+    dataNascimento: [''],
     telefone: [''],
-    email: [''],
   });
 
   protected readonly erro = signal<string | null>(null);
@@ -48,29 +56,29 @@ export class TutorFormularioComponent implements OnInit {
   ngOnInit(): void {
     const t = this.tutor;
     if (t) {
-      this.form.reset({ nome: t.nome, cpf: t.cpf, telefone: t.telefone, email: t.email ?? '' });
+      this.form.reset({ nome: t.nome, endereco: t.endereco, dataNascimento: t.dataNascimento, telefone: t.telefone });
     }
   }
 
   protected enviar(): void {
+    if (this.salvando) return;
     const v = this.form.getRawValue();
     const nome = v.nome.trim();
-    const cpf = v.cpf.replace(SOMENTE_DIGITOS, '');
+    const endereco = v.endereco.trim();
     const telefone = v.telefone.replace(SOMENTE_DIGITOS, '');
-    const email = v.email.trim();
 
     if (!nome) return this.setErro('Informe o nome do tutor.');
     if (nome.length > 100) return this.setErro('O nome pode ter no máximo 100 caracteres.');
-    if (cpf.length !== 11) return this.setErro('CPF deve ter 11 dígitos.');
+    if (!endereco) return this.setErro('Informe o endereço.');
+    if (endereco.length > 255) return this.setErro('O endereço pode ter no máximo 255 caracteres.');
+    if (!v.dataNascimento) return this.setErro('Informe a data de nascimento.');
+    if (v.dataNascimento >= this.hoje) return this.setErro('A data de nascimento precisa ser anterior a hoje.');
     if (telefone.length < 10 || telefone.length > 11) {
       return this.setErro('Telefone deve ter DDD + 8 ou 9 dígitos.');
     }
-    if (email && (!EMAIL_VALIDO.test(email) || email.length > 100)) {
-      return this.setErro('Informe um e-mail válido.');
-    }
 
     this.erro.set(null);
-    this.avancar.emit({ nome, cpf, telefone, email: email || null });
+    this.avancar.emit({ nome, endereco, dataNascimento: v.dataNascimento, telefone });
   }
 
   private setErro(mensagem: string): void {
