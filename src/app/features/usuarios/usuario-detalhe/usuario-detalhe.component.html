@@ -2,60 +2,153 @@
   <div class="ficha">
     <header class="ficha__topo">
       <div>
-        <h2 id="detalhe-titulo" class="ficha__titulo">{{ usuario.nome }}</h2>
+        <h2 id="detalhe-titulo" class="ficha__titulo">
+          {{ editando ? 'Editar ' + usuario.nome : usuario.nome }}
+        </h2>
         <span class="selo" [class.selo--inativo]="!usuario.ativo">{{ papel }} · {{ usuario.ativo ? 'ativo' : 'inativo' }}</span>
       </div>
-      <button type="button" class="fechar" aria-label="Fechar" (click)="fecharDialogo()">
-        <i class="bi bi-x-lg"></i>
-      </button>
+      <div class="ficha__icones">
+        @if (mostrarLapis) {
+          <button type="button" class="icone" title="Editar usuário" aria-label="Editar usuário" (click)="iniciarEdicao()">
+            <i class="bi bi-pencil"></i>
+          </button>
+        }
+        <button type="button" class="icone" aria-label="Fechar" (click)="fecharDialogo()">
+          <i class="bi bi-x-lg"></i>
+        </button>
+      </div>
     </header>
 
-    <section>
-      <h3 class="ficha__secao">Conta</h3>
-      <dl class="dados">
-        @for (c of conta; track c.rotulo) {
-          <div class="dado">
-            <dt>{{ c.rotulo }}</dt>
-            <dd>{{ c.valor }}</dd>
-          </div>
-        }
-      </dl>
-    </section>
+    @if (editando) {
+      <form class="form" [formGroup]="form" (ngSubmit)="enviarEdicao()">
+        <div class="linha">
+          <label class="campo">
+            <span class="campo__rotulo">Nome</span>
+            <input type="text" formControlName="nome" maxlength="100" />
+          </label>
+          <label class="campo">
+            <span class="campo__rotulo">E-mail de login</span>
+            <input type="email" formControlName="email" maxlength="150" />
+          </label>
+        </div>
 
-    @if (usuario.role !== 'ROLE_ADMIN') {
-      <section>
-        <h3 class="ficha__secao">Dados pessoais e profissionais</h3>
-        @if (carregando) {
-          <p class="aviso">Carregando dados...</p>
-        } @else if (erro) {
-          <p class="erro" role="alert">{{ erro }}</p>
-        } @else {
-          <dl class="dados">
-            @for (c of perfil; track c.rotulo) {
-              <div class="dado">
-                <dt>{{ c.rotulo }}</dt>
-                <dd>{{ c.valor }}</dd>
-              </div>
+        @if (usuario.role !== 'ROLE_ADMIN') {
+          <div class="linha">
+            @if (usuario.role === 'ROLE_VETERINARIO') {
+              <label class="campo">
+                <span class="campo__rotulo">CPF ou CNPJ</span>
+                <input type="text" formControlName="cpfCnpj" inputmode="numeric" maxlength="18" />
+              </label>
+              <label class="campo">
+                <span class="campo__rotulo">Tipo</span>
+                <select formControlName="tipoPessoa">
+                  <option value="PF">Pessoa física</option>
+                  <option value="PJ">Pessoa jurídica</option>
+                </select>
+              </label>
+            } @else {
+              <label class="campo">
+                <span class="campo__rotulo">CPF</span>
+                <input type="text" formControlName="cpf" inputmode="numeric" maxlength="14" />
+              </label>
             }
-          </dl>
-        }
-      </section>
-    }
+          </div>
 
-    <footer class="ficha__rodape">
-      @if (podeDesativar) {
-        <button
-          type="button"
-          class="botao botao--perigo"
-          [disabled]="desativando"
-          (click)="clicarDesativar()"
-          (blur)="confirmando = false"
-        >
-          {{ desativando ? 'Desativando...' : confirmando ? 'Confirmar desativação' : 'Desativar conta' }}
-        </button>
+          <div class="linha">
+            <label class="campo">
+              <span class="campo__rotulo">Data de nascimento</span>
+              <input type="date" formControlName="dataNascimento" />
+            </label>
+            <label class="campo">
+              <span class="campo__rotulo">Telefone</span>
+              <input type="tel" formControlName="telefone" maxlength="20" />
+            </label>
+          </div>
+
+          @if (usuario.role === 'ROLE_VETERINARIO') {
+            <div class="linha">
+              <label class="campo">
+                <span class="campo__rotulo">CRMV</span>
+                <input type="text" formControlName="crmv" maxlength="20" />
+              </label>
+              <label class="campo campo--curto">
+                <span class="campo__rotulo">UF</span>
+                <input type="text" formControlName="crmvUf" maxlength="2" />
+              </label>
+              <label class="campo">
+                <span class="campo__rotulo">Especialização</span>
+                <select formControlName="especializacao">
+                  @for (e of especializacoes; track e[0]) {
+                    <option [value]="e[0]">{{ e[1] }}</option>
+                  }
+                </select>
+              </label>
+            </div>
+          }
+        }
+
+        <p class="aviso">A senha não muda aqui: o próprio usuário troca pela opção "Esqueci minha senha".</p>
+
+        @if (erroForm ?? erroEdicao; as mensagem) {
+          <p class="erro" role="alert">{{ mensagem }}</p>
+        }
+
+        <footer class="ficha__rodape">
+          <button type="button" class="botao" [disabled]="salvando" (click)="cancelarEdicao.emit()">Cancelar</button>
+          <span class="espaco"></span>
+          <button type="submit" class="botao botao--primario" [disabled]="salvando">
+            {{ salvando ? 'Salvando...' : 'Salvar alterações' }}
+          </button>
+        </footer>
+      </form>
+    } @else {
+      <section>
+        <h3 class="ficha__secao">Conta</h3>
+        <dl class="dados">
+          @for (c of conta; track c.rotulo) {
+            <div class="dado">
+              <dt>{{ c.rotulo }}</dt>
+              <dd>{{ c.valor }}</dd>
+            </div>
+          }
+        </dl>
+      </section>
+
+      @if (usuario.role !== 'ROLE_ADMIN') {
+        <section>
+          <h3 class="ficha__secao">Dados pessoais e profissionais</h3>
+          @if (carregando) {
+            <p class="aviso">Carregando dados...</p>
+          } @else if (erro) {
+            <p class="erro" role="alert">{{ erro }}</p>
+          } @else {
+            <dl class="dados">
+              @for (c of perfil; track c.rotulo) {
+                <div class="dado">
+                  <dt>{{ c.rotulo }}</dt>
+                  <dd>{{ c.valor }}</dd>
+                </div>
+              }
+            </dl>
+          }
+        </section>
       }
-      <span class="espaco"></span>
-      <button type="button" class="botao" (click)="fecharDialogo()">Fechar</button>
-    </footer>
+
+      <footer class="ficha__rodape">
+        @if (podeDesativar) {
+          <button
+            type="button"
+            class="botao botao--perigo"
+            [disabled]="desativando"
+            (click)="clicarDesativar()"
+            (blur)="confirmando = false"
+          >
+            {{ desativando ? 'Desativando...' : confirmando ? 'Confirmar desativação' : 'Desativar conta' }}
+          </button>
+        }
+        <span class="espaco"></span>
+        <button type="button" class="botao" (click)="fecharDialogo()">Fechar</button>
+      </footer>
+    }
   </div>
 </dialog>

@@ -119,6 +119,13 @@
     [erro]="erroDetalhe()"
     [podeDesativar]="podeDesativar(u)"
     [desativando]="desativando()"
+    [podeEditar]="podeEditar"
+    [editando]="editandoFicha()"
+    [salvando]="salvandoEdicao()"
+    [erroEdicao]="erroEdicao()"
+    (editar)="editarFicha()"
+    (cancelarEdicao)="cancelarEdicao()"
+    (salvar)="salvarEdicao($event)"
     (desativar)="desativarDaFicha($event)"
     (fechar)="fecharFicha()"
   />

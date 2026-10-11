@@ -10,6 +10,7 @@ import { UsuarioDialogoComponent } from './usuario-dialogo/usuario-dialogo.compo
 import { UsuarioService } from './usuario.service';
 import {
   DetalheUsuario,
+  EdicaoUsuarioEvento,
   FILTROS_VAZIOS,
   FiltrosUsuario,
   NOME_POR_ROLE,
@@ -57,6 +58,14 @@ export class CadastroUsuariosPaginaComponent {
   protected readonly carregandoDetalhe = signal(false);
   protected readonly erroDetalhe = signal<string | null>(null);
   protected readonly desativando = signal(false);
+  protected readonly editandoFicha = signal(false);
+  protected readonly salvandoEdicao = signal(false);
+  protected readonly erroEdicao = signal<string | null>(null);
+
+  /** Mesma regra do back: só o admin edita usuários (PUT em /api/<perfil>/{id}). */
+  protected get podeEditar(): boolean {
+    return this.auth.temRole(['ROLE_ADMIN']);
+  }
 
   /** Erro ao carregar a lista. */
   protected readonly erroLista = signal<string | null>(null);
@@ -97,6 +106,8 @@ export class CadastroUsuariosPaginaComponent {
   }
 
   protected abrirFicha(u: UsuarioListagem): void {
+    this.editandoFicha.set(false);
+    this.erroEdicao.set(null);
     this.selecionado.set(u);
     this.detalhe.set(null);
     this.erroDetalhe.set(null);
@@ -117,6 +128,36 @@ export class CadastroUsuariosPaginaComponent {
 
   protected fecharFicha(): void {
     this.selecionado.set(null);
+    this.editandoFicha.set(false);
+  }
+
+  protected editarFicha(): void {
+    this.erroEdicao.set(null);
+    this.editandoFicha.set(true);
+  }
+
+  protected cancelarEdicao(): void {
+    this.editandoFicha.set(false);
+  }
+
+  protected salvarEdicao(edicao: EdicaoUsuarioEvento): void {
+    const u = this.selecionado();
+    if (!u) return;
+    this.salvandoEdicao.set(true);
+    this.erroEdicao.set(null);
+    this.usuarioService.atualizar(u, edicao).subscribe({
+      next: (resposta) => {
+        this.salvandoEdicao.set(false);
+        this.editandoFicha.set(false);
+        this.selecionado.set({ ...u, nome: resposta.nome, email: resposta.usuario.email });
+        if ('telefone' in resposta) this.detalhe.set(resposta);
+      },
+      error: (e: HttpErrorResponse) => {
+        this.salvandoEdicao.set(false);
+        if (this.sessaoExpirou(e)) return;
+        this.erroEdicao.set(this.usuarioService.mensagemDeErro(e));
+      },
+    });
   }
 
   /** Desativação pedida dentro da ficha, que já confirmou com o segundo clique. */

@@ -37,7 +37,8 @@
 .dado dt { font-size: 0.75rem; color: var(--color-text-muted); }
 .dado dd { margin: 0.15rem 0 0; font-size: 0.9rem; overflow-wrap: anywhere; }
 
-.fechar {
+.ficha__icones { display: flex; gap: 0.25rem; }
+.icone {
   display: grid;
   place-items: center;
   width: 32px;
@@ -48,7 +49,7 @@
   color: var(--color-text-muted);
   cursor: pointer;
 }
-.fechar:hover { background: var(--color-bg); }
+.icone:hover { background: var(--color-bg); color: var(--color-text); }
 
 .aviso { margin: 0; font-size: 0.85rem; color: var(--color-text-muted); }
 .erro {
@@ -78,6 +79,28 @@
 .botao:hover:not(:disabled) { background: var(--color-bg); }
 .botao:disabled { opacity: 0.6; cursor: default; }
 .botao:focus-visible,
-.fechar:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 2px; }
+.icone:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 2px; }
 .botao--perigo { color: var(--color-danger); border-color: var(--color-danger-border); }
 .botao--perigo:hover:not(:disabled) { background: var(--color-danger-soft); }
+
+.form { display: flex; flex-direction: column; gap: 0.9rem; }
+.linha { display: flex; flex-wrap: wrap; gap: 0.75rem; }
+.campo { display: flex; flex: 1 1 160px; flex-direction: column; gap: 0.3rem; min-width: 0; }
+.campo--curto { flex: 0 0 70px; }
+.campo__rotulo { font-size: 0.75rem; font-weight: 600; color: var(--color-text-muted); }
+.campo input,
+.campo select {
+  width: 100%;
+  padding: 0.5rem 0.65rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-bg);
+  color: var(--color-text);
+  font: inherit;
+  font-size: 0.88rem;
+  box-sizing: border-box;
+}
+.campo input:focus-visible,
+.campo select:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 1px; }
+.botao--primario { background: var(--color-primary); border-color: var(--color-primary); color: var(--color-text-on-primary); }
+.botao--primario:hover:not(:disabled) { background: var(--color-primary-strong); }

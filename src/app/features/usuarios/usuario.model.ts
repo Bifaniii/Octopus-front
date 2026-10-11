@@ -124,6 +124,17 @@ export interface FiltrosUsuario {
 
 export const FILTROS_VAZIOS: FiltrosUsuario = { nome: '', perfil: '', situacao: '', cadastradoDe: '', cadastradoAte: '' };
 
+/** Corpos dos PUT de edição: os mesmos campos do cadastro, sem a senha. */
+export type EdicaoAdmin = Omit<DadosAdmin, 'senha'>;
+export type EdicaoVeterinario = Omit<DadosVeterinario, 'senha'>;
+export type EdicaoAuxiliarOuRecepcionista = Omit<DadosAuxiliarOuRecepcionista, 'senha'>;
+
+/** Evento emitido pela ficha ao salvar a edição; o papel diz qual endpoint chamar. */
+export type EdicaoUsuarioEvento =
+  | { role: 'ROLE_ADMIN'; dados: EdicaoAdmin }
+  | { role: 'ROLE_VETERINARIO'; dados: EdicaoVeterinario }
+  | { role: 'ROLE_AUXILIAR' | 'ROLE_RECEPCIONISTA'; dados: EdicaoAuxiliarOuRecepcionista };
+
 /** Dados completos do perfil, de GET /api/<perfil>/{id}. O admin não tem esse endpoint nem dados além do nome. */
 export type DetalheUsuario = VeterinarioResponse | AuxiliarOuRecepcionistaResponse;
 

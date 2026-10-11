@@ -9,6 +9,7 @@ import {
   DadosAuxiliarOuRecepcionista,
   DadosVeterinario,
   DetalheUsuario,
+  EdicaoUsuarioEvento,
   ErroApi,
   FiltrosUsuario,
   RECURSO_POR_PERFIL,
@@ -84,6 +85,23 @@ export class UsuarioService {
   detalhe(usuario: UsuarioListagem): Observable<DetalheUsuario> {
     const recurso = RECURSO_POR_PERFIL[usuario.role as RoleCriavel];
     return this.http.get<DetalheUsuario>(`${this.apiBase}/${recurso}/${usuario.perfilId}`);
+  }
+
+  /**
+   * PUT /api/<perfil>/{perfilId} (ou /api/admins/{perfilId}): edita perfil e e-mail. Atualiza a linha da lista com o
+   * nome e o e-mail novos e devolve o perfil completo, que a ficha passa a mostrar.
+   */
+  atualizar(usuario: UsuarioListagem, edicao: EdicaoUsuarioEvento): Observable<DetalheUsuario | AdminResponse> {
+    const recurso = edicao.role === 'ROLE_ADMIN' ? 'admins' : RECURSO_POR_PERFIL[edicao.role];
+    return this.http
+      .put<DetalheUsuario | AdminResponse>(`${this.apiBase}/${recurso}/${usuario.perfilId}`, edicao.dados)
+      .pipe(
+        tap((r) =>
+          this._usuarios.update((lista) =>
+            lista.map((u) => (u.id === usuario.id ? { ...u, nome: r.nome, email: r.usuario.email } : u)),
+          ),
+        ),
+      );
   }
 
   /** PATCH /api/<perfil>/{perfilId}/desativar. Nada é apagado: a conta fica inativa e perde o acesso. */
