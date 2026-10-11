@@ -41,7 +41,7 @@ export const routes: Routes = [
 
   {
     path: 'baias',
-   // canActivate: [authGuard],
+    // canActivate: [authGuard],
     loadComponent: () =>
       import('./features/baias/cadastro-baias-pagina.component').then(
         (m) => m.CadastroBaiasPaginaComponent,
@@ -68,13 +68,21 @@ export const routes: Routes = [
   },
 
   {
-  path: 'internacao',
-  canActivate: [authGuard, permissaoGuard],
-  data: { roles: ['ROLE_ADMIN', 'ROLE_RECEPCIONISTA', 'ROLE_VETERINARIO', 'ROLE_AUXILIAR'] },
-  loadComponent: () =>
-    import('./features/internacao/internacao-pagina.component')
-      .then((m) => m.InternacaoPaginaComponent),
-},
+    path: 'prescricoes',
+    canActivate: [authGuard, permissaoGuard],
+    data: {
+      roles: [
+        'ROLE_ADMIN',
+        'ROLE_RECEPCIONISTA',
+        'ROLE_VETERINARIO',
+        'ROLE_AUXILIAR',
+      ],
+    },
+    loadComponent: () =>
+      import('./features/prescricao/prescricao.component').then(
+        (m) => m.PrescricaoComponent,
+      ),
+  },
 
   // ──────────────────────────────────────────────────────────────
   // EXEMPLOS de features futuras — descomente ao criar cada pasta.

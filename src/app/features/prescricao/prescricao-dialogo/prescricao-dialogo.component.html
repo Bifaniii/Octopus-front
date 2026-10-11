@@ -1,0 +1,98 @@
+<dialog #dlg class="dialogo" (close)="fechar.emit()">
+  <form [formGroup]="form" (ngSubmit)="enviar()" class="form">
+    <h2>Nova prescrição</h2>
+
+    <label class="campo">
+      Animal internado
+      <select formControlName="internacaoId">
+        <option [ngValue]="null" disabled>Selecione</option>
+        @for (i of internacoes; track i.id) {
+          <option [ngValue]="i.id">{{ i.animalNome }}</option>
+        }
+      </select>
+      @if (internacoes.length === 0) {
+        <small class="aviso">Nenhuma internação aberta para prescrever.</small>
+      }
+    </label>
+
+    <div formArrayName="itens" class="lista-itens">
+      @for (item of itens.controls; track item; let i = $index) {
+        <fieldset [formGroupName]="i" class="item">
+          <legend>Medicamento {{ i + 1 }}</legend>
+
+          <label class="campo">
+            Medicamento
+            <select formControlName="medicacaoId">
+              <option [ngValue]="null" disabled>Selecione</option>
+              @for (m of medicacoes; track m.id) {
+                <option [ngValue]="m.id">{{ m.nomeComercial }}</option>
+              }
+            </select>
+          </label>
+
+          <div class="linha">
+            <label class="campo">
+              Intervalo (horas)
+              <input
+                type="number"
+                min="1"
+                max="168"
+                formControlName="intervaloHoras"
+              />
+            </label>
+            <label class="campo">
+              Primeira dose
+              <input type="datetime-local" formControlName="inicio" />
+            </label>
+          </div>
+
+          <label class="campo">
+            Observação do item (opcional)
+            <input type="text" maxlength="500" formControlName="observacao" />
+          </label>
+
+          @if (itens.length > 1) {
+            <button type="button" class="link" (click)="removerItem(i)">
+              Remover medicamento
+            </button>
+          }
+        </fieldset>
+      }
+    </div>
+
+    <button type="button" class="link" (click)="adicionarItem()">
+      + Adicionar medicamento
+    </button>
+
+    <label class="campo">
+      Observação geral (opcional)
+      <textarea
+        rows="2"
+        maxlength="500"
+        formControlName="observacao"
+      ></textarea>
+    </label>
+
+    @if (erro) {
+      <p class="erro" role="alert">{{ erro }}</p>
+    }
+
+    <footer class="rodape">
+      <button
+        type="button"
+        class="secundario"
+        (click)="cancelar()"
+        [disabled]="salvando"
+      >
+        Cancelar
+      </button>
+      <button
+        type="submit"
+        class="primario"
+        [disabled]="salvando || form.invalid"
+      >
+        {{ salvando ? "Salvando..." : "Salvar prescrição" }}
+      </button>
+    </footer>
+  </form>
+</dialog>

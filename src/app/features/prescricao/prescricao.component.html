@@ -1,0 +1,49 @@
+<app-shell
+  titulo="Prescrições"
+  subtitulo="Acompanhamento de tratamentos dos animais internados"
+  itemAtivo="prontuarios"
+>
+  <div class="topo">
+    <h2>Prescrições ativas</h2>
+    @if (podePrescrever) {
+      <button type="button" class="primario" (click)="abrirModal()">
+        <i class="bi bi-plus-lg" aria-hidden="true"></i> Nova prescrição
+      </button>
+    }
+  </div>
+
+  @if (erro()) {
+    <p class="erro" role="alert">{{ erro() }}</p>
+  }
+
+  @if (carregando()) {
+    <p class="vazio">Carregando prescrições...</p>
+  } @else if (ativas().length === 0 && !erro()) {
+    <p class="vazio">Nenhuma prescrição ativa no momento.</p>
+  } @else {
+    <div class="lista">
+      @for (p of ativas(); track p.id) {
+        <app-prescricao-card
+          [prescricao]="p"
+          [animalNome]="animalDe(p.internacaoId)"
+          [animalEspecie]="especieDe(p.internacaoId)"
+          [status]="statusDe(p.internacaoId)"
+          [nomesDosMedicamentos]="nomesDosMedicamentos()"
+          [podeDesativar]="podePrescrever"
+          (desativar)="desativar($event)"
+        />
+      }
+    </div>
+  }
+
+  @if (modalAberto()) {
+    <app-prescricao-dialogo
+      [internacoes]="internacoesElegiveis()"
+      [medicacoes]="medicacoes()"
+      [salvando]="salvando()"
+      [erro]="erroDoModal()"
+      (salvar)="salvar($event)"
+      (fechar)="fecharModal()"
+    />
+  }
+</app-shell>
