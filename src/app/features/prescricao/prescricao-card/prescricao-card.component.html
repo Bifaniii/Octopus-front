@@ -1,0 +1,51 @@
+<article class="card">
+  <header class="card__topo">
+    <div>
+      <h3 class="card__titulo">
+        {{ animalNome || "Internação #" + prescricao.internacaoId }}
+        @if (animalEspecie) {
+          <span class="card__especie">· {{ animalEspecie }}</span>
+        }
+      </h3>
+      <p class="card__sub">
+        Prescrição #{{ prescricao.id }} · {{ prescricao.veterinarioEmail }} ·
+        {{ prescricao.criadoEm | date: "dd/MM/yyyy HH:mm" }}
+      </p>
+    </div>
+    @if (nomeDoStatus) {
+      <span class="selo">{{ nomeDoStatus }}</span>
+    }
+  </header>
+
+  <ul class="card__itens">
+    @for (item of prescricao.itens; track item.id) {
+      <li class="item">
+        <i class="bi bi-capsule" aria-hidden="true"></i>
+        <span>
+          <strong>{{ nomeDe(item.medicacaoId) }}</strong>
+          — a cada {{ item.intervaloHoras }}h, a partir de
+          {{ item.inicio | date: "dd/MM HH:mm" }}
+          @if (item.observacao) {
+            <span class="item__obs"> · {{ item.observacao }}</span>
+          }
+        </span>
+      </li>
+    }
+  </ul>
+
+  @if (prescricao.observacao) {
+    <p class="card__obs">Obs.: {{ prescricao.observacao }}</p>
+  }
+
+  @if (podeDesativar) {
+    <footer class="card__acoes">
+      <button
+        type="button"
+        class="acao-perigo"
+        (click)="desativar.emit(prescricao.id)"
+      >
+        <i class="bi bi-x-circle" aria-hidden="true"></i> Desativar prescrição
+      </button>
+    </footer>
+  }
+</article>

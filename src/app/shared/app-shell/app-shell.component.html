@@ -29,7 +29,6 @@
         <i class="bi bi-plus-square"></i>
       </a>
 
-      <!-- NOVO BOTÃO: Tutores e Animais -->
       <a
         class="shell__nav-item"
         [class.shell__nav-item--ativo]="itemAtivo === 'tutores'"
@@ -39,14 +38,14 @@
         <i class="bi bi-people"></i>
       </a>
 
-      <button
-        type="button"
+      <a
         class="shell__nav-item"
         [class.shell__nav-item--ativo]="itemAtivo === 'prontuarios'"
-        title="Prontuários"
+        routerLink="/prescricoes"
+        title="Prescrições"
       >
         <i class="bi bi-clipboard2-check"></i>
-      </button>
+      </a>
 
       <button
         type="button"

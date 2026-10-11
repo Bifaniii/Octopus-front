@@ -41,7 +41,7 @@ export const routes: Routes = [
 
   {
     path: 'baias',
-   // canActivate: [authGuard],
+    canActivate: [authGuard],
     loadComponent: () =>
       import('./features/baias/cadastro-baias-pagina.component').then(
         (m) => m.CadastroBaiasPaginaComponent,
@@ -50,7 +50,7 @@ export const routes: Routes = [
 
   {
     path: 'registro-medicamentos',
-    // canActivate: [authGuard],
+    canActivate: [authGuard],
     loadComponent: () =>
       import('./features/medication/medication.component').then(
         (m) => m.MedicationComponent,
@@ -68,27 +68,43 @@ export const routes: Routes = [
   },
 
   {
-  path: 'internacao',
-  canActivate: [authGuard, permissaoGuard],
-  data: { roles: ['ROLE_ADMIN', 'ROLE_RECEPCIONISTA', 'ROLE_VETERINARIO', 'ROLE_AUXILIAR'] },
-  loadComponent: () =>
-    import('./features/internacao/internacao-pagina.component')
-      .then((m) => m.InternacaoPaginaComponent),
-},
-// ──────────────────────────────────────────────────────────────
-  // ROTA DO CADASTRO DE TUTOR E ANIMAL 
-  // ──────────────────────────────────────────────────────────────
-  {
-    path: 'cadastro-tutor-animal',
-    // As guardas estão comentadas para você testar livremente
-    // canActivate: [authGuard, permissaoGuard],
-    // data: { roles: ['ROLE_ADMIN', 'ROLE_RECEPCIONISTA'] },
+    path: 'internacao',
+    canActivate: [authGuard, permissaoGuard],
+    data: { roles: ['ROLE_ADMIN', 'ROLE_RECEPCIONISTA', 'ROLE_VETERINARIO', 'ROLE_AUXILIAR'] },
     loadComponent: () =>
-      import('./features/cadastro-tutor-animal/tutores/cadastro-tutores-pagina.component').then(
-        (m) => m.CadastroTutoresPaginaComponent
+      import('./features/internacao/internacao-pagina.component').then(
+        (m) => m.InternacaoPaginaComponent,
       ),
   },
-  
+
+  {
+    // Mesmos perfis do @PreAuthorize de /api/tutores e /api/animais no msusuario.
+    path: 'cadastro-tutor-animal',
+    canActivate: [authGuard, permissaoGuard],
+    data: { roles: ['ROLE_ADMIN', 'ROLE_RECEPCIONISTA'] },
+    loadComponent: () =>
+      import('./features/cadastro-tutor-animal/tutores/cadastro-tutores-pagina.component').then(
+        (m) => m.CadastroTutoresPaginaComponent,
+      ),
+  },
+
+  {
+    path: 'prescricoes',
+    canActivate: [authGuard, permissaoGuard],
+    data: {
+      roles: [
+        'ROLE_ADMIN',
+        'ROLE_RECEPCIONISTA',
+        'ROLE_VETERINARIO',
+        'ROLE_AUXILIAR',
+      ],
+    },
+    loadComponent: () =>
+      import('./features/prescricao/prescricao.component').then(
+        (m) => m.PrescricaoComponent,
+      ),
+  },
+
   // ──────────────────────────────────────────────────────────────
   // EXEMPLOS de features futuras — descomente ao criar cada pasta.
   //

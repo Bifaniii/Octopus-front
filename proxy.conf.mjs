@@ -12,6 +12,7 @@ const alvo = (variavel, padraoLocal) => ({
 
 // EXPORTAÇÃO CORRIGIDA: Exportando diretamente o objeto de configuração
 const PROXY_CONFIG = {
+  '/api/prescricoes': alvo('API_PRESCRICOES_URL', 'http://localhost:8084'),
   '/api/medicacoes': alvo('API_MEDICACOES_URL', 'http://localhost:8082'),
   '/api/baias': alvo('API_BAIAS_URL', 'http://localhost:8081'),
   '/api/internacoes': alvo('API_INTERNACOES_URL', 'http://localhost:8083'),
