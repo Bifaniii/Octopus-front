@@ -1,0 +1,74 @@
+/* As variáveis de cor (--color-*, --radius-*) vêm de src/styles/tema.css,
+   aplicadas globalmente pelo AppShellComponent. */
+:host { display: block; }
+
+.acoes { display: flex; justify-content: flex-end; align-items: center; gap: 0.75rem; margin-bottom: 1rem; }
+
+.botao-novo {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.55rem 1.1rem;
+  border: 0;
+  border-radius: var(--radius-md);
+  background: var(--color-primary);
+  color: var(--color-text-on-primary);
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.botao-novo:hover:not(:disabled) { background: var(--color-primary-strong); }
+.botao-novo:disabled { opacity: 0.6; cursor: default; }
+.botao-novo:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 2px; }
+
+.painel {
+  max-width: 640px;
+  margin-bottom: 1.75rem;
+  padding: 1.25rem 1.5rem 1.5rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+}
+
+.secao { margin-bottom: 1.75rem; }
+.secao__titulo { margin: 0 0 0.75rem; font-size: 0.95rem; color: var(--color-text); white-space: nowrap; }
+
+.aviso {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin: 0 0 1.75rem;
+  padding: 0.9rem 1.1rem;
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius-lg);
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+}
+.aviso--erro {
+  border-style: solid;
+  border-color: var(--color-danger-border);
+  background: var(--color-danger-soft);
+  color: var(--color-danger);
+}
+.aviso--sucesso {
+  border-style: solid;
+  border-color: var(--color-success-border);
+  background: var(--color-success-soft);
+  color: var(--color-success);
+}
+.aviso__botoes { display: inline-flex; gap: 0.5rem; }
+.aviso__acao {
+  padding: 0.4rem 0.8rem;
+  border: 1px solid currentColor;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 0.8rem;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+}

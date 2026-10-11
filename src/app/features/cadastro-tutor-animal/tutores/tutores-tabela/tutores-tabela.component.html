@@ -1,0 +1,22 @@
+<div class="moldura">
+  <table class="tabela">
+    <thead>
+      <tr>
+        <th scope="col">Nome</th>
+        <th scope="col">CPF</th>
+        <th scope="col">Telefone</th>
+        <th scope="col">E-mail</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (t of tutores; track t.id) {
+        <tr>
+          <td><strong>{{ t.nome }}</strong></td>
+          <td>{{ cpf(t.cpf) }}</td>
+          <td>{{ telefone(t.telefone) }}</td>
+          <td>{{ t.email ?? '—' }}</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>
