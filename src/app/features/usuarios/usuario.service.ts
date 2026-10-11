@@ -1,6 +1,6 @@
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, HttpParams } from '@angular/common/http';
 import { Injectable, inject, signal } from '@angular/core';
-import { Observable, finalize, forkJoin, map, tap } from 'rxjs';
+import { Observable, finalize, map, tap } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import {
   AdminResponse,
@@ -9,20 +9,20 @@ import {
   DadosAuxiliarOuRecepcionista,
   DadosVeterinario,
   ErroApi,
+  FiltrosUsuario,
+  RECURSO_DESATIVAVEL,
+  RoleCriavel,
   UsuarioListagem,
-  UsuarioResponse,
   VeterinarioResponse,
 } from './usuario.model';
 
 /**
  * UsuarioService
  * --------------
- * Consome o microserviço octopus-msusuario. Não existe um endpoint
- * único de "usuários": cada papel tem seu próprio recurso REST
- * (/api/admins, /api/veterinarios, /api/auxiliares, /api/recepcionistas).
- * Este serviço chama os 4 em paralelo para montar uma lista única na
- * tela, e expõe um método de criação por papel. Tudo exige ROLE_ADMIN
- * (regra do back-end) — o authInterceptor já anexa o token.
+ * Consome o octopus-msusuario. A listagem vem de GET /api/usuarios, que junta os quatro perfis e aplica os
+ * filtros no banco; o cadastro e a desativação continuam no recurso de cada papel (/api/admins,
+ * /api/veterinarios, /api/auxiliares, /api/recepcionistas). Tudo exige ROLE_ADMIN (regra do back-end) — o
+ * authInterceptor já anexa o token.
  */
 @Injectable({ providedIn: 'root' })
 export class UsuarioService {
@@ -35,23 +35,17 @@ export class UsuarioService {
   readonly usuarios = this._usuarios.asReadonly();
   readonly carregando = this._carregando.asReadonly();
 
-  /** GET nos 4 recursos em paralelo — recarrega a lista inteira. */
-  carregar(): Observable<UsuarioListagem[]> {
+  /** GET /api/usuarios com os filtros preenchidos. */
+  carregar(filtros: FiltrosUsuario): Observable<UsuarioListagem[]> {
+    let params = new HttpParams();
+    if (filtros.nome.trim()) params = params.set('nome', filtros.nome.trim());
+    if (filtros.perfil) params = params.set('perfil', filtros.perfil);
+    if (filtros.situacao) params = params.set('ativo', String(filtros.situacao === 'ativos'));
+    if (filtros.cadastradoDe) params = params.set('cadastradoDe', filtros.cadastradoDe);
+    if (filtros.cadastradoAte) params = params.set('cadastradoAte', filtros.cadastradoAte);
+
     this._carregando.set(true);
-    return forkJoin({
-      admins: this.http.get<AdminResponse[]>(`${this.apiBase}/admins`),
-      veterinarios: this.http.get<VeterinarioResponse[]>(`${this.apiBase}/veterinarios`),
-      auxiliares: this.http.get<AuxiliarOuRecepcionistaResponse[]>(`${this.apiBase}/auxiliares`),
-      recepcionistas: this.http.get<AuxiliarOuRecepcionistaResponse[]>(
-        `${this.apiBase}/recepcionistas`,
-      ),
-    }).pipe(
-      map(({ admins, veterinarios, auxiliares, recepcionistas }) => [
-        ...admins.map((a) => this.paraLinha(a.nome, a.usuario)),
-        ...veterinarios.map((v) => this.paraLinha(v.nome, v.usuario)),
-        ...auxiliares.map((a) => this.paraLinha(a.nome, a.usuario)),
-        ...recepcionistas.map((r) => this.paraLinha(r.nome, r.usuario)),
-      ]),
+    return this.http.get<UsuarioListagem[]>(`${this.apiBase}/usuarios`, { params }).pipe(
       tap((lista) => this._usuarios.set(lista)),
       finalize(() => this._carregando.set(false)),
     );
@@ -59,32 +53,35 @@ export class UsuarioService {
 
   /** POST /api/admins */
   criarAdmin(dados: DadosAdmin): Observable<AdminResponse> {
-    return this.http
-      .post<AdminResponse>(`${this.apiBase}/admins`, dados)
-      .pipe(tap((novo) => this.adicionar(this.paraLinha(novo.nome, novo.usuario))));
+    return this.http.post<AdminResponse>(`${this.apiBase}/admins`, dados);
   }
 
   /** POST /api/veterinarios */
   criarVeterinario(dados: DadosVeterinario): Observable<VeterinarioResponse> {
-    return this.http
-      .post<VeterinarioResponse>(`${this.apiBase}/veterinarios`, dados)
-      .pipe(tap((novo) => this.adicionar(this.paraLinha(novo.nome, novo.usuario))));
+    return this.http.post<VeterinarioResponse>(`${this.apiBase}/veterinarios`, dados);
   }
 
   /** POST /api/auxiliares */
   criarAuxiliar(dados: DadosAuxiliarOuRecepcionista): Observable<AuxiliarOuRecepcionistaResponse> {
-    return this.http
-      .post<AuxiliarOuRecepcionistaResponse>(`${this.apiBase}/auxiliares`, dados)
-      .pipe(tap((novo) => this.adicionar(this.paraLinha(novo.nome, novo.usuario))));
+    return this.http.post<AuxiliarOuRecepcionistaResponse>(`${this.apiBase}/auxiliares`, dados);
   }
 
   /** POST /api/recepcionistas */
-  criarRecepcionista(
-    dados: DadosAuxiliarOuRecepcionista,
-  ): Observable<AuxiliarOuRecepcionistaResponse> {
-    return this.http
-      .post<AuxiliarOuRecepcionistaResponse>(`${this.apiBase}/recepcionistas`, dados)
-      .pipe(tap((novo) => this.adicionar(this.paraLinha(novo.nome, novo.usuario))));
+  criarRecepcionista(dados: DadosAuxiliarOuRecepcionista): Observable<AuxiliarOuRecepcionistaResponse> {
+    return this.http.post<AuxiliarOuRecepcionistaResponse>(`${this.apiBase}/recepcionistas`, dados);
+  }
+
+  podeDesativar(usuario: UsuarioListagem): boolean {
+    return usuario.ativo && RECURSO_DESATIVAVEL[usuario.role as RoleCriavel] !== undefined;
+  }
+
+  /** PATCH /api/<perfil>/{perfilId}/desativar. Nada é apagado: a conta fica inativa e perde o acesso. */
+  desativar(usuario: UsuarioListagem): Observable<void> {
+    const recurso = RECURSO_DESATIVAVEL[usuario.role as RoleCriavel];
+    return this.http.patch(`${this.apiBase}/${recurso}/${usuario.perfilId}/desativar`, null).pipe(
+      tap(() => this._usuarios.update((lista) => lista.map((u) => (u.id === usuario.id ? { ...u, ativo: false } : u)))),
+      map(() => undefined),
+    );
   }
 
   /** Traduz o erro HTTP em uma mensagem amigável para exibir na tela. */
@@ -109,13 +106,5 @@ export class UsuarioService {
       default:
         return 'Algo deu errado. Tente novamente.';
     }
-  }
-
-  private paraLinha(nome: string, usuario: UsuarioResponse): UsuarioListagem {
-    return { id: usuario.id, nome, email: usuario.email, role: usuario.role, ativo: usuario.ativo };
-  }
-
-  private adicionar(linha: UsuarioListagem): void {
-    this._usuarios.update((lista) => [...lista, linha]);
   }
 }

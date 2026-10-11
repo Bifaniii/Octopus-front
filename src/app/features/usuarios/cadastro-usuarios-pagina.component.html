@@ -6,6 +6,53 @@
     </button>
   </div>
 
+  <form class="filtros" (submit)="$event.preventDefault(); filtrar()" aria-label="Filtros de usuários">
+    <label class="filtro filtro--largo">
+      <span>Nome</span>
+      <input
+        type="search"
+        placeholder="Parte do nome"
+        [value]="filtros().nome"
+        (input)="alterarFiltro('nome', $any($event.target).value)"
+      />
+    </label>
+    <label class="filtro">
+      <span>Perfil</span>
+      <select [value]="filtros().perfil" (change)="alterarFiltro('perfil', $any($event.target).value)">
+        <option value="">Todos</option>
+        @for (p of perfis; track p[0]) {
+          <option [value]="p[0]">{{ p[1] }}</option>
+        }
+      </select>
+    </label>
+    <label class="filtro">
+      <span>Situação</span>
+      <select [value]="filtros().situacao" (change)="alterarFiltro('situacao', $any($event.target).value)">
+        <option value="">Todas</option>
+        <option value="ativos">Ativos</option>
+        <option value="inativos">Inativos</option>
+      </select>
+    </label>
+    <label class="filtro">
+      <span>Cadastrado de</span>
+      <input type="date" [value]="filtros().cadastradoDe" (change)="alterarFiltro('cadastradoDe', $any($event.target).value)" />
+    </label>
+    <label class="filtro">
+      <span>até</span>
+      <input type="date" [value]="filtros().cadastradoAte" (change)="alterarFiltro('cadastradoAte', $any($event.target).value)" />
+    </label>
+    <div class="filtros__botoes">
+      <button type="submit" class="botao botao--primario"><i class="bi bi-funnel"></i> Filtrar</button>
+      @if (filtrosAtivos()) {
+        <button type="button" class="botao" (click)="limparFiltros()">Limpar</button>
+      }
+    </div>
+  </form>
+
+  @if (erroAcao(); as mensagem) {
+    <div class="aviso aviso--erro" role="alert"><span>{{ mensagem }}</span></div>
+  }
+
   @if (erroLista(); as mensagem) {
     <div class="aviso aviso--erro" role="alert">
       <span>{{ mensagem }}</span>
@@ -14,7 +61,11 @@
   } @else if (carregando() && usuarios().length === 0) {
     <p class="aviso">Carregando usuários...</p>
   } @else if (usuarios().length === 0) {
-    <p class="aviso">Nenhum usuário cadastrado ainda. Use o botão "Novo usuário" para cadastrar o primeiro.</p>
+    @if (filtrosAtivos()) {
+      <p class="aviso">Nenhum usuário com esses filtros.</p>
+    } @else {
+      <p class="aviso">Nenhum usuário cadastrado ainda. Use o botão "Novo usuário" para cadastrar o primeiro.</p>
+    }
   }
 
   @if (usuarios().length > 0) {
@@ -24,16 +75,31 @@
           <th>Nome</th>
           <th>E-mail</th>
           <th>Papel</th>
+          <th>Cadastro</th>
           <th>Status</th>
+          <th><span class="visualmente-oculto">Ações</span></th>
         </tr>
       </thead>
       <tbody>
         @for (u of usuarios(); track u.id) {
-          <tr>
+          <tr [class.inativo]="!u.ativo">
             <td>{{ u.nome }}</td>
             <td>{{ u.email }}</td>
             <td>{{ $any(nomePorRole)[u.role] ?? u.role }}</td>
+            <td>{{ data(u.criadoEm) }}</td>
             <td>{{ u.ativo ? 'Ativo' : 'Inativo' }}</td>
+            <td class="celula-acao">
+              @if (podeDesativar(u)) {
+                <button
+                  type="button"
+                  class="botao botao--perigo"
+                  (click)="desativar(u)"
+                  (blur)="confirmandoDesativar.set(null)"
+                >
+                  {{ confirmandoDesativar() === u.id ? 'Confirmar desativação' : 'Desativar' }}
+                </button>
+              }
+            </td>
           </tr>
         }
       </tbody>

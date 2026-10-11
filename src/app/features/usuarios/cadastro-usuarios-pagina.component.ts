@@ -7,15 +7,15 @@ import { AppShellComponent } from '../../shared/app-shell/app-shell.component';
 import { AuthService } from '../../core/services/auth.service';
 import { UsuarioDialogoComponent } from './usuario-dialogo/usuario-dialogo.component';
 import { UsuarioService } from './usuario.service';
-import { NOME_POR_ROLE, NovoUsuarioEvento } from './usuario.model';
+import { FILTROS_VAZIOS, FiltrosUsuario, NOME_POR_ROLE, NovoUsuarioEvento, UsuarioListagem } from './usuario.model';
 
 /**
  * CadastroUsuariosPaginaComponent
  * --------------------------------
  * Componente de ROTA da tela de usuários. Só é alcançável por quem
  * tem ROLE_ADMIN (ver `authGuard` + `permissaoGuard` em app.routes.ts).
- * Busca a lista (4 endpoints em paralelo, um por papel — ver
- * UsuarioService) e controla o diálogo de cadastro. A moldura
+ * Lista os usuários com os filtros aplicados no back (GET /api/usuarios),
+ * controla o diálogo de cadastro e a desativação. A moldura
  * (sidebar, cabeçalho, tema) vem do AppShellComponent compartilhado.
  */
 @Component({
@@ -34,6 +34,14 @@ export class CadastroUsuariosPaginaComponent {
   protected readonly usuarios = this.usuarioService.usuarios;
   protected readonly carregando = this.usuarioService.carregando;
   protected readonly nomePorRole = NOME_POR_ROLE;
+  protected readonly perfis = Object.entries(NOME_POR_ROLE);
+
+  /** Filtros em edição na barra; só valem depois de "Filtrar". */
+  protected readonly filtros = signal<FiltrosUsuario>({ ...FILTROS_VAZIOS });
+  protected readonly filtrosAtivos = signal(false);
+  /** Linha aguardando o segundo clique de "Desativar". */
+  protected readonly confirmandoDesativar = signal<string | null>(null);
+  protected readonly erroAcao = signal<string | null>(null);
 
   /** Erro ao carregar a lista. */
   protected readonly erroLista = signal<string | null>(null);
@@ -49,9 +57,55 @@ export class CadastroUsuariosPaginaComponent {
     }
   }
 
+  protected alterarFiltro(campo: keyof FiltrosUsuario, valor: string): void {
+    this.filtros.update((f) => ({ ...f, [campo]: valor }));
+  }
+
+  protected filtrar(): void {
+    const f = this.filtros();
+    if (f.cadastradoDe && f.cadastradoAte && f.cadastradoDe > f.cadastradoAte) {
+      this.erroLista.set('A data inicial do cadastro não pode ser depois da final.');
+      return;
+    }
+    this.filtrosAtivos.set(Object.values(f).some((v) => v !== ''));
+    this.recarregar();
+  }
+
+  protected limparFiltros(): void {
+    this.filtros.set({ ...FILTROS_VAZIOS });
+    this.filtrosAtivos.set(false);
+    this.recarregar();
+  }
+
+  protected podeDesativar(u: UsuarioListagem): boolean {
+    return this.usuarioService.podeDesativar(u);
+  }
+
+  /** Dois cliques: o primeiro pede confirmação na própria linha, sem diálogo do navegador. */
+  protected desativar(u: UsuarioListagem): void {
+    if (this.confirmandoDesativar() !== u.id) {
+      this.confirmandoDesativar.set(u.id);
+      return;
+    }
+    this.confirmandoDesativar.set(null);
+    this.erroAcao.set(null);
+    this.usuarioService.desativar(u).subscribe({
+      error: (e: HttpErrorResponse) => {
+        if (this.sessaoExpirou(e)) return;
+        this.erroAcao.set(this.usuarioService.mensagemDeErro(e));
+      },
+    });
+  }
+
+  /** aaaa-MM-ddTHH:mm:ss → dd/MM/aaaa, sem passar por Date. */
+  protected data(valor: string): string {
+    const [ano, mes, dia] = valor.slice(0, 10).split('-');
+    return `${dia}/${mes}/${ano}`;
+  }
+
   protected recarregar(): void {
     this.erroLista.set(null);
-    this.usuarioService.carregar().subscribe({
+    this.usuarioService.carregar(this.filtros()).subscribe({
       error: (e: HttpErrorResponse) => {
         if (this.sessaoExpirou(e)) return;
         this.erroLista.set(this.usuarioService.mensagemDeErro(e));
@@ -93,6 +147,7 @@ export class CadastroUsuariosPaginaComponent {
       next: () => {
         this.salvando.set(false);
         this.dialogoAberto.set(false);
+        this.recarregar();
       },
       error: (e: HttpErrorResponse) => {
         this.salvando.set(false);

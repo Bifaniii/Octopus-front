@@ -99,14 +99,37 @@ export interface AuxiliarOuRecepcionistaResponse {
   usuario: UsuarioResponse;
 }
 
-/** Linha normalizada da tabela da tela (um formato só, pros 4 papéis). */
+/**
+ * Linha da tabela: resposta de GET /api/usuarios (UsuarioResumoResponse). `id` é a conta e `perfilId` o
+ * registro do perfil, que é o id usado em /api/<perfil>/{id}/desativar.
+ */
 export interface UsuarioListagem {
   id: string;
+  perfilId: string;
   nome: string;
   email: string;
   role: Role;
   ativo: boolean;
+  criadoEm: string;
 }
+
+/** Filtros de GET /api/usuarios. Vazio = não filtra. Datas em aaaa-MM-dd, comparadas com a data de cadastro. */
+export interface FiltrosUsuario {
+  nome: string;
+  perfil: RoleCriavel | '';
+  situacao: 'ativos' | 'inativos' | '';
+  cadastradoDe: string;
+  cadastradoAte: string;
+}
+
+export const FILTROS_VAZIOS: FiltrosUsuario = { nome: '', perfil: '', situacao: '', cadastradoDe: '', cadastradoAte: '' };
+
+/** Recurso REST de cada perfil que pode ser desativado. O admin não tem desativação no back. */
+export const RECURSO_DESATIVAVEL: Partial<Record<RoleCriavel, string>> = {
+  ROLE_VETERINARIO: 'veterinarios',
+  ROLE_AUXILIAR: 'auxiliares',
+  ROLE_RECEPCIONISTA: 'recepcionistas',
+};
 
 /** Evento emitido pelo diálogo — o papel escolhido já diz qual formato `dados` tem. */
 export type NovoUsuarioEvento =
