@@ -2,8 +2,9 @@
  * Modelos de medicamento — espelham o contrato do microserviço
  * octopus-msmedications (MedicacaoResponse, endpoints em /api/medicacoes).
  *
- * É o CATÁLOGO de medicamentos da clínica. Prescrição e doses aplicadas
- * nos animais ficam em outros microserviços (Sprints 3 e 4).
+ * É o CATÁLOGO de medicamentos da clínica, com o estoque em doses: cada dose
+ * agendada numa prescrição separa 1 unidade, e a dose cancelada (prescrição
+ * desativada ou saída do animal) devolve.
  */
 
 /** Numa dose perdida, CONTINUO desloca as seguintes (RN-07) e SINTOMATICO descarta (RN-08). */
@@ -29,6 +30,7 @@ export interface Medicacao {
   fabricante: string;
   numeroRegistroAnvisa: string;
   ativo: boolean;
+  quantidade: number; // estoque em doses
   interacoesProibidas: InteracaoProibida[];
 }
 
@@ -49,6 +51,7 @@ export interface DadosMedicacao {
   fabricante: string;
   numeroRegistroAnvisa: string; // exatamente 11 dígitos
   interacoesProibidas: number[]; // ids das medicações
+  quantidade: number; // estoque inicial em doses
 }
 
 /** Corpo de erro do back-end (ErroResponse). */

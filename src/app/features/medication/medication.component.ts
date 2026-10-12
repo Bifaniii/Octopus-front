@@ -32,13 +32,10 @@ const UM_DIA_MS = 24 * 60 * 60 * 1000;
 /**
  * MedicationComponent
  * -------------------
- * Tela de CONSULTA do catálogo de medicamentos da clínica (tela 3 do TAP),
- * alimentada pelo microserviço octopus-msmedications. Só exibe: nome,
- * princípio ativo, apresentação, esquema, validade, fabricante, registro
- * ANVISA e interações proibidas.
- *
- * Doses aplicadas nos animais NÃO são desta tela: elas virão da prescrição
- * e do painel de doses (Sprints 3 e 4).
+ * Catálogo de medicamentos da clínica (tela 3 do TAP), alimentado pelo
+ * microserviço octopus-msmedications: nome, princípio ativo, apresentação,
+ * esquema, estoque em doses, validade, fabricante, registro ANVISA e
+ * interações proibidas. Admin e veterinário cadastram e ajustam o estoque.
  */
 @Component({
   selector: 'app-medication',
@@ -65,6 +62,10 @@ export class MedicationComponent {
   protected readonly podeCadastrar = computed(() => this.auth.temRole(['ROLE_ADMIN', 'ROLE_VETERINARIO']));
   protected readonly busca = signal('');
   protected readonly mostrarInativos = signal(false);
+  /** Card com o campo de estoque aberto. */
+  protected readonly ajustando = signal<number | null>(null);
+  protected readonly salvandoEstoque = signal(false);
+  protected readonly erroEstoque = signal<{ id: number; mensagem: string } | null>(null);
 
   protected readonly totalAtivos = computed(() => this.medicacoes().filter((m) => m.ativo).length);
 
@@ -144,6 +145,40 @@ export class MedicationComponent {
           return;
         }
         this.erroDialogo.set(this.medicacaoService.mensagemDeErro(e));
+      },
+    });
+  }
+
+  protected abrirAjuste(id: number): void {
+    this.erroEstoque.set(null);
+    this.ajustando.set(id);
+  }
+
+  /** Contagem do estoque (compra ou inventário). As reservas e devoluções das doses o back faz sozinho. */
+  protected salvarEstoque(m: MedicacaoExibida, valor: string): void {
+    const quantidade = Number(valor);
+    if (valor === '' || !Number.isInteger(quantidade) || quantidade < 0) {
+      this.erroEstoque.set({ id: m.id, mensagem: 'Informe um número inteiro, zero ou mais.' });
+      return;
+    }
+    this.salvandoEstoque.set(true);
+    this.medicacaoService.ajustarEstoque(m.id, quantidade).subscribe({
+      next: (atualizada) => {
+        this.salvandoEstoque.set(false);
+        this.ajustando.set(null);
+        this.erroEstoque.set(null);
+        this.medicacoes.update((lista) =>
+          lista.map((x) => (x.id === m.id ? { ...x, quantidade: atualizada.quantidade } : x)),
+        );
+      },
+      error: (e: HttpErrorResponse) => {
+        this.salvandoEstoque.set(false);
+        if (e.status === 401) {
+          this.auth.logout();
+          this.router.navigateByUrl('/login');
+          return;
+        }
+        this.erroEstoque.set({ id: m.id, mensagem: this.medicacaoService.mensagemDeErro(e) });
       },
     });
   }

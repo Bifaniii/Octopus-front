@@ -138,7 +138,11 @@ O front chama sempre `/api/...` (`environment.apiBaseUrl`) e o proxy escolhe o m
   `GET /api/usuarios/nomes`. Com `responseType: 'blob'`, o JSON de erro também chega como Blob e é lido antes de
   mostrar a mensagem.
 - `baias`: painel de baias por tipo; só o admin cadastra, edita, desativa e reativa (limite de 12 ativas).
-- `registro-medicamentos`: cadastro de medicamentos com esquema e interações proibidas.
+- `registro-medicamentos`: cadastro de medicamentos com esquema, interações proibidas e estoque inicial em doses.
+  O card mostra o estoque ("Sem estoque" em vermelho quando zera); o lápis ao lado abre o ajuste
+  (`PATCH /api/medicacoes/{id}` com `quantidade`), só para admin e veterinário. Reserva e devolução das doses o
+  back faz sozinho: prescrever baixa o estoque, e desativar a prescrição ou registrar a saída do animal devolve.
+  Sem saldo, a prescrição recebe 422 com a mensagem do back.
 - `internacao` (tela 4), com duas abas:
   - "Mapa": baias com ocupação, resumo do plantão e atualização a cada 60 s. Só internações abertas.
   - "Encerradas": tabela das internações que já saíram do mapa, com busca pelo nome do animal (ignora acento e

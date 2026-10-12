@@ -80,6 +80,43 @@
             <dd>{{ m.numeroRegistroAnvisa }}</dd>
           </div>
           <div>
+            <dt>Estoque</dt>
+            <dd>
+              @if (ajustando() === m.id) {
+                <form class="estoque-ajuste" (submit)="$event.preventDefault(); salvarEstoque(m, quantidadeNova.value)">
+                  <input
+                    #quantidadeNova
+                    type="number"
+                    min="0"
+                    step="1"
+                    [value]="m.quantidade"
+                    aria-label="Nova quantidade em estoque"
+                  />
+                  <button type="submit" class="estoque-ajuste__botao" [disabled]="salvandoEstoque()">Salvar</button>
+                  <button type="button" class="estoque-ajuste__botao" (click)="ajustando.set(null)">Cancelar</button>
+                </form>
+              } @else {
+                <span [class.estoque--zerado]="m.quantidade === 0">
+                  {{ m.quantidade === 0 ? 'Sem estoque' : m.quantidade + (m.quantidade === 1 ? ' dose' : ' doses') }}
+                </span>
+                @if (podeCadastrar() && m.ativo) {
+                  <button
+                    type="button"
+                    class="estoque-editar"
+                    title="Ajustar estoque"
+                    aria-label="Ajustar estoque"
+                    (click)="abrirAjuste(m.id)"
+                  >
+                    <i class="bi bi-pencil"></i>
+                  </button>
+                }
+              }
+              @if (erroEstoque()?.id === m.id) {
+                <span class="estoque-erro" role="alert">{{ erroEstoque()?.mensagem }}</span>
+              }
+            </dd>
+          </div>
+          <div>
             <dt>Validade</dt>
             <dd>
               <span [class]="'validade validade--' + m.validade">

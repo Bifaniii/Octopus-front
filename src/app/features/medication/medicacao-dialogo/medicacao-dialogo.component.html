@@ -72,6 +72,11 @@
       </label>
     </div>
 
+    <label class="campo campo--curto">
+      <span class="campo__rotulo">Estoque inicial (doses)</span>
+      <input type="number" formControlName="quantidade" min="0" step="1" />
+    </label>
+
     @if (ativas.length) {
       <fieldset class="campo">
         <legend class="campo__rotulo">Interações proibidas (opcional)</legend>

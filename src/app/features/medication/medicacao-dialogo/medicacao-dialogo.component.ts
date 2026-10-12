@@ -59,6 +59,7 @@ export class MedicacaoDialogoComponent implements AfterViewInit {
     dataVencimento: [''], // "AAAA-MM-DD" do <input type="date">
     fabricante: [''],
     numeroRegistroAnvisa: [''],
+    quantidade: [0],
   });
 
   /** Ids marcados como interação proibida. */
@@ -147,6 +148,12 @@ export class MedicacaoDialogoComponent implements AfterViewInit {
       return;
     }
 
+    const quantidade = Number(v.quantidade);
+    if (!Number.isInteger(quantidade) || quantidade < 0) {
+      this.erro.set('O estoque deve ser um número inteiro, zero ou mais.');
+      return;
+    }
+
     this.erro.set(null);
     this.salvar.emit({
       ...texto,
@@ -154,6 +161,7 @@ export class MedicacaoDialogoComponent implements AfterViewInit {
       // O back-end recebe LocalDateTime: completa a data com meia-noite.
       dataVencimento: `${v.dataVencimento}T00:00:00`,
       interacoesProibidas: [...this.interacoes()],
+      quantidade,
     });
   }
 

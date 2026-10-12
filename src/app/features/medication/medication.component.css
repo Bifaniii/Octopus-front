@@ -281,3 +281,37 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* Estoque: zerado em vermelho; o lápis abre o campo de ajuste no próprio card. */
+.estoque--zerado { color: var(--color-danger); font-weight: 600; }
+.estoque-editar {
+  margin-left: 0.35rem;
+  padding: 0.1rem 0.3rem;
+  border: 0;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--color-text-muted);
+  cursor: pointer;
+}
+.estoque-editar:hover { background: var(--color-surface-alt); color: var(--color-primary); }
+.estoque-ajuste { display: flex; flex-wrap: wrap; gap: 0.35rem; align-items: center; }
+.estoque-ajuste input {
+  width: 5.5rem;
+  padding: 0.25rem 0.4rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-bg);
+  color: var(--color-text);
+  font: inherit;
+}
+.estoque-ajuste__botao {
+  padding: 0.25rem 0.55rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font: inherit;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+.estoque-erro { display: block; margin-top: 0.25rem; font-size: 0.8rem; color: var(--color-danger); }

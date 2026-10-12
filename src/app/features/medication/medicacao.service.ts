@@ -26,6 +26,11 @@ export class MedicacaoService {
     return this.http.post<Medicacao>(this.baseUrl, dados);
   }
 
+  /** PATCH /api/medicacoes/{id} só com a quantidade: contagem do estoque (compra ou inventário). */
+  ajustarEstoque(id: number, quantidade: number): Observable<Medicacao> {
+    return this.http.patch<Medicacao>(`${this.baseUrl}/${id}`, { quantidade });
+  }
+
   /** Traduz o erro HTTP em uma mensagem amigável para exibir na tela. */
   mensagemDeErro(e: HttpErrorResponse): string {
     const corpo = e.error as Partial<ErroApi> | null;
