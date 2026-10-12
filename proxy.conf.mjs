@@ -17,6 +17,7 @@ const PROXY_CONFIG = {
   '/api/baias': alvo('API_BAIAS_URL', 'http://localhost:8081'),
   '/api/internacoes': alvo('API_INTERNACOES_URL', 'http://localhost:8083'),
   '/api/doses': alvo('API_DOSES_URL', 'http://localhost:8085'),
+  '/api/relatorios': alvo('API_RELATORIOS_URL', 'http://localhost:8086'),
   // O genérico fica por último: a primeira entrada que casa com o caminho é a que vale.
   '/api': alvo('API_DEFAULT_URL', 'http://localhost:8080'),
 };

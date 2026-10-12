@@ -100,6 +100,7 @@ O front chama sempre `/api/...` (`environment.apiBaseUrl`) e o proxy escolhe o m
 | `/api/internacoes` | `API_INTERNACOES_URL` | `ms-internacao` (:8083) |
 | `/api/prescricoes` | `API_PRESCRICOES_URL` | `octopus-msprescricao` (:8084) |
 | `/api/doses` | `API_DOSES_URL` | `octopus-msdoses` (:8085) |
+| `/api/relatorios` | `API_RELATORIOS_URL` | `octopus-msrelatorios` (:8086) |
 | `/api` (o resto) | `API_DEFAULT_URL` | `octopus-msusuario` (:8080): login, usuários, tutores, animais |
 
 - Desenvolvimento: `proxy.conf.mjs`, lendo o `.env` da raiz (modelo em `.env-example`). A primeira entrada que
@@ -130,6 +131,12 @@ O front chama sempre `/api/...` (`environment.apiBaseUrl`) e o proxy escolhe o m
 - `prescricoes` (tela 5): o veterinário prescreve para uma internação aberta (medicamento, dosagem, intervalo,
   número de doses e início). O card mostra os horários gerados pelo back. Desativar cancela as doses pendentes no
   `octopus-msdoses`.
+- `relatorios` (ícone de prancheta na sidebar, todos os perfis): um card por relatório que o perfil pode gerar,
+  com os filtros de cada um e os botões PDF e Excel. O arquivo vem pronto de `GET /api/relatorios/<tipo>`; a tela
+  baixa o Blob com o nome do `Content-Disposition`. Os perfis de cada relatório estão em `RELATORIOS`
+  (`relatorio.model.ts`), espelho do `@PreAuthorize` do msrelatorios. O filtro de auxiliar usa
+  `GET /api/usuarios/nomes`. Com `responseType: 'blob'`, o JSON de erro também chega como Blob e é lido antes de
+  mostrar a mensagem.
 - `baias`: painel de baias por tipo; só o admin cadastra, edita, desativa e reativa (limite de 12 ativas).
 - `registro-medicamentos`: cadastro de medicamentos com esquema e interações proibidas.
 - `internacao` (tela 4), com duas abas:
@@ -148,9 +155,10 @@ O front chama sempre `/api/...` (`environment.apiBaseUrl`) e o proxy escolhe o m
     perfis que admitem. O nome do animal no card vem da própria internação.
   - Admitir usa o `GET /api/animais/{id}` do msusuario, já na `main` do back.
 
-## Estado das branches (11/10/2026)
+## Estado das branches (12/10/2026)
 
-- `main`: login, usuários, baias, medicamentos e internação.
+- `main`: tudo da `feature/sprint2-integracao` mais a tela de relatórios (12/10). Em produção, os relatórios
+  dependem de `API_RELATORIOS_URL` na Vercel e do msrelatorios publicado.
 - `feature/sprint2-integracao`: parte da `main` e junta `feature/internacao` (id numérico),
   `feature/cadastro-tutor-animal` (Miliani) e `feature/prescricao` (Marcos), com os ids numéricos em todas as telas,
   a tela de tutores ligada ao msusuario, os filtros de usuários, a prescrição com dosagem e horários e o proxy

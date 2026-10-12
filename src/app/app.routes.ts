@@ -106,6 +106,16 @@ export const routes: Routes = [
       ),
   },
 
+  {
+    // Todos os perfis entram; a página mostra só os relatórios que o perfil pode gerar (mesma regra do msrelatorios).
+    path: 'relatorios',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/relatorios/relatorios-pagina.component').then(
+        (m) => m.RelatoriosPaginaComponent,
+      ),
+  },
+
   // ──────────────────────────────────────────────────────────────
   // EXEMPLOS de features futuras — descomente ao criar cada pasta.
   //

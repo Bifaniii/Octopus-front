@@ -1,0 +1,127 @@
+<app-shell titulo="Relatórios" subtitulo="Exporte os dados da clínica em PDF ou Excel" itemAtivo="relatorios">
+  <div class="grade">
+    @for (r of relatorios; track r.tipo) {
+      <section class="card" [attr.aria-labelledby]="'titulo-' + r.tipo">
+        <header class="card__topo">
+          <span class="card__icone" aria-hidden="true"><i class="bi" [class]="r.icone"></i></span>
+          <div>
+            <h2 [id]="'titulo-' + r.tipo">{{ r.titulo }}</h2>
+            <p>{{ r.descricao }}</p>
+          </div>
+        </header>
+
+        @switch (r.tipo) {
+          @case ('doses') {
+            <div class="campos">
+              <label class="campo">
+                <span>De</span>
+                <input type="date" [value]="filtros()[r.tipo].de" (change)="alterar(r.tipo, 'de', $any($event.target).value)" />
+              </label>
+              <label class="campo">
+                <span>Até</span>
+                <input type="date" [value]="filtros()[r.tipo].ate" (change)="alterar(r.tipo, 'ate', $any($event.target).value)" />
+              </label>
+              <label class="campo">
+                <span>Turno</span>
+                <select [value]="filtros()[r.tipo].turno" (change)="alterar(r.tipo, 'turno', $any($event.target).value)">
+                  <option value="">Todos</option>
+                  @for (t of turnos; track t.valor) {
+                    <option [value]="t.valor">{{ t.nome }}</option>
+                  }
+                </select>
+              </label>
+              <label class="campo">
+                <span>Situação</span>
+                <select [value]="filtros()[r.tipo].situacao" (change)="alterar(r.tipo, 'situacao', $any($event.target).value)">
+                  <option value="">Todas</option>
+                  @for (s of situacoesDose; track s.valor) {
+                    <option [value]="s.valor">{{ s.nome }}</option>
+                  }
+                </select>
+              </label>
+              <label class="campo campo--largo">
+                <span>Auxiliar</span>
+                <select [value]="filtros()[r.tipo].auxiliar" (change)="alterar(r.tipo, 'auxiliar', $any($event.target).value)">
+                  <option value="">Todos</option>
+                  @for (a of auxiliares(); track a.email) {
+                    <option [value]="a.email">{{ a.nome }}</option>
+                  }
+                </select>
+              </label>
+            </div>
+          }
+          @case ('internacoes') {
+            <div class="campos">
+              <label class="campo">
+                <span>Admissão de</span>
+                <input type="date" [value]="filtros()[r.tipo].de" (change)="alterar(r.tipo, 'de', $any($event.target).value)" />
+              </label>
+              <label class="campo">
+                <span>até</span>
+                <input type="date" [value]="filtros()[r.tipo].ate" (change)="alterar(r.tipo, 'ate', $any($event.target).value)" />
+              </label>
+              <label class="campo campo--largo">
+                <span>Situação</span>
+                <select [value]="filtros()[r.tipo].status" (change)="alterar(r.tipo, 'status', $any($event.target).value)">
+                  <option value="">Todas</option>
+                  @for (s of statusInternacao; track s.valor) {
+                    <option [value]="s.valor">{{ s.nome }}</option>
+                  }
+                </select>
+              </label>
+            </div>
+          }
+          @case ('usuarios') {
+            <div class="campos">
+              <label class="campo campo--largo">
+                <span>Perfil</span>
+                <select [value]="filtros()[r.tipo].perfil" (change)="alterar(r.tipo, 'perfil', $any($event.target).value)">
+                  <option value="">Todos</option>
+                  @for (p of perfis; track p.valor) {
+                    <option [value]="p.valor">{{ p.nome }}</option>
+                  }
+                </select>
+              </label>
+              <label class="campo campo--largo">
+                <span>Situação</span>
+                <select [value]="filtros()[r.tipo].ativo" (change)="alterar(r.tipo, 'ativo', $any($event.target).value)">
+                  <option value="">Todas</option>
+                  <option value="true">Ativos</option>
+                  <option value="false">Desativados</option>
+                </select>
+              </label>
+            </div>
+          }
+          @default {
+            <p class="card__nota">Sem filtros: traz o cadastro inteiro como está agora.</p>
+          }
+        }
+
+        @if (erros()[r.tipo]; as mensagem) {
+          <p class="card__erro" role="alert">{{ mensagem }}</p>
+        }
+
+        <footer class="card__botoes">
+          <button
+            type="button"
+            class="botao botao--primario"
+            [disabled]="gerando() !== null"
+            (click)="gerar(r.tipo, 'PDF')"
+          >
+            <i class="bi bi-file-earmark-pdf"></i>
+            {{ estaGerando(r.tipo, 'PDF') ? 'Gerando...' : 'PDF' }}
+          </button>
+          <button
+            type="button"
+            class="botao"
+            [disabled]="gerando() !== null"
+            (click)="gerar(r.tipo, 'XLSX')"
+          >
+            <i class="bi bi-file-earmark-spreadsheet"></i>
+            {{ estaGerando(r.tipo, 'XLSX') ? 'Gerando...' : 'Excel' }}
+          </button>
+        </footer>
+      </section>
+    }
+  </div>
+</app-shell>

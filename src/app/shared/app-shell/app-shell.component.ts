@@ -15,7 +15,7 @@ export type ItemNavegacao =
   | 'baias'
   | 'internacao'
   | 'prontuarios'
-  | 'relat-dose'
+  | 'relatorios'
   | 'medicamentos'
   | 'usuarios'
   | 'tutores'; // <-- ADICIONADO AQUI

@@ -49,14 +49,14 @@
         <i class="bi bi-clipboard2-check"></i>
       </a>
 
-      <button
-        type="button"
+      <a
         class="shell__nav-item"
-        [class.shell__nav-item--ativo]="itemAtivo === 'relat-dose'"
-        title="Relatório de Doses"
+        [class.shell__nav-item--ativo]="itemAtivo === 'relatorios'"
+        routerLink="/relatorios"
+        title="Relatórios"
       >
         <i class="bi bi-clipboard-data"></i>
-      </button>
+      </a>
 
       <a
         class="shell__nav-item"
