@@ -4,7 +4,7 @@ Este arquivo fornece orientações ao Claude Code (claude.ai/code) ao trabalhar 
 
 > Este arquivo é versionado e vale para toda a squad. Não coloque nele valores de `.env`, senhas, tokens nem
 > endereços de servidor, só nomes de variáveis. A seção "Estado das branches" é um retrato datado: atualize
-> quando mexer numa branch. Última revisão: 11/10/2026 (fechamento da Sprint 2).
+> quando mexer numa branch. Última revisão: 13/10/2026 (escopo do enunciado completo).
 
 ## Visão geral
 
@@ -42,7 +42,7 @@ de `src/styles/tema.css`.
 Três gavetas fixas; todo arquivo novo cai em uma delas:
 
 - `features/<nome>/`: uma pasta por tela (`login`, `baias`, `medication`, `usuarios`, `internacao`,
-  `cadastro-tutor-animal`, `prescricao`).
+  `cadastro-tutor-animal`, `prescricao`, `painel-doses`, `relatorios`).
 - `shared/`: reutilizado em várias telas (`app-shell` com a sidebar e o cabeçalho, `modo-dark`).
 - `core/`: global, uma instância na app inteira: `services` (`AuthService`, `TemaService`), `guards`
   (`authGuard`, `permissaoGuard`), `interceptors` (`authInterceptor`) e `models`.
@@ -130,7 +130,14 @@ O front chama sempre `/api/...` (`environment.apiBaseUrl`) e o proxy escolhe o m
   que já traz os animais. A antirrábica vencida aparece destacada, com a mesma conta da RN-02.
 - `prescricoes` (tela 5): o veterinário prescreve para uma internação aberta (medicamento, dosagem, intervalo,
   número de doses e início). O card mostra os horários gerados pelo back. Desativar cancela as doses pendentes no
-  `octopus-msdoses`.
+  `octopus-msdoses`. Cada item pode ser "se necessário" (mudança contratada de 01/11): a caixa esconde quantidade e
+  início, e o intervalo vira o mínimo entre aplicações. O back só aceita a partir da data de vigência.
+- `painel-doses` (tela 6, ícone de despertador, todos os perfis): atrasadas (ainda na janela de 30 minutos),
+  próximas (vencem na próxima hora), perdidas nas últimas 24 horas e itens "se necessário", só de animais ainda
+  internados, com atualização a cada 60 s. Só o auxiliar vê "Registrar aplicação"; a dose que vence na próxima hora
+  mostra a partir de quando pode ser registrada (RN-03), e o "se necessário", quando fica liberado. Quem marca
+  perdida e reaplica (RN-04, RN-07) é o `octopus-msdoses`; a tela só agrupa. Os nomes de animal, baia e medicamento
+  vêm de internações, baias e medicamentos.
 - `relatorios` (ícone de prancheta na sidebar, todos os perfis): um card por relatório que o perfil pode gerar,
   com os filtros de cada um e os botões PDF e Excel. O arquivo vem pronto de `GET /api/relatorios/<tipo>`; a tela
   baixa o Blob com o nome do `Content-Disposition`. Os perfis de cada relatório estão em `RELATORIOS`
@@ -159,9 +166,10 @@ O front chama sempre `/api/...` (`environment.apiBaseUrl`) e o proxy escolhe o m
     perfis que admitem. O nome do animal no card vem da própria internação.
   - Admitir usa o `GET /api/animais/{id}` do msusuario, já na `main` do back.
 
-## Estado das branches (12/10/2026)
+## Estado das branches (13/10/2026)
 
-- `main`: tudo da `feature/sprint2-integracao` mais a tela de relatórios (12/10). Em produção, os relatórios
+- `main`: tudo da `feature/sprint2-integracao` mais a tela de relatórios (12/10), o painel de doses e o item "se
+  necessário" na prescrição (13/10). Em produção, os relatórios
   dependem de `API_RELATORIOS_URL` na Vercel e do msrelatorios publicado.
 - `feature/sprint2-integracao`: parte da `main` e junta `feature/internacao` (id numérico),
   `feature/cadastro-tutor-animal` (Miliani) e `feature/prescricao` (Marcos), com os ids numéricos em todas as telas,

@@ -29,6 +29,15 @@
         <i class="bi bi-plus-square"></i>
       </a>
 
+      <a
+        class="shell__nav-item"
+        [class.shell__nav-item--ativo]="itemAtivo === 'painel-doses'"
+        routerLink="/painel-doses"
+        title="Painel de doses"
+      >
+        <i class="bi bi-alarm"></i>
+      </a>
+
       @if (veTutores()) {
         <a
           class="shell__nav-item"

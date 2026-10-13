@@ -35,9 +35,14 @@
             <input type="text" maxlength="100" placeholder="Ex.: 5 mg, 1 comprimido" formControlName="dosagem" />
           </label>
 
+          <label class="opcao">
+            <input type="checkbox" formControlName="seNecessario" />
+            Se necessário (sem horário fixo, só intervalo mínimo entre aplicações)
+          </label>
+
           <div class="linha">
             <label class="campo">
-              Intervalo (horas)
+              {{ ehSeNecessario(i) ? "Intervalo mínimo (horas)" : "Intervalo (horas)" }}
               <input
                 type="number"
                 min="1"
@@ -45,14 +50,16 @@
                 formControlName="intervaloHoras"
               />
             </label>
-            <label class="campo">
-              Nº de doses
-              <input type="number" min="1" max="200" formControlName="quantidadeDoses" />
-            </label>
-            <label class="campo">
-              Primeira dose
-              <input type="datetime-local" formControlName="inicio" />
-            </label>
+            @if (!ehSeNecessario(i)) {
+              <label class="campo">
+                Nº de doses
+                <input type="number" min="1" max="200" formControlName="quantidadeDoses" />
+              </label>
+              <label class="campo">
+                Primeira dose
+                <input type="datetime-local" formControlName="inicio" />
+              </label>
+            }
           </div>
 
           <label class="campo">

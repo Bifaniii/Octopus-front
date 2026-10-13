@@ -14,6 +14,7 @@ import { ModoDarkComponent } from '../modo-dark/modo-dark.component';
 export type ItemNavegacao =
   | 'baias'
   | 'internacao'
+  | 'painel-doses'
   | 'prontuarios'
   | 'relatorios'
   | 'medicamentos'

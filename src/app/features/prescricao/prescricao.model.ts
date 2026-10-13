@@ -4,11 +4,13 @@ export interface ItemPrescricao {
   id: number;
   medicacaoId: number;
   dosagem: string;
+  /** Mudança contratada de 01/11: sem horário fixo; intervaloHoras é o mínimo entre aplicações. */
+  seNecessario: boolean;
   intervaloHoras: number;
-  quantidadeDoses: number;
-  inicio: string; // LocalDateTime sem fuso, ex.: "2026-10-10T08:00:00"
+  quantidadeDoses: number | null;
+  inicio: string | null; // LocalDateTime sem fuso, ex.: "2026-10-10T08:00:00"
   observacao?: string | null;
-  /** Gerados pelo back: inicio + n * intervaloHoras. Cada um vira uma dose no octopus-msdoses. */
+  /** Gerados pelo back: inicio + n * intervaloHoras. Cada um vira uma dose no octopus-msdoses. Vazio no "se necessário". */
   horarios: string[];
 }
 
@@ -25,9 +27,10 @@ export interface Prescricao {
 export interface ItemPrescricaoRequest {
   medicacaoId: number;
   dosagem: string;
+  seNecessario?: boolean;
   intervaloHoras: number;
-  quantidadeDoses: number;
-  inicio: string;
+  quantidadeDoses?: number;
+  inicio?: string;
   observacao?: string;
 }
 

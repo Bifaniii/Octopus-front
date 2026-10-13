@@ -1,0 +1,34 @@
+<dialog #dlg class="dialogo" (close)="fechar.emit()">
+  <form class="form" (ngSubmit)="enviar()">
+    <div class="form__topo">
+      <h2 class="form__titulo">Registrar aplicação</h2>
+      <button type="button" class="fechar" aria-label="Fechar" (click)="cancelar()">
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </div>
+
+    <p class="texto">
+      <strong>{{ alvo.animal }}</strong> · {{ alvo.medicamento }}<br />
+      {{ alvo.detalhe }}
+    </p>
+    <p class="campo__ajuda">
+      O registro guarda você como auxiliar e a hora atual, e não pode ser editado depois (RN-05).
+    </p>
+
+    <label class="campo">
+      <span class="campo__rotulo">Observação (opcional)</span>
+      <textarea name="observacao" maxlength="500" [(ngModel)]="observacao"></textarea>
+    </label>
+
+    @if (erro) {
+      <p class="erro" role="alert">{{ erro }}</p>
+    }
+
+    <footer class="form__rodape">
+      <button type="button" class="botao" [disabled]="salvando" (click)="cancelar()">Cancelar</button>
+      <button type="submit" class="botao botao--primario" [disabled]="salvando">
+        {{ salvando ? 'Registrando...' : 'Confirmar aplicação' }}
+      </button>
+    </footer>
+  </form>
+</dialog>

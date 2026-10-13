@@ -77,22 +77,38 @@ export class PrescricaoDialogoComponent implements AfterViewInit {
     this.salvar.emit({
       internacaoId: v.internacaoId as number,
       observacao: v.observacao.trim() || undefined,
-      itens: v.itens.map((i: any) => ({
-        medicacaoId: i.medicacaoId as number,
-        dosagem: i.dosagem.trim(),
-        intervaloHoras: Number(i.intervaloHoras),
-        quantidadeDoses: Number(i.quantidadeDoses),
-        // O datetime-local vem como "2026-10-10T08:00": enviar como está (nunca toISOString), só com segundos.
-        inicio: i.inicio.length === 16 ? `${i.inicio}:00` : i.inicio,
-        observacao: i.observacao.trim() || undefined,
-      })),
+      itens: v.itens.map((i: any) =>
+        i.seNecessario
+          ? {
+              medicacaoId: i.medicacaoId as number,
+              dosagem: i.dosagem.trim(),
+              seNecessario: true,
+              intervaloHoras: Number(i.intervaloHoras),
+              observacao: i.observacao.trim() || undefined,
+            }
+          : {
+              medicacaoId: i.medicacaoId as number,
+              dosagem: i.dosagem.trim(),
+              intervaloHoras: Number(i.intervaloHoras),
+              quantidadeDoses: Number(i.quantidadeDoses),
+              // O datetime-local vem como "2026-10-10T08:00": enviar como está (nunca toISOString), só com segundos.
+              inicio: i.inicio.length === 16 ? `${i.inicio}:00` : i.inicio,
+              observacao: i.observacao.trim() || undefined,
+            },
+      ),
     });
   }
 
+  /** O item "se necessário" não tem quantidade nem início: os dois campos saem da validação. */
+  ehSeNecessario(indice: number): boolean {
+    return this.itens.at(indice).get('seNecessario')?.value === true;
+  }
+
   private novoItem() {
-    return this.fb.group({
+    const item = this.fb.group({
       medicacaoId: this.fb.control<number | null>(null, Validators.required),
       dosagem: this.fb.control('', [Validators.required, Validators.maxLength(100)]),
+      seNecessario: this.fb.control(false),
       intervaloHoras: this.fb.control(8, [
         Validators.required,
         Validators.min(1),
@@ -103,6 +119,13 @@ export class PrescricaoDialogoComponent implements AfterViewInit {
       inicio: this.fb.control(this.agoraLocal(), Validators.required),
       observacao: this.fb.control('', Validators.maxLength(500)),
     });
+    item.controls.seNecessario.valueChanges.subscribe((seNecessario) => {
+      for (const campo of [item.controls.quantidadeDoses, item.controls.inicio]) {
+        if (seNecessario) campo.disable();
+        else campo.enable();
+      }
+    });
+    return item;
   }
 
   // Hora local no formato do <input type="datetime-local">, sem converter para UTC.

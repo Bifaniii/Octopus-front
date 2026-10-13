@@ -23,8 +23,12 @@
         <i class="bi bi-capsule" aria-hidden="true"></i>
         <span>
           <strong>{{ nomeDe(item.medicacaoId) }}</strong>
-          · {{ item.dosagem }} a cada {{ item.intervaloHoras }}h, {{ item.quantidadeDoses }}
-          {{ item.quantidadeDoses === 1 ? "dose" : "doses" }}
+          @if (item.seNecessario) {
+            · {{ item.dosagem }} se necessário, com intervalo mínimo de {{ item.intervaloHoras }}h
+          } @else {
+            · {{ item.dosagem }} a cada {{ item.intervaloHoras }}h, {{ item.quantidadeDoses }}
+            {{ item.quantidadeDoses === 1 ? "dose" : "doses" }}
+          }
           @if (item.observacao) {
             <span class="item__obs"> · {{ item.observacao }}</span>
           }

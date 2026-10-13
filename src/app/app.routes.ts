@@ -107,6 +107,16 @@ export const routes: Routes = [
   },
 
   {
+    // Tela 6. Todos os perfis acompanham; só o auxiliar registra a aplicação (botão escondido para os outros).
+    path: 'painel-doses',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/painel-doses/painel-doses-pagina.component').then(
+        (m) => m.PainelDosesPaginaComponent,
+      ),
+  },
+
+  {
     // Todos os perfis entram; a página mostra só os relatórios que o perfil pode gerar (mesma regra do msrelatorios).
     path: 'relatorios',
     canActivate: [authGuard],
