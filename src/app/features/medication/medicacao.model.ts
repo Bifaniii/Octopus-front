@@ -7,7 +7,7 @@
  * desativada ou saída do animal) devolve.
  */
 
-/** Numa dose perdida, CONTINUO desloca as seguintes (RN-07) e SINTOMATICO descarta (RN-08). */
+/** Numa dose perdida, CONTINUO é reaplicada e desloca as seguintes, e SINTOMATICO é pulada (RN-07). */
 export type TipoEsquema = 'CONTINUO' | 'SINTOMATICO';
 
 /** Resumo de um medicamento com o qual a interação é proibida. */
