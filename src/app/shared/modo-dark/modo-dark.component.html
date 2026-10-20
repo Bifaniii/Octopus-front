@@ -4,6 +4,7 @@
   (click)="onToggle()"
   [attr.aria-pressed]="tema.isDark()"
   [attr.aria-label]="tema.isDark() ? 'Mudar para o modo claro' : 'Mudar para o modo escuro'"
+  [attr.title]="tema.isDark() ? 'Modo claro' : 'Modo escuro'"
 >
   @if (tema.isDark()) {
     <!-- ícone de sol, exibido quando o tema atual é escuro -->

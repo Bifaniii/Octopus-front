@@ -40,7 +40,7 @@ tr:last-child td { border-bottom: 0; }
   background: none;
   font: inherit;
   font-weight: 600;
-  color: var(--color-primary);
+  color: var(--color-accent-text);
   cursor: pointer;
 }
 .link:hover { text-decoration: underline; }
@@ -59,7 +59,7 @@ tr:last-child td { border-bottom: 0; }
   color: var(--color-text-muted);
   cursor: pointer;
 }
-.icone:hover { color: var(--color-primary); border-color: var(--color-primary); }
+.icone:hover { color: var(--color-accent-text); border-color: var(--color-primary); }
 .icone:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 2px; }
 
 .oculto {

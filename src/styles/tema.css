@@ -6,71 +6,83 @@
    é claro ou escuro. O TemaService só alterna uma classe
    (.dark-theme) no <html>; quem decide as cores é este arquivo.
    Importado uma única vez em src/styles.css.
+
+   Um acento só (petróleo). As cores de estado (sucesso, alerta,
+   perigo) existem para indicar estado e não entram em decoração.
    ============================================================ */
 
 :root {
-  /* Paleta azul — tema claro */
-  --color-primary: #2563eb;
-  --color-primary-strong: #1e40af;
-  --color-primary-soft: #3b82f6;
+  /* Acento */
+  --color-primary: #1d5c63;
+  --color-primary-strong: #154950;
+  /* Tom claro do acento: fundo de aba ativa, item selecionado, linha em destaque. */
+  --color-primary-soft: #e2eeee;
   --color-primary-contrast: #ffffff;
+  /* Acento como cor de texto e de ícone (no tema escuro precisa ser mais claro que o fundo do botão). */
+  --color-accent-text: #1d5c63;
 
-  --color-bg: #f8fafc;
+  --color-bg: #f4f6f6;
   --color-surface: #ffffff;
-  --color-surface-alt: #eff6ff;
+  --color-surface-alt: #edf1f1;
 
-  --color-text: #0f172a;
-  --color-text-muted: #64748b;
+  --color-text: #17252b;
+  --color-text-muted: #55666c;
   --color-text-on-primary: #ffffff;
-  --color-text-on-primary-muted: #dbeafe;
+  --color-text-on-primary-muted: #d2e4e5;
 
-  --color-border: #e2e8f0;
-  --color-border-strong: #93c5fd;
+  --color-border: #d8dfe1;
+  --color-border-strong: #9db0b4;
 
-  --shadow-primary: 0 8px 16px -6px rgba(37, 99, 235, 0.5);
+  --shadow-primary: 0 1px 2px rgba(23, 37, 43, 0.14);
 
-  --radius-md: 10px;
-  --radius-lg: 14px;
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
 
-  /* Status semânticos (livre/ocupada, sucesso/erro) — squad baias */
-  --color-success: #16a34a;
-  --color-success-soft: #dcfce7;
-  --color-success-border: #bbf7d0;
-  --color-danger: #dc2626;
-  --color-danger-soft: #fee2e2;
-  --color-danger-border: #fecaca;
+  /* Estados */
+  --color-success: #1e6b45;
+  --color-success-soft: #e3f1e9;
+  --color-success-border: #b9d9c6;
+  --color-warning: #8a5300;
+  --color-warning-soft: #fdf4e1;
+  --color-warning-border: #ebcf95;
+  --color-danger: #a4262c;
+  --color-danger-soft: #f8e5e5;
+  --color-danger-border: #e8b9bb;
 
   color-scheme: light;
 }
 
 html.dark-theme {
-  /* Paleta azul — tema escuro */
-  --color-primary: #3b82f6;
-  --color-primary-strong: #0c1a3d;
-  --color-primary-soft: #1d3a8f;
+  --color-primary: #2a7f88;
+  --color-primary-strong: #1f6870;
+  --color-primary-soft: #17353a;
   --color-primary-contrast: #ffffff;
+  --color-accent-text: #6fc1c9;
 
-  --color-bg: #0b1220;
-  --color-surface: #141b2d;
-  --color-surface-alt: #0f172a;
+  --color-bg: #0e1618;
+  --color-surface: #152124;
+  --color-surface-alt: #1a2a2e;
 
-  --color-text: #f1f5f9;
-  --color-text-muted: #94a3b8;
-  --color-text-on-primary: #f1f5f9;
-  --color-text-on-primary-muted: #e2e8f0;
+  --color-text: #e5eced;
+  --color-text-muted: #94a5aa;
+  --color-text-on-primary: #ffffff;
+  --color-text-on-primary-muted: #cfe3e5;
 
-  --color-border: #334155;
-  --color-border-strong: #3b82f6;
+  --color-border: #283a3f;
+  --color-border-strong: #4c676d;
 
-  --shadow-primary: 0 8px 20px -6px rgba(59, 130, 246, 0.55);
+  --shadow-primary: 0 1px 2px rgba(0, 0, 0, 0.5);
 
-  /* Status semânticos (livre/ocupada, sucesso/erro) — squad baias */
-  --color-success: #4ade80;
-  --color-success-soft: #0f2a1a;
-  --color-success-border: #14532d;
-  --color-danger: #f87171;
-  --color-danger-soft: #2a1515;
-  --color-danger-border: #7f1d1d;
+  --color-success: #6fcb9a;
+  --color-success-soft: #12301f;
+  --color-success-border: #1f5136;
+  --color-warning: #e8b65a;
+  --color-warning-soft: #33260e;
+  --color-warning-border: #6b5121;
+  --color-danger: #f09a9e;
+  --color-danger-soft: #331819;
+  --color-danger-border: #6b2b2e;
 
   color-scheme: dark;
 }
@@ -79,6 +91,31 @@ body {
   margin: 0;
   background: var(--color-bg);
   color: var(--color-text);
-  font-family: 'Poppins', system-ui, sans-serif;
+  font-family: 'Atkinson Hyperlegible Next', system-ui, sans-serif;
+  font-size: 15px;
+  line-height: 1.45;
+  -webkit-font-smoothing: antialiased;
   transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+/* Horário, dosagem e contagem: algarismos de mesma largura alinham em coluna. */
+.num {
+  font-variant-numeric: tabular-nums;
+}
+
+h1, h2, h3 {
+  text-wrap: balance;
+}
+
+/* Foco visível para quem navega por teclado. */
+:focus-visible {
+  outline: 2px solid var(--color-accent-text);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+    animation: none !important;
+  }
 }

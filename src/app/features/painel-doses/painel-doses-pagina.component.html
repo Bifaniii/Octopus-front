@@ -1,143 +1,181 @@
 <app-shell titulo="Painel de doses" subtitulo="Atrasadas, próximas e perdidas no plantão" itemAtivo="painel-doses">
-  <div class="acoes">
-    @if (painel(); as p) {
-      <span class="agora">Atualizado às {{ p.agora | date: 'HH:mm' }}</span>
-    }
-    <span class="espaco"></span>
-    <button type="button" class="botao-secundario" [disabled]="carregando()" (click)="carregar()">
-      <i class="bi bi-arrow-clockwise"></i>
-      {{ carregando() ? 'Atualizando...' : 'Atualizar' }}
-    </button>
+  <div class="barra">
+    <nav class="resumo" aria-label="Resumo das doses">
+      <button type="button" class="resumo__item resumo__item--atrasada" (click)="irPara('atrasadas')">
+        <b class="num">{{ atrasadas().length }}</b> {{ atrasadas().length === 1 ? 'atrasada' : 'atrasadas' }}
+      </button>
+      <button type="button" class="resumo__item resumo__item--proxima" (click)="irPara('proximas')">
+        <b class="num">{{ proximas().length }}</b> na próxima hora
+      </button>
+      <button type="button" class="resumo__item resumo__item--perdida" (click)="irPara('perdidas')"
+              [disabled]="perdidas().length === 0">
+        <b class="num">{{ perdidas().length }}</b> {{ perdidas().length === 1 ? 'perdida' : 'perdidas' }}
+      </button>
+      <button type="button" class="resumo__item resumo__item--necessario" (click)="irPara('se-necessario')"
+              [disabled]="seNecessario().length === 0">
+        <b class="num">{{ seNecessario().length }}</b> se necessário
+      </button>
+    </nav>
+
+    <div class="barra__acoes">
+      @if (painel(); as p) {
+        <span class="agora">Atualizado às <span class="num">{{ p.agora | date: 'HH:mm' }}</span></span>
+      }
+      <button type="button" class="botao botao--secundario" [disabled]="carregando()" (click)="carregar()">
+        <i class="bi bi-arrow-clockwise" aria-hidden="true"></i>
+        {{ carregando() ? 'Atualizando' : 'Atualizar' }}
+      </button>
+    </div>
   </div>
 
   @if (erro(); as mensagem) {
-    <div class="aviso aviso--erro" role="alert">
+    <div class="aviso" role="alert">
       <span>{{ mensagem }}</span>
-      <button type="button" class="aviso__acao" (click)="carregar()">Tentar novamente</button>
+      <button type="button" class="aviso__acao" (click)="carregar()">Tentar de novo</button>
     </div>
   }
 
-  <section class="resumo" aria-label="Resumo das doses">
-    <div class="resumo__item resumo__item--perigo">
-      <span class="resumo__numero">{{ atrasadas().length }}</span>
-      <span class="resumo__rotulo">atrasadas, ainda na janela</span>
-    </div>
-    <div class="resumo__item">
-      <span class="resumo__numero">{{ proximas().length }}</span>
-      <span class="resumo__rotulo">vencem na próxima hora</span>
-    </div>
-    <div class="resumo__item resumo__item--perigo">
-      <span class="resumo__numero">{{ perdidas().length }}</span>
-      <span class="resumo__rotulo">perdidas nas últimas 24 h</span>
-    </div>
-    <div class="resumo__item">
-      <span class="resumo__numero">{{ seNecessario().length }}</span>
-      <span class="resumo__rotulo">se necessário</span>
-    </div>
-  </section>
+  @if (!painel() && carregando()) {
+    <p class="carregando">Carregando as doses do plantão.</p>
+  }
 
-  <section class="grupo" aria-labelledby="titulo-atrasadas">
-    <h2 id="titulo-atrasadas" class="grupo__titulo grupo__titulo--perigo">
-      <i class="bi bi-exclamation-triangle"></i> Atrasadas
-    </h2>
-    @for (d of atrasadas(); track d.id) {
-      <article class="dose dose--atrasada">
-        <div class="dose__info">
-          <strong>{{ animal(d.internacaoId) }}</strong>
-          @if (baia(d.internacaoId); as b) { <span class="selo">{{ b }}</span> }
-          <span class="dose__med">{{ medicamento(d.medicacaoId) }} · {{ nomeDoEsquema[d.esquema] }}</span>
-          <span class="dose__hora">
-            Prevista {{ d.horarioPrevisto | date: 'HH:mm' }} · registrar até {{ d.janelaFim | date: 'HH:mm' }}
-            @if (d.reaplicacaoDe) { <span class="selo selo--info">Reaplicação</span> }
-          </span>
-        </div>
-        @if (podeAplicar()) {
-          <button type="button" class="botao-novo" (click)="abrirDose(d)">Registrar aplicação</button>
+  @if (painel()) {
+    <section class="secao secao--atrasada" id="secao-atrasadas" aria-labelledby="titulo-atrasadas">
+      <header class="secao__topo">
+        <h2 id="titulo-atrasadas">Atrasadas <span class="secao__n num">{{ atrasadas().length }}</span></h2>
+        <p>Já passaram do horário e ainda estão na janela de 30 minutos.</p>
+      </header>
+      <ul class="fichas">
+        @for (d of atrasadas(); track d.id) {
+          <li class="ficha ficha--atrasada">
+            <div class="ficha__hora">
+              <time class="num">{{ d.horarioPrevisto | date: 'HH:mm' }}</time>
+              <span class="ficha__prazo">registrar até <span class="num">{{ d.janelaFim | date: 'HH:mm' }}</span></span>
+            </div>
+            <div class="ficha__animal">
+              <strong>{{ animal(d.internacaoId) }}</strong>
+              @if (baia(d.internacaoId); as b) { <span>Baia {{ b }}</span> }
+            </div>
+            <div class="ficha__remedio">
+              <strong>{{ medicamento(d.medicacaoId) }}</strong>
+              <span>{{ nomeDoEsquema[d.esquema] }}@if (d.reaplicacaoDe) {, reaplicação}</span>
+            </div>
+            <div class="ficha__acao">
+              @if (podeAplicar()) {
+                <button type="button" class="botao" (click)="abrirDose(d)">Registrar aplicação</button>
+              }
+            </div>
+          </li>
+        } @empty {
+          <li class="vazio">Nenhuma dose atrasada.</li>
         }
-      </article>
-    } @empty {
-      <p class="vazio">Nenhuma dose atrasada.</p>
-    }
-  </section>
+      </ul>
+    </section>
 
-  <section class="grupo" aria-labelledby="titulo-proximas">
-    <h2 id="titulo-proximas" class="grupo__titulo"><i class="bi bi-clock"></i> Vencem na próxima hora</h2>
-    @for (d of proximas(); track d.id) {
-      <article class="dose">
-        <div class="dose__info">
-          <strong>{{ animal(d.internacaoId) }}</strong>
-          @if (baia(d.internacaoId); as b) { <span class="selo">{{ b }}</span> }
-          <span class="dose__med">{{ medicamento(d.medicacaoId) }} · {{ nomeDoEsquema[d.esquema] }}</span>
-          <span class="dose__hora">
-            Prevista {{ d.horarioPrevisto | date: 'HH:mm' }}
-            @if (d.reaplicacaoDe) { <span class="selo selo--info">Reaplicação</span> }
-          </span>
-        </div>
-        @if (podeAplicar()) {
-          @if (janelaAberta(d)) {
-            <button type="button" class="botao-novo" (click)="abrirDose(d)">Registrar aplicação</button>
-          } @else {
-            <span class="espera">Registro a partir de {{ d.janelaInicio | date: 'HH:mm' }}</span>
+    <section class="secao" id="secao-proximas" aria-labelledby="titulo-proximas">
+      <header class="secao__topo">
+        <h2 id="titulo-proximas">Na próxima hora <span class="secao__n num">{{ proximas().length }}</span></h2>
+      </header>
+      <ul class="fichas">
+        @for (d of proximas(); track d.id) {
+          <li class="ficha">
+            <div class="ficha__hora">
+              <time class="num">{{ d.horarioPrevisto | date: 'HH:mm' }}</time>
+            </div>
+            <div class="ficha__animal">
+              <strong>{{ animal(d.internacaoId) }}</strong>
+              @if (baia(d.internacaoId); as b) { <span>Baia {{ b }}</span> }
+            </div>
+            <div class="ficha__remedio">
+              <strong>{{ medicamento(d.medicacaoId) }}</strong>
+              <span>{{ nomeDoEsquema[d.esquema] }}@if (d.reaplicacaoDe) {, reaplicação}</span>
+            </div>
+            <div class="ficha__acao">
+              @if (podeAplicar()) {
+                @if (janelaAberta(d)) {
+                  <button type="button" class="botao" (click)="abrirDose(d)">Registrar aplicação</button>
+                } @else {
+                  <span class="espera">Registro a partir de <span class="num">{{ d.janelaInicio | date: 'HH:mm' }}</span></span>
+                }
+              }
+            </div>
+          </li>
+        } @empty {
+          <li class="vazio">Nenhuma dose na próxima hora.</li>
+        }
+      </ul>
+    </section>
+
+    @if (perdidas().length > 0) {
+      <section class="secao secao--perdida" id="secao-perdidas" aria-labelledby="titulo-perdidas">
+        <header class="secao__topo">
+          <h2 id="titulo-perdidas">Perdidas nas últimas 24 horas <span class="secao__n num">{{ perdidas().length }}</span></h2>
+          <p>Passaram da janela de 30 minutos. Contínuo: a dose é reaplicada e as seguintes andam junto. Sintomático: é pulada.</p>
+        </header>
+        <ul class="fichas">
+          @for (d of perdidas(); track d.id) {
+            <li class="ficha ficha--perdida">
+              <div class="ficha__hora">
+                <time class="num">{{ d.horarioPrevisto | date: 'HH:mm' }}</time>
+                <span class="ficha__prazo num">{{ d.horarioPrevisto | date: 'dd/MM' }}</span>
+              </div>
+              <div class="ficha__animal">
+                <strong>{{ animal(d.internacaoId) }}</strong>
+                @if (baia(d.internacaoId); as b) { <span>Baia {{ b }}</span> }
+              </div>
+              <div class="ficha__remedio">
+                <strong>{{ medicamento(d.medicacaoId) }}</strong>
+                <span>{{ nomeDoEsquema[d.esquema] }}</span>
+              </div>
+              <div class="ficha__acao">
+                <span class="estado estado--perdida">{{ d.esquema === 'CONTINUO' ? 'Perdida, reaplicada' : 'Perdida, pulada' }}</span>
+              </div>
+            </li>
           }
-        }
-      </article>
-    } @empty {
-      <p class="vazio">Nenhuma dose na próxima hora.</p>
+        </ul>
+      </section>
     }
-  </section>
 
-  <section class="grupo" aria-labelledby="titulo-perdidas">
-    <h2 id="titulo-perdidas" class="grupo__titulo grupo__titulo--perigo"><i class="bi bi-x-octagon"></i> Perdidas</h2>
-    <p class="grupo__ajuda">
-      Passaram da janela de 30 minutos (RN-04). Esquema contínuo: a dose é reaplicada e as seguintes andam junto;
-      sintomático: é pulada (RN-07).
-    </p>
-    @for (d of perdidas(); track d.id) {
-      <article class="dose dose--perdida">
-        <div class="dose__info">
-          <strong>{{ animal(d.internacaoId) }}</strong>
-          @if (baia(d.internacaoId); as b) { <span class="selo">{{ b }}</span> }
-          <span class="dose__med">{{ medicamento(d.medicacaoId) }} · {{ nomeDoEsquema[d.esquema] }}</span>
-          <span class="dose__hora">
-            Prevista {{ d.horarioPrevisto | date: 'dd/MM HH:mm' }} ·
-            {{ d.esquema === 'CONTINUO' ? 'reaplicada' : 'pulada' }}
-          </span>
-        </div>
-      </article>
-    } @empty {
-      <p class="vazio">Nenhuma dose perdida nas últimas 24 horas.</p>
-    }
-  </section>
-
-  <section class="grupo" aria-labelledby="titulo-se-necessario">
-    <h2 id="titulo-se-necessario" class="grupo__titulo"><i class="bi bi-hand-index"></i> Se necessário</h2>
-    <p class="grupo__ajuda">Sem horário fixo e fora dos atrasos. A aplicação só é aceita depois do intervalo mínimo.</p>
-    @for (i of seNecessario(); track i.itemPrescricaoId) {
-      <article class="dose">
-        <div class="dose__info">
-          <strong>{{ animal(i.internacaoId) }}</strong>
-          @if (baia(i.internacaoId); as b) { <span class="selo">{{ b }}</span> }
-          <span class="dose__med">{{ medicamento(i.medicacaoId) }} · intervalo mínimo de {{ i.intervaloMinimoHoras }} h</span>
-          <span class="dose__hora">
-            @if (i.ultimaAplicacao) {
-              Última aplicação {{ i.ultimaAplicacao | date: 'dd/MM HH:mm' }}
-            } @else {
-              Ainda não aplicado
-            }
-          </span>
-        </div>
-        @if (podeAplicar()) {
-          @if (i.liberado) {
-            <button type="button" class="botao-novo" (click)="abrirSeNecessario(i)">Registrar aplicação</button>
-          } @else {
-            <span class="espera">Liberado às {{ i.liberadoEm | date: 'dd/MM HH:mm' }}</span>
+    @if (seNecessario().length > 0) {
+      <section class="secao" id="secao-se-necessario" aria-labelledby="titulo-se-necessario">
+        <header class="secao__topo">
+          <h2 id="titulo-se-necessario">Se necessário <span class="secao__n num">{{ seNecessario().length }}</span></h2>
+          <p>Sem horário fixo e fora dos atrasos. A aplicação só é aceita depois do intervalo mínimo.</p>
+        </header>
+        <ul class="fichas">
+          @for (i of seNecessario(); track i.itemPrescricaoId) {
+            <li class="ficha ficha--necessario">
+              <div class="ficha__animal">
+                <strong>{{ animal(i.internacaoId) }}</strong>
+                @if (baia(i.internacaoId); as b) { <span>Baia {{ b }}</span> }
+              </div>
+              <div class="ficha__remedio">
+                <strong>{{ medicamento(i.medicacaoId) }}</strong>
+                <span>intervalo mínimo de <span class="num">{{ i.intervaloMinimoHoras }}</span> h</span>
+              </div>
+              <div class="ficha__ultima">
+                @if (i.ultimaAplicacao) {
+                  <span>Última aplicação</span>
+                  <strong class="num">{{ i.ultimaAplicacao | date: 'dd/MM HH:mm' }}</strong>
+                } @else {
+                  <span>Ainda não aplicado</span>
+                }
+              </div>
+              <div class="ficha__acao">
+                @if (podeAplicar()) {
+                  @if (i.liberado) {
+                    <button type="button" class="botao" (click)="abrirSeNecessario(i)">Registrar aplicação</button>
+                  } @else {
+                    <span class="espera">Liberado às <span class="num">{{ i.liberadoEm | date: 'dd/MM HH:mm' }}</span></span>
+                  }
+                }
+              </div>
+            </li>
           }
-        }
-      </article>
-    } @empty {
-      <p class="vazio">Nenhuma prescrição "se necessário" ativa.</p>
+        </ul>
+      </section>
     }
-  </section>
+  }
 
   @if (alvo(); as a) {
     <app-aplicacao-dialogo [alvo]="a" [salvando]="salvando()" [erro]="erroDialogo()"

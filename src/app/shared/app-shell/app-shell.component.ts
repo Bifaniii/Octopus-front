@@ -4,7 +4,6 @@ import {
   Input,
   computed,
   inject,
-  signal,
 } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
@@ -19,7 +18,14 @@ export type ItemNavegacao =
   | 'relatorios'
   | 'medicamentos'
   | 'usuarios'
-  | 'tutores'; // <-- ADICIONADO AQUI
+  | 'tutores';
+
+const NOME_DO_PERFIL: Record<string, string> = {
+  ROLE_ADMIN: 'Administrador',
+  ROLE_VETERINARIO: 'Veterinário',
+  ROLE_AUXILIAR: 'Auxiliar',
+  ROLE_RECEPCIONISTA: 'Recepcionista',
+};
 
 @Component({
   selector: 'app-shell',
@@ -37,26 +43,17 @@ export class AppShellComponent {
   @Input() subtitulo = '';
   @Input() itemAtivo: ItemNavegacao = 'medicamentos';
 
-  protected readonly menuAberto = signal(false);
-
   /** Mesmos perfis da rota `cadastro-tutor-animal`: quem não acessa nem vê o link. */
   protected readonly veTutores = computed(() =>
     this.auth.temRole(['ROLE_ADMIN', 'ROLE_RECEPCIONISTA', 'ROLE_VETERINARIO']),
   );
 
-  protected readonly iniciais = computed(() => {
-    const email = this.auth.usuario()?.email ?? '';
-    const nome = email.split('@')[0] ?? '';
-    return nome.slice(0, 2).toUpperCase() || '?';
-  });
+  protected readonly email = computed(() => this.auth.usuario()?.email ?? '');
 
-  protected toggleMenu(): void {
-    this.menuAberto.update(estado => !estado);
-  }
+  protected readonly perfil = computed(() => NOME_DO_PERFIL[this.auth.usuario()?.role ?? ''] ?? '');
 
   protected fazerLogout(): void {
     this.auth.logout();
-    this.menuAberto.set(false);
     this.router.navigate(['/login']);
   }
 }

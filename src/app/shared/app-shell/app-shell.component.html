@@ -1,110 +1,78 @@
 <div class="shell">
   <aside class="shell__sidebar">
-    <div class="shell__logo" aria-hidden="true">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+    <div class="shell__marca">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
         <circle cx="12" cy="14.5" r="4.2" />
         <circle cx="5" cy="7.5" r="2.1" />
         <circle cx="10.2" cy="4.3" r="2.1" />
         <circle cx="14.8" cy="4.3" r="2.1" />
         <circle cx="19" cy="7.5" r="2.1" />
       </svg>
+      <span>Plantão VidaPet</span>
     </div>
 
-    <nav class="shell__nav">
-      <a
-        class="shell__nav-item"
-        [class.shell__nav-item--ativo]="itemAtivo === 'baias'"
-        routerLink="/baias"
-        title="Painel de baias"
-      >
-        <i class="bi bi-grid-3x3-gap"></i>
-      </a>
-
-      <a
-        class="shell__nav-item"
-        [class.shell__nav-item--ativo]="itemAtivo === 'internacao'"
-        routerLink="/internacao"
-        title="Internação"
-      >
-        <i class="bi bi-plus-square"></i>
-      </a>
-
-      <a
-        class="shell__nav-item"
-        [class.shell__nav-item--ativo]="itemAtivo === 'painel-doses'"
-        routerLink="/painel-doses"
-        title="Painel de doses"
-      >
-        <i class="bi bi-alarm"></i>
-      </a>
-
-      @if (veTutores()) {
-        <a
-          class="shell__nav-item"
-          [class.shell__nav-item--ativo]="itemAtivo === 'tutores'"
-          routerLink="/cadastro-tutor-animal"
-          title="Tutores e Animais"
-        >
-          <i class="bi bi-people"></i>
+    <nav class="shell__nav" aria-label="Principal">
+      <div class="shell__grupo">
+        <a class="shell__item" [class.shell__item--ativo]="itemAtivo === 'painel-doses'" routerLink="/painel-doses"
+           [attr.aria-current]="itemAtivo === 'painel-doses' ? 'page' : null">
+          <i class="bi bi-alarm" aria-hidden="true"></i><span>Painel de doses</span>
         </a>
-      }
+        <a class="shell__item" [class.shell__item--ativo]="itemAtivo === 'internacao'" routerLink="/internacao"
+           [attr.aria-current]="itemAtivo === 'internacao' ? 'page' : null">
+          <i class="bi bi-hospital" aria-hidden="true"></i><span>Internação</span>
+        </a>
+        <a class="shell__item" [class.shell__item--ativo]="itemAtivo === 'prontuarios'" routerLink="/prescricoes"
+           [attr.aria-current]="itemAtivo === 'prontuarios' ? 'page' : null">
+          <i class="bi bi-clipboard2-pulse" aria-hidden="true"></i><span>Prescrições</span>
+        </a>
+      </div>
 
-      <a
-        class="shell__nav-item"
-        [class.shell__nav-item--ativo]="itemAtivo === 'prontuarios'"
-        routerLink="/prescricoes"
-        title="Prescrições"
-      >
-        <i class="bi bi-clipboard2-check"></i>
-      </a>
+      <div class="shell__grupo">
+        @if (veTutores()) {
+          <a class="shell__item" [class.shell__item--ativo]="itemAtivo === 'tutores'" routerLink="/cadastro-tutor-animal"
+             [attr.aria-current]="itemAtivo === 'tutores' ? 'page' : null">
+            <i class="bi bi-people" aria-hidden="true"></i><span>Tutores e animais</span>
+          </a>
+        }
+        <a class="shell__item" [class.shell__item--ativo]="itemAtivo === 'baias'" routerLink="/baias"
+           [attr.aria-current]="itemAtivo === 'baias' ? 'page' : null">
+          <i class="bi bi-grid-3x3-gap" aria-hidden="true"></i><span>Baias</span>
+        </a>
+        <a class="shell__item" [class.shell__item--ativo]="itemAtivo === 'medicamentos'" routerLink="/registro-medicamentos"
+           [attr.aria-current]="itemAtivo === 'medicamentos' ? 'page' : null">
+          <i class="bi bi-capsule" aria-hidden="true"></i><span>Medicamentos</span>
+        </a>
+      </div>
 
-      <a
-        class="shell__nav-item"
-        [class.shell__nav-item--ativo]="itemAtivo === 'relatorios'"
-        routerLink="/relatorios"
-        title="Relatórios"
-      >
-        <i class="bi bi-clipboard-data"></i>
-      </a>
-
-      <a
-        class="shell__nav-item"
-        [class.shell__nav-item--ativo]="itemAtivo === 'medicamentos'"
-        routerLink="/registro-medicamentos"
-        title="Medicamentos"
-      >
-        <i class="bi bi-capsule"></i>
-      </a>
+      <div class="shell__grupo">
+        <a class="shell__item" [class.shell__item--ativo]="itemAtivo === 'relatorios'" routerLink="/relatorios"
+           [attr.aria-current]="itemAtivo === 'relatorios' ? 'page' : null">
+          <i class="bi bi-file-earmark-bar-graph" aria-hidden="true"></i><span>Relatórios</span>
+        </a>
+      </div>
     </nav>
+
+    <div class="shell__usuario">
+      <div class="shell__quem">
+        <span class="shell__email" [attr.title]="email()">{{ email() }}</span>
+        <span class="shell__perfil">{{ perfil() }}</span>
+      </div>
+      <div class="shell__rodape-acoes">
+        <app-modo-dark />
+        <button type="button" class="shell__sair" (click)="fazerLogout()">
+          <i class="bi bi-box-arrow-right" aria-hidden="true"></i>
+          <span>Sair</span>
+        </button>
+      </div>
+    </div>
   </aside>
 
   <div class="shell__main">
     <header class="shell__header">
-      <div class="shell__heading">
-        <h1>{{ titulo }}</h1>
-        @if (subtitulo) {
-          <p>{{ subtitulo }}</p>
-        }
-      </div>
-
-      <div class="shell__header-acoes">
-        <app-modo-dark class="shell__theme-toggle" />
-
-        <span class="shell__status">
-          <span class="shell__status-dot" aria-hidden="true"></span>
-          Sistema online
-        </span>
-
-        <!-- 1. Executa a função toggleMenu ao clicar no avatar -->
-        <span class="shell__avatar" (click)="toggleMenu()">{{ iniciais() }}</span>
-
-        <!-- 2. Verifica se o Signal menuAberto() é verdadeiro usando a nova sintaxe @if -->
-        @if (menuAberto()) {
-          <div class="shell__dropdown-menu">
-            <span class="shell__logout" (click)="fazerLogout()">Logout</span>
-          </div>
-        }
-      </div>
+      <h1>{{ titulo }}</h1>
+      @if (subtitulo) {
+        <p>{{ subtitulo }}</p>
+      }
     </header>
 
     <main class="shell__conteudo">

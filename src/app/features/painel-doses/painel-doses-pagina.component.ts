@@ -122,6 +122,11 @@ export class PainelDosesPaginaComponent {
     });
   }
 
+  /** Leva até a seção; usado pelo resumo no topo. */
+  protected irPara(secao: string): void {
+    document.getElementById(`secao-${secao}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
   protected fecharDialogo(): void {
     this.alvo.set(null);
   }

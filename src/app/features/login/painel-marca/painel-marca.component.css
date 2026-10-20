@@ -1,111 +1,116 @@
-/* O host precisa ser flex para o painel esticar em altura junto
-   com a coluna da tela de login (senão o azul para no meio). */
+/* O host precisa ser flex para o painel esticar em altura junto com a coluna da tela. */
 :host {
   display: flex;
 }
 
-.brand-panel {
-  position: relative;
-  overflow: hidden;
+/* Cor própria, escura nos dois temas: o painel é a marca e não acompanha o modo claro/escuro. */
+.marca {
   width: 480px;
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  padding: 48px 40px;
+  gap: 48px;
+  padding: 48px 48px 44px;
   box-sizing: border-box;
-  color: var(--color-text-on-primary);
-  background: linear-gradient(
-    165deg,
-    var(--color-primary-strong) 0%,
-    var(--color-primary) 55%,
-    var(--color-primary-soft) 100%
-  );
+  background: #123a40;
+  color: #f1f6f6;
 }
 
-/* Empilhado: painel ocupa a largura toda e encolhe um pouco. */
+.marca__nome {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 17px;
+  font-weight: 700;
+}
+
+.marca__frase {
+  margin: 0;
+  max-width: 17em;
+  font-size: 30px;
+  font-weight: 600;
+  line-height: 1.22;
+  letter-spacing: -0.015em;
+  text-wrap: balance;
+}
+
+/* Régua dos turnos: 24 horas a partir das 6h, na proporção real de cada turno (6h, 6h e 12h). */
+.regua {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.regua__marcas {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  height: 14px;
+}
+
+.regua__marca {
+  width: 1px;
+  height: 7px;
+  background: rgba(241, 246, 246, 0.4);
+}
+
+.regua__marca--turno {
+  height: 14px;
+  background: #f1f6f6;
+}
+
+.regua__turnos {
+  display: flex;
+}
+
+.regua__turno {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  font-size: 13.5px;
+  color: rgba(241, 246, 246, 0.78);
+}
+
+.regua__turno b {
+  font-size: 14px;
+  font-weight: 600;
+  color: #f1f6f6;
+}
+
+.regua__turno--manha,
+.regua__turno--tarde {
+  flex: 1 1 25%;
+}
+
+.regua__turno--noite {
+  flex: 2 1 50%;
+}
+
+.regua__legenda {
+  margin-top: 8px;
+  font-size: 13px;
+  color: rgba(241, 246, 246, 0.62);
+}
+
+/* Empilhado: o painel ocupa a largura toda e encolhe. */
 @media (max-width: 900px) {
   :host {
     width: 100%;
   }
 
-  .brand-panel {
+  .marca {
     width: 100%;
-    padding: 32px 24px;
     gap: 24px;
+    padding: 28px 24px;
   }
 
-  .brand-panel__copy h1 {
-    font-size: 26px;
-  }
-}
-
-/* Celular: texto e ornamento menores. */
-@media (max-width: 480px) {
-  .brand-panel {
-    padding: 24px 20px;
-  }
-
-  .brand-panel__copy h1 {
+  .marca__frase {
     font-size: 22px;
   }
 
-  .brand-panel__copy p {
-    font-size: 13.5px;
+  .regua {
+    display: none;
   }
-
-  .brand-panel__pattern {
-    width: 420px;
-    height: 420px;
-    top: -60px;
-    right: -110px;
-  }
-}
-
-.brand-panel__pattern {
-  position: absolute;
-  top: -80px;
-  right: -140px;
-  width: 620px;
-  height: 620px;
-  opacity: 0.12;
-  color: #ffffff;
-  pointer-events: none;
-}
-
-.brand-panel__logo {
-  position: relative;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-size: 19px;
-  font-weight: 600;
-}
-
-.brand-panel__copy {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  max-width: 360px;
-}
-
-.brand-panel__copy h1 {
-  margin: 0;
-  font-size: 32px;
-  font-weight: 700;
-  line-height: 1.25;
-}
-
-.brand-panel__copy p {
-  margin: 0;
-  font-size: 14.5px;
-  line-height: 1.6;
-  color: var(--color-text-on-primary-muted);
-}
-
-.brand-panel__footer {
-  position: relative;
-  font-size: 12.5px;
-  color: var(--color-text-on-primary-muted);
 }

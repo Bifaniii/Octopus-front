@@ -147,5 +147,5 @@
   text-align: left;
   cursor: pointer;
 }
-.link-nome:hover { color: var(--color-primary); text-decoration: underline; }
+.link-nome:hover { color: var(--color-accent-text); text-decoration: underline; }
 .link-nome:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 2px; }

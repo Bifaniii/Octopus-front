@@ -1,4 +1,11 @@
 /* Estilos globais da aplicação. */
 
+/* Atkinson Hyperlegible Next: desenhada para não confundir caracteres parecidos (0/O, 1/l/I), o que pesa em nome de
+   medicamento e dosagem. Só o subconjunto latino, que cobre o português. */
+@import '@fontsource/atkinson-hyperlegible-next/latin-400.css';
+@import '@fontsource/atkinson-hyperlegible-next/latin-500.css';
+@import '@fontsource/atkinson-hyperlegible-next/latin-600.css';
+@import '@fontsource/atkinson-hyperlegible-next/latin-700.css';
+
 /* Tokens de tema claro/escuro (variáveis CSS). */
 @import './styles/tema.css';

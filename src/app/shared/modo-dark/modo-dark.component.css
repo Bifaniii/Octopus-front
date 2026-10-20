@@ -2,17 +2,17 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  height: 38px;
-  padding: 0 14px;
-  border-radius: 999px;
-  border: 1.5px solid var(--color-border);
-  background: var(--color-surface);
+  height: 32px;
+  padding: 0 12px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  background: transparent;
   color: var(--color-text);
   font-family: inherit;
   font-size: 13px;
   font-weight: 500;
   cursor: pointer;
-  transition: background-color 0.2s ease, border-color 0.2s ease;
+  transition: border-color 0.12s ease;
 }
 
 .theme-toggle:hover {
@@ -21,4 +21,20 @@
 
 .theme-toggle svg {
   flex-shrink: 0;
+}
+
+/* No menu lateral só o ícone: o rótulo vai no title e no aria-label. */
+:host-context(.shell__sidebar) .theme-toggle {
+  width: 32px;
+  padding: 0;
+  justify-content: center;
+}
+
+:host-context(.shell__sidebar) .theme-toggle span {
+  display: none;
+}
+
+/* Nas telas de acesso o botão pode ficar sobre o painel escuro da marca: fundo próprio para continuar legível. */
+:host-context(.login-page) .theme-toggle {
+  background: var(--color-surface);
 }

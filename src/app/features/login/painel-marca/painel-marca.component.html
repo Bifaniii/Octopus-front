@@ -1,16 +1,6 @@
-<aside class="brand-panel">
-  <div class="brand-panel__pattern" aria-hidden="true">
-    <svg viewBox="0 0 200 200" fill="none" stroke="currentColor" stroke-width="3">
-      <circle cx="100" cy="120" r="34" />
-      <circle cx="62" cy="82" r="14" />
-      <circle cx="100" cy="66" r="15" />
-      <circle cx="138" cy="82" r="14" />
-      <circle cx="150" cy="112" r="12" />
-    </svg>
-  </div>
-
-  <div class="brand-panel__logo">
-    <svg width="30" height="30" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+<aside class="marca">
+  <div class="marca__nome">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
       <circle cx="12" cy="14.5" r="4.2" />
       <circle cx="5" cy="7.5" r="2.1" />
       <circle cx="10.2" cy="4.3" r="2.1" />
@@ -20,10 +10,19 @@
     <span>{{ brandName }}</span>
   </div>
 
-  <div class="brand-panel__copy">
-    <h1>{{ title }}</h1>
-    <p>{{ subtitle }}</p>
-  </div>
+  <h1 class="marca__frase">{{ frase }}</h1>
 
-  <footer class="brand-panel__footer">© 2026 {{ brandName }}</footer>
+  <figure class="regua">
+    <div class="regua__marcas" aria-hidden="true">
+      @for (h of horas; track $index) {
+        <span class="regua__marca" [class.regua__marca--turno]="rotuladas.has(h) && $index < 24"></span>
+      }
+    </div>
+    <div class="regua__turnos">
+      <div class="regua__turno regua__turno--manha"><b>Manhã</b><span>6h às 12h</span></div>
+      <div class="regua__turno regua__turno--tarde"><b>Tarde</b><span>12h às 18h</span></div>
+      <div class="regua__turno regua__turno--noite"><b>Noite</b><span>18h às 6h</span></div>
+    </div>
+    <figcaption class="regua__legenda">Turnos do plantão</figcaption>
+  </figure>
 </aside>

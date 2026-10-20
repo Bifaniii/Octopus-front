@@ -293,7 +293,7 @@
   color: var(--color-text-muted);
   cursor: pointer;
 }
-.estoque-editar:hover { background: var(--color-surface-alt); color: var(--color-primary); }
+.estoque-editar:hover { background: var(--color-surface-alt); color: var(--color-accent-text); }
 .estoque-ajuste { display: flex; flex-wrap: wrap; gap: 0.35rem; align-items: center; }
 .estoque-ajuste input {
   width: 5.5rem;
