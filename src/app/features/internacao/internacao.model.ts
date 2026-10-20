@@ -72,7 +72,7 @@ export const ocupaBaia = (s: StatusInternacao): boolean => s !== 'ENCERRADA';
  * `de` e `roles` espelham a tabela de transições e os @PreAuthorize do back: aqui servem só para mostrar
  * os botões certos. Quem garante a regra é o back.
  */
-export type Acao = 'iniciar-tratamento' | 'isolar' | 'autorizar-alta' | 'alta-a-pedido-do-tutor' | 'encerrar';
+export type Acao = 'isolar' | 'autorizar-alta' | 'alta-a-pedido-do-tutor' | 'encerrar';
 
 export interface DefinicaoAcao {
   rotulo: string;
@@ -82,12 +82,6 @@ export interface DefinicaoAcao {
 }
 
 export const ACOES: Record<Acao, DefinicaoAcao> = {
-  'iniciar-tratamento': {
-    rotulo: 'Iniciar tratamento',
-    icone: 'bi-play-circle',
-    de: ['ADMITIDA'],
-    roles: ['ROLE_VETERINARIO'],
-  },
   isolar: {
     rotulo: 'Isolar',
     icone: 'bi-shield-exclamation',

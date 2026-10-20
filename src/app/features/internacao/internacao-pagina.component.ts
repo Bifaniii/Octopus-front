@@ -87,6 +87,7 @@ export class InternacaoPaginaComponent {
   );
   protected readonly erroLista = signal<string | null>(null);
 
+  protected readonly podePrescrever = computed(() => this.auth.temRole(['ROLE_VETERINARIO']));
   protected readonly podeAdmitir = computed(() => this.auth.temRole(['ROLE_ADMIN', 'ROLE_RECEPCIONISTA']));
   private readonly role = computed(() => this.auth.usuario()?.role);
 

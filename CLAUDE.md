@@ -156,6 +156,9 @@ O front chama sempre `/api/...` (`environment.apiBaseUrl`) e o proxy escolhe o m
     maiúscula). Clicar no nome mostra todas as passagens daquele animal (`GET /api/internacoes?animalId=`), e o
     relógio de cada linha abre o mesmo diálogo de histórico do mapa. A encerrada não guarda qual alta teve; o
     termo preenchido identifica a alta a pedido do tutor.
+  - Não há botão para "iniciar tratamento": Admitida → Em tratamento só acontece quando a primeira prescrição é
+    gravada (o `msprescricao` avisa a internação), como pede o enunciado ("não sem prescrição ativa"). O card da
+    internação admitida mostra "Aguardando a primeira prescrição" e, para o veterinário, o atalho "Prescrever".
   - `internacao.model.ts` tem a tabela `ACOES` (ação → status de origem e perfis), espelho das transições e do
     `@PreAuthorize` do `ms-internacao`. A chave de cada ação é o próprio caminho do `PATCH /{id}/<acao>`.
   - Diálogos: `admissao-dialogo` (baias em cards, como no painel de baias; bloqueia baia lotada, ninhada sem mãe

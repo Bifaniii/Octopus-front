@@ -14,7 +14,17 @@
     }
   </span>
 
+  @if (internacao.status === 'ADMITIDA') {
+    <span class="card__aviso">Aguardando a primeira prescrição, que inicia o tratamento.</span>
+  }
+
   <footer class="card__acoes">
+    @if (internacao.status === 'ADMITIDA' && podePrescrever) {
+      <a class="acao" routerLink="/prescricoes">
+        <i class="bi bi-clipboard2-plus"></i>
+        Prescrever
+      </a>
+    }
     @for (a of acoes; track a) {
       <button type="button" class="acao" (click)="acao.emit(a)">
         <i [class]="'bi ' + definicoes[a].icone"></i>
