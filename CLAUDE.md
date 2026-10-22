@@ -76,6 +76,14 @@ Dentro de uma feature, o padrão (use `features/baias` como referência):
   back. Esconder botão é conforto, não segurança.
 - **Estilo:** só variáveis do `tema.css` (`--color-*`, `--radius-*`, `--shadow-*`), para o tema escuro funcionar
   sozinho. Cada tela usa o `<app-shell titulo subtitulo itemAtivo>` como moldura.
+- **Visual clínico (branch `feature/redesign-clinico`):** um acento só (petróleo, `--color-primary`), tom claro do
+  acento em `--color-primary-soft` (aba ativa, item selecionado) e `--color-accent-text` para texto e ícone de acento
+  (no tema escuro é mais claro que o fundo do botão). Estados têm token próprio e só indicam estado:
+  `--color-success`, `--color-warning` (atrasada, ainda na janela) e `--color-danger` (perdida). Cantos de 4, 6 e
+  8 px (`--radius-sm/md/lg`), sem sombra decorativa. Fonte Atkinson Hyperlegible Next, instalada por
+  `@fontsource/atkinson-hyperlegible-next` (rode `npm install` ao trocar de branch); horário, dosagem e contagem usam
+  a classe `.num` (algarismos tabulares). O painel de doses é a referência: linhas de ficha separadas por fio, e não
+  um cartão por item. Login, menu lateral e painel já estão no novo visual; as demais telas herdam a paleta.
 
 ## Rotas e guardas
 
