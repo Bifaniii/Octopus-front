@@ -1,0 +1,29 @@
+/** DDD + 9 dígitos. O fixo, com 8, também é aceito, mas nunca passa de 11. */
+export const TELEFONE_MAX_DIGITOS = 11;
+
+export function somenteDigitos(valor: string): string {
+  return valor.replace(/\D/g, '');
+}
+
+/**
+ * Máscara progressiva: vai montando "(11) 99999-9999" conforme os dígitos chegam. Com 10 dígitos o hífen fica
+ * depois do 4º (fixo, "(11) 9999-9999") e passa para depois do 5º quando entra o 11º.
+ */
+export function mascararTelefone(digitos: string): string {
+  const d = somenteDigitos(digitos).slice(0, TELEFONE_MAX_DIGITOS);
+  if (d.length === 0) return '';
+  if (d.length <= 2) return `(${d}`;
+  if (d.length <= 6) return `(${d.slice(0, 2)}) ${d.slice(2)}`;
+  if (d.length <= 10) return `(${d.slice(0, 2)}) ${d.slice(2, 6)}-${d.slice(6)}`;
+  return `(${d.slice(0, 2)}) ${d.slice(2, 7)}-${d.slice(7)}`;
+}
+
+/** Posição logo depois do n-ésimo dígito do texto formatado (0 se n for 0), para devolver o cursor ao lugar certo. */
+export function posicaoApos(formatado: string, quantidadeDeDigitos: number): number {
+  if (quantidadeDeDigitos <= 0) return 0;
+  let vistos = 0;
+  for (let i = 0; i < formatado.length; i++) {
+    if (/\d/.test(formatado[i]) && ++vistos === quantidadeDeDigitos) return i + 1;
+  }
+  return formatado.length;
+}

@@ -9,6 +9,7 @@ import {
   signal,
 } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
+import { TelefoneDirective } from '../../../../shared/telefone/telefone.directive';
 import { DadosTutor, SOMENTE_DIGITOS } from '../tutor.model';
 
 /**
@@ -21,7 +22,7 @@ import { DadosTutor, SOMENTE_DIGITOS } from '../tutor.model';
 @Component({
   selector: 'app-tutor-formulario',
   standalone: true,
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, TelefoneDirective],
   templateUrl: './tutor-formulario.component.html',
   styleUrl: './tutor-formulario.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,

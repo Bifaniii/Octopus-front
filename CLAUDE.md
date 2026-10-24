@@ -72,6 +72,9 @@ Dentro de uma feature, o padrão (use `features/baias` como referência):
 - **Diálogos:** `<dialog>` nativo aberto com `showModal()` no `ngAfterViewInit`; fechar chama `close()`, que
   dispara o evento `close` e emite `fechar`. Não fechar ao clicar fora (decisão já tomada no diálogo de
   usuários).
+- **Telefone:** o campo usa a diretiva `appTelefone` (`shared/telefone`): a pessoa vê "(11) 99999-9999" enquanto digita,
+  mas o formulário guarda e envia só os dígitos ("11999999999"), no máximo 11. Reuse a diretiva em qualquer campo de
+  telefone novo, em vez de refazer a máscara.
 - **Perfis:** `auth.temRole([...])` para mostrar ou esconder ações, com os mesmos papéis do `@PreAuthorize` do
   back. Esconder botão é conforto, não segurança.
 - **Estilo:** só variáveis do `tema.css` (`--color-*`, `--radius-*`, `--shadow-*`), para o tema escuro funcionar
