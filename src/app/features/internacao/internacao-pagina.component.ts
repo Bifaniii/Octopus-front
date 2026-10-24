@@ -15,10 +15,14 @@ import { AuthService } from '../../core/services/auth.service';
 import { BaiaService } from '../baias/baia.service';
 import { Baia, CAPACIDADE_MAXIMA, NOME_POR_TIPO } from '../baias/baia.model';
 import { InternacaoService } from './internacao.service';
+import { Tutor } from '../cadastro-tutor-animal/tutores/tutor.model';
+import { TutorService } from '../cadastro-tutor-animal/tutores/tutor.service';
+import { RelatorioService } from '../relatorios/relatorio.service';
 import { InternacaoCardComponent } from './internacao-card/internacao-card.component';
 import { AdmissaoDialogoComponent } from './admissao-dialogo/admissao-dialogo.component';
 import { AcaoDialogoComponent } from './acao-dialogo/acao-dialogo.component';
 import { HistoricoDialogoComponent } from './historico-dialogo/historico-dialogo.component';
+import { ResumoAltaDialogoComponent } from './resumo-alta-dialogo/resumo-alta-dialogo.component';
 import { InternacoesTabelaComponent } from './internacoes-tabela/internacoes-tabela.component';
 import {
   Acao,
@@ -42,7 +46,8 @@ const normalizar = (texto: string) =>
 type EstadoDialogo =
   | { tipo: 'admissao' }
   | { tipo: 'acao'; internacao: Internacao; acao: Acao }
-  | { tipo: 'historico'; internacao: Internacao };
+  | { tipo: 'historico'; internacao: Internacao }
+  | { tipo: 'resumo'; internacao: Internacao };
 
 /** Uma baia do mapa com os animais que estão nela (capacidade 0 = baia que não veio do msbaias). */
 interface BlocoBaia {
@@ -70,6 +75,7 @@ interface BlocoBaia {
     AdmissaoDialogoComponent,
     AcaoDialogoComponent,
     HistoricoDialogoComponent,
+    ResumoAltaDialogoComponent,
     InternacoesTabelaComponent,
   ],
   templateUrl: './internacao-pagina.component.html',
@@ -78,6 +84,8 @@ interface BlocoBaia {
 })
 export class InternacaoPaginaComponent {
   private readonly internacaoService = inject(InternacaoService);
+  private readonly tutorService = inject(TutorService);
+  private readonly relatorioService = inject(RelatorioService);
   private readonly baiaService = inject(BaiaService);
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
@@ -238,6 +246,66 @@ export class InternacaoPaginaComponent {
     });
   }
 
+  /** Só quem atende a alta (e o admin) lê o tutor e dispara o resumo. */
+  protected podeResumo(): boolean {
+    return this.auth.temRole(['ROLE_ADMIN', 'ROLE_RECEPCIONISTA', 'ROLE_VETERINARIO']);
+  }
+
+  protected readonly tutorDoResumo = signal<Tutor | null | undefined>(undefined);
+  protected readonly resumoOcupado = signal<'baixar' | 'enviar' | null>(null);
+  protected readonly resumoAviso = signal<string | null>(null);
+
+  protected abrirResumo(internacao: Internacao): void {
+    this.abrir({ tipo: 'resumo', internacao });
+    this.tutorDoResumo.set(undefined);
+    this.resumoAviso.set(null);
+    this.resumoOcupado.set(null);
+    this.tutorService.carregar().subscribe({
+      next: (tutores) =>
+        this.tutorDoResumo.set(
+          tutores.find((t) => t.animais.some((a) => a.id === internacao.animalId)) ?? null,
+        ),
+      error: (e: HttpErrorResponse) => {
+        if (this.sessaoExpirou(e)) return;
+        this.tutorDoResumo.set(null);
+        this.erroDialogo.set(this.internacaoService.mensagemDeErro(e));
+      },
+    });
+  }
+
+  protected baixarResumo(internacao: Internacao): void {
+    this.resumoOcupado.set('baixar');
+    this.erroDialogo.set(null);
+    this.relatorioService.resumoDeAlta(internacao.id).subscribe({
+      next: (arquivo) => {
+        this.resumoOcupado.set(null);
+        this.relatorioService.baixar(arquivo);
+      },
+      error: async (e: HttpErrorResponse) => {
+        this.resumoOcupado.set(null);
+        if (this.sessaoExpirou(e)) return;
+        this.erroDialogo.set(await this.relatorioService.mensagemDeErro(e));
+      },
+    });
+  }
+
+  protected reenviarResumo(internacao: Internacao): void {
+    this.resumoOcupado.set('enviar');
+    this.resumoAviso.set(null);
+    this.erroDialogo.set(null);
+    this.relatorioService.enviarResumoDeAlta(internacao.id).subscribe({
+      next: (destinatario) => {
+        this.resumoOcupado.set(null);
+        this.resumoAviso.set(`Resumo enviado para ${destinatario}.`);
+      },
+      error: async (e: HttpErrorResponse) => {
+        this.resumoOcupado.set(null);
+        if (this.sessaoExpirou(e)) return;
+        this.erroDialogo.set(await this.relatorioService.mensagemDeErro(e));
+      },
+    });
+  }
+
   protected fecharDialogo(): void {
     this.dialogo.set(null);
   }
@@ -249,7 +317,12 @@ export class InternacaoPaginaComponent {
   protected confirmarAcao(corpo: object | null): void {
     const estado = this.dialogo();
     if (estado?.tipo === 'acao') {
-      this.executar(this.internacaoService.executar(estado.internacao.id, estado.acao, corpo));
+      const alta = estado.acao === 'autorizar-alta' || estado.acao === 'alta-a-pedido-do-tutor';
+      // Registrada a alta, abre o resumo: ele diz para onde o e-mail foi ou, sem e-mail, oferece o PDF.
+      this.executar(
+        this.internacaoService.executar(estado.internacao.id, estado.acao, corpo),
+        alta && this.podeResumo() ? (atualizada) => this.abrirResumo(atualizada) : undefined,
+      );
     }
   }
 
@@ -264,13 +337,17 @@ export class InternacaoPaginaComponent {
   }
 
   /** Roda uma escrita na API: fecha o diálogo no sucesso, mostra o erro na falha. */
-  private executar(chamada: ReturnType<InternacaoService['admitir']>): void {
+  private executar(
+    chamada: ReturnType<InternacaoService['admitir']>,
+    aoConcluir?: (internacao: Internacao) => void,
+  ): void {
     this.salvando.set(true);
     this.erroDialogo.set(null);
     chamada.subscribe({
-      next: () => {
+      next: (internacao) => {
         this.salvando.set(false);
         this.dialogo.set(null);
+        aoConcluir?.(internacao);
       },
       error: (e: HttpErrorResponse) => {
         this.salvando.set(false);

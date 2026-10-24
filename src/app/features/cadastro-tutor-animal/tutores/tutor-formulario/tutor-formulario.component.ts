@@ -11,7 +11,7 @@ import {
 } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { destacarCampo, limparDestaques } from '../../../../shared/mascaras/campo-invalido';
-import { hojeLocal, nomeValido, problemaNaDataDeNascimento, telefoneValido } from '../../../../shared/mascaras/validacoes';
+import { emailValido, hojeLocal, nomeValido, problemaNaDataDeNascimento, telefoneValido } from '../../../../shared/mascaras/validacoes';
 import { TelefoneDirective } from '../../../../shared/mascaras/telefone.directive';
 import { DadosTutor, SOMENTE_DIGITOS } from '../tutor.model';
 
@@ -50,6 +50,7 @@ export class TutorFormularioComponent implements OnInit {
     endereco: [''],
     dataNascimento: [''],
     telefone: [''],
+    email: [''],
   });
 
   protected readonly erro = signal<string | null>(null);
@@ -57,7 +58,7 @@ export class TutorFormularioComponent implements OnInit {
   ngOnInit(): void {
     const t = this.tutor;
     if (t) {
-      this.form.reset({ nome: t.nome, endereco: t.endereco, dataNascimento: t.dataNascimento, telefone: t.telefone });
+      this.form.reset({ nome: t.nome, endereco: t.endereco, dataNascimento: t.dataNascimento, telefone: t.telefone, email: t.email ?? '' });
     }
   }
 
@@ -68,6 +69,7 @@ export class TutorFormularioComponent implements OnInit {
     const nome = v.nome.trim();
     const endereco = v.endereco.trim();
     const telefone = v.telefone.replace(SOMENTE_DIGITOS, '');
+    const email = v.email.trim();
 
     if (!nome) return this.setErro('Informe o nome do tutor.', 'nome');
     if (!nomeValido(nome)) return this.setErro('O nome precisa ter letras.', 'nome');
@@ -80,8 +82,11 @@ export class TutorFormularioComponent implements OnInit {
       return this.setErro('Informe um celular com DDD, por exemplo (11) 98765-4321.', 'telefone');
     }
 
+    if (email && email.length > 150) return this.setErro('O e-mail pode ter no máximo 150 caracteres.', 'email');
+    if (email && !emailValido(email)) return this.setErro('Informe um e-mail válido, como tutor@exemplo.com.', 'email');
+
     this.erro.set(null);
-    this.avancar.emit({ nome, endereco, dataNascimento: v.dataNascimento, telefone });
+    this.avancar.emit({ nome, endereco, dataNascimento: v.dataNascimento, telefone, email: email || null });
   }
 
   private setErro(mensagem: string, campo: string): void {

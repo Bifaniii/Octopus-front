@@ -1,0 +1,57 @@
+<dialog #dialogo class="dialogo" aria-labelledby="resumo-titulo" (close)="fechar.emit()">
+  <div class="form">
+    <header class="form__topo">
+      <h2 id="resumo-titulo" class="form__titulo">Resumo de alta · {{ internacao.animalNome }}</h2>
+      <button type="button" class="fechar" aria-label="Fechar" (click)="fecharDialogo()">
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </header>
+
+    <p class="texto">
+      O resumo conta o que foi feito na internação, quem atendeu, as medicações aplicadas e os cuidados dos próximos
+      7 dias.
+    </p>
+
+    @if (tutor === undefined) {
+      <p class="texto">Procurando o e-mail do tutor...</p>
+    } @else if (tutor === null) {
+      <p class="alerta">Não foi possível achar o tutor deste animal. Baixe o resumo em PDF e entregue em mãos.</p>
+    } @else if (tutor.email) {
+      <p class="texto">
+        O resumo é enviado automaticamente para <strong>{{ tutor.email }}</strong> ({{ tutor.nome }}) quando a alta é
+        registrada. Se ele não chegou, reenvie.
+      </p>
+    } @else {
+      <p class="alerta">
+        {{ tutor.nome }} não tem e-mail cadastrado, então nada foi enviado. Baixe o resumo, imprima e entregue ao
+        tutor.
+      </p>
+    }
+
+    @if (aviso) {
+      <p class="alerta alerta--ok" role="status">{{ aviso }}</p>
+    }
+    @if (erro) {
+      <p class="erro" role="alert">{{ erro }}</p>
+    }
+
+    <footer class="form__rodape">
+      @if (tutor?.email) {
+        <button type="button" class="botao" [disabled]="ocupado !== null" (click)="reenviar.emit()">
+          <i class="bi bi-envelope"></i>
+          {{ ocupado === 'enviar' ? 'Enviando...' : 'Reenviar e-mail' }}
+        </button>
+      }
+      <button
+        type="button"
+        class="botao"
+        [class.botao--primario]="tutor !== undefined && !tutor?.email"
+        [disabled]="ocupado !== null"
+        (click)="baixar.emit()"
+      >
+        <i class="bi bi-file-earmark-pdf"></i>
+        {{ ocupado === 'baixar' ? 'Gerando PDF...' : 'Baixar resumo (PDF)' }}
+      </button>
+    </footer>
+  </div>
+</dialog>

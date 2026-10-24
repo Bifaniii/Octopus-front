@@ -42,6 +42,25 @@ export class RelatorioService {
       );
   }
 
+  /** PDF do resumo de alta, para entregar ao tutor que não tem e-mail. */
+  resumoDeAlta(internacaoId: number): Observable<ArquivoRelatorio> {
+    return this.http
+      .get(`${this.apiBase}/relatorios/altas/${internacaoId}`, { responseType: 'blob', observe: 'response' })
+      .pipe(
+        map((resposta: HttpResponse<Blob>) => ({
+          nome: this.nomeDoArquivo(resposta) ?? `resumo-de-alta-${internacaoId}.pdf`,
+          conteudo: resposta.body ?? new Blob(),
+        })),
+      );
+  }
+
+  /** Reenvia o resumo de alta ao e-mail cadastrado do tutor. Devolve o endereço usado. */
+  enviarResumoDeAlta(internacaoId: number): Observable<string> {
+    return this.http
+      .post<{ destinatario: string }>(`${this.apiBase}/relatorios/altas/${internacaoId}/email`, null)
+      .pipe(map((r) => r.destinatario));
+  }
+
   /** Auxiliares para o filtro do relatório de doses (inclui contas desativadas, que seguem no histórico). */
   auxiliares(): Observable<PessoaResumo[]> {
     return this.http.get<PessoaResumo[]>(`${this.apiBase}/usuarios/nomes`).pipe(

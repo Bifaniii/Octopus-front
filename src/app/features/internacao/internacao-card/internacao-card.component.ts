@@ -23,6 +23,13 @@ export class InternacaoCardComponent {
   @Input() podePrescrever = false;
   @Output() acao = new EventEmitter<Acao>();
   @Output() historico = new EventEmitter<void>();
+  /** Depois da alta, quem atende abre o resumo que vai (ou foi) ao tutor. */
+  @Input() podeResumo = false;
+  @Output() resumo = new EventEmitter<void>();
+
+  protected get temAlta(): boolean {
+    return this.internacao.status === 'ALTA_AUTORIZADA' || this.internacao.status === 'ALTA_A_PEDIDO_DO_TUTOR';
+  }
 
   protected readonly definicoes = ACOES;
   protected readonly nomes = NOME_POR_STATUS;

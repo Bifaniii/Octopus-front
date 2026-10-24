@@ -78,6 +78,8 @@
               [podePrescrever]="podePrescrever()"
               (acao)="abrirAcao(internacao, $event)"
               (historico)="abrirHistorico(internacao)"
+              [podeResumo]="podeResumo()"
+              (resumo)="abrirResumo(internacao)"
             />
           } @empty {
             <p class="baia__vazia">Livre</p>
@@ -151,6 +153,20 @@
           [salvando]="salvando()"
           [erroApi]="erroDialogo()"
           (confirmar)="confirmarAcao($event)"
+          (fechar)="fecharDialogo()"
+        />
+      }
+    }
+    @case ('resumo') {
+      @if (estado.tipo === 'resumo') {
+        <app-resumo-alta-dialogo
+          [internacao]="estado.internacao"
+          [tutor]="tutorDoResumo()"
+          [ocupado]="resumoOcupado()"
+          [aviso]="resumoAviso()"
+          [erro]="erroDialogo()"
+          (baixar)="baixarResumo(estado.internacao)"
+          (reenviar)="reenviarResumo(estado.internacao)"
           (fechar)="fecharDialogo()"
         />
       }

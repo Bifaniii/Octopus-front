@@ -21,6 +21,11 @@
       <span class="campo__rotulo">Telefone</span>
       <input type="tel" appTelefone formControlName="telefone" inputmode="numeric" autocomplete="tel-national" placeholder="(11) 98765-4321" />
     </label>
+
+    <label class="campo">
+      <span class="campo__rotulo">E-mail (opcional)</span>
+      <input type="email" formControlName="email" autocomplete="email" placeholder="tutor@exemplo.com" />
+    </label>
   </div>
 
   @if (erro() ?? erroApi; as mensagem) {

@@ -31,6 +31,12 @@
         {{ definicoes[a].rotulo }}
       </button>
     }
+    @if (temAlta && podeResumo) {
+      <button type="button" class="acao" (click)="resumo.emit()">
+        <i class="bi bi-envelope-paper"></i>
+        Resumo de alta
+      </button>
+    }
     <button type="button" class="acao acao--discreta" title="Histórico" (click)="historico.emit()">
       <i class="bi bi-clock-history"></i>
     </button>

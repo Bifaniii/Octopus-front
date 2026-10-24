@@ -213,3 +213,6 @@ Quem tem "desativar" tem o par "ativar": usuários (`PATCH /api/<perfil>/{id}/at
 ## PDF da prescrição e menu recolhível (24/10/2026)
 Cada prescrição tem o botão "Baixar PDF" (veterinário e admin), que chama `GET /api/relatorios/prescricoes/{id}` no msrelatorios: o PDF traz paciente, tutor, medicamentos e o carimbo "Dr. <nome> ASSINADO DIGITALMENTE". O cabeçalho de toda tela tem um botão que esconde o menu lateral; a escolha fica em `localStorage` (`plantao.menu-oculto`), então vale nas outras telas.
 
+## Resumo de alta e e-mail do tutor (24/10/2026)
+O cadastro do tutor tem um campo "E-mail (opcional)". Depois que a alta é registrada (autorizada ou a pedido), o back manda o resumo ao e-mail do tutor e a tela abre o diálogo "Resumo de alta": com e-mail, mostra para onde foi e deixa reenviar; sem e-mail, oferece o PDF para a recepção imprimir e entregar. O mesmo botão "Resumo de alta" fica no card das internações com alta (ADMIN, recepção e veterinário). O envio de e-mail automático é uma exceção ao TAP autorizada pelo professor.
+

@@ -13,6 +13,7 @@ export interface Tutor {
   endereco: string;
   dataNascimento: string; // aaaa-MM-dd
   telefone: string; // só dígitos
+  email: string | null; // opcional: recebe o resumo de alta do animal
   animais: Animal[];
 }
 
@@ -22,6 +23,7 @@ export interface DadosTutor {
   endereco: string;
   dataNascimento: string;
   telefone: string;
+  email?: string | null;
   animais?: DadosAnimal[];
 }
 
