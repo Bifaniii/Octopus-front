@@ -31,6 +31,11 @@ export class MedicacaoService {
     return this.http.patch<Medicacao>(`${this.baseUrl}/${id}`, { quantidade });
   }
 
+  /** PATCH /api/medicacoes/{id}/ativar: só ADMIN. Volta a aparecer nas prescrições. */
+  ativar(id: number): Observable<Medicacao> {
+    return this.http.patch<Medicacao>(`${this.baseUrl}/${id}/ativar`, null);
+  }
+
   /** Traduz o erro HTTP em uma mensagem amigável para exibir na tela. */
   mensagemDeErro(e: HttpErrorResponse): string {
     const corpo = e.error as Partial<ErroApi> | null;

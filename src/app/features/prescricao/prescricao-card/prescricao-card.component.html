@@ -8,7 +8,7 @@
         }
       </h3>
       <p class="card__sub">
-        Prescrição #{{ prescricao.id }} · {{ prescricao.veterinarioEmail }} ·
+        Prescrição {{ prescricao.id }} · {{ prescricao.veterinarioEmail }} ·
         {{ prescricao.criadoEm | date: "dd/MM/yyyy HH:mm" }}
       </p>
     </div>
@@ -44,6 +44,14 @@
 
   @if (prescricao.observacao) {
     <p class="card__obs">Obs.: {{ prescricao.observacao }}</p>
+  }
+
+  @if (podeAtivar) {
+    <footer class="card__acoes">
+      <button type="button" class="acao-perigo" (click)="ativar.emit(prescricao.id)">
+        <i class="bi bi-arrow-counterclockwise" aria-hidden="true"></i> Reativar prescrição
+      </button>
+    </footer>
   }
 
   @if (podeDesativar) {

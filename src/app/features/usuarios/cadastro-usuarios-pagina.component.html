@@ -102,6 +102,8 @@
                 >
                   {{ confirmandoDesativar() === u.id ? 'Confirmar desativação' : 'Desativar' }}
                 </button>
+              } @else if (podeAtivar(u)) {
+                <button type="button" class="botao" (click)="$event.stopPropagation(); ativar(u)">Ativar</button>
               }
             </td>
           </tr>
@@ -119,6 +121,8 @@
     [erro]="erroDetalhe()"
     [podeDesativar]="podeDesativar(u)"
     [desativando]="desativando()"
+    [podeAtivar]="podeAtivar(u)"
+    [ativando]="ativando()"
     [podeEditar]="podeEditar"
     [editando]="editandoFicha()"
     [salvando]="salvandoEdicao()"
@@ -127,6 +131,7 @@
     (cancelarEdicao)="cancelarEdicao()"
     (salvar)="salvarEdicao($event)"
     (desativar)="desativarDaFicha($event)"
+    (ativar)="ativarDaFicha($event)"
     (fechar)="fecharFicha()"
   />
 }

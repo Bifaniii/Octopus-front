@@ -29,6 +29,10 @@ export class PrescricaoService {
     );
   }
 
+  ativar(id: number): Observable<Prescricao> {
+    return this.http.patch<Prescricao>(`${this.base}/prescricoes/${id}/ativar`, {});
+  }
+
   // --- Dados de outros módulos (internação e medicamentos) ---------------------------------------
 
   listarInternacoes(): Observable<InternacaoOpcao[]> {

@@ -25,6 +25,8 @@ export class PrescricaoCardComponent {
   @Input() nomesDosMedicamentos: Partial<Record<number, string>> = {};
   @Input() podeDesativar = false;
   @Output() desativar = new EventEmitter<number>();
+  @Input() podeAtivar = false;
+  @Output() ativar = new EventEmitter<number>();
 
   get nomeDoStatus(): string {
     return NOME_DO_STATUS[this.status] ?? '';

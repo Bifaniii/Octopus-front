@@ -59,6 +59,7 @@ export class MedicationComponent {
   protected readonly erroDialogo = signal<string | null>(null);
   protected readonly carregando = signal(false);
   protected readonly erro = signal<string | null>(null);
+  protected readonly ehAdmin = computed(() => this.auth.temRole(['ROLE_ADMIN']));
   protected readonly podeCadastrar = computed(() => this.auth.temRole(['ROLE_ADMIN', 'ROLE_VETERINARIO']));
   protected readonly busca = signal('');
   protected readonly mostrarInativos = signal(false);
@@ -185,6 +186,21 @@ export class MedicationComponent {
 
   protected aoBuscar(evento: Event): void {
     this.busca.set((evento.target as HTMLInputElement).value);
+  }
+
+  protected ativar(id: number): void {
+    this.erro.set(null);
+    this.medicacaoService.ativar(id).subscribe({
+      next: (atualizado) => this.medicacoes.update((lista) => lista.map((m) => (m.id === id ? this.paraExibicao(atualizado) : m))),
+      error: (e: HttpErrorResponse) => {
+        if (e.status === 401) {
+          this.auth.logout();
+          this.router.navigateByUrl('/login');
+          return;
+        }
+        this.erro.set(this.medicacaoService.mensagemDeErro(e));
+      },
+    });
   }
 
   protected aoAlternarInativos(evento: Event): void {

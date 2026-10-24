@@ -61,6 +61,9 @@
           <div class="medicamento-card__etiquetas">
             @if (!m.ativo) {
               <span class="etiqueta etiqueta--inativo">Inativo</span>
+              @if (ehAdmin()) {
+                <button type="button" class="estoque-ajuste__botao" (click)="ativar(m.id)">Reativar</button>
+              }
             }
             <span [class]="'etiqueta etiqueta--' + m.tipoEsquema.toLowerCase()">{{ m.esquema }}</span>
           </div>

@@ -54,6 +54,13 @@ export class PrescricaoComponent implements OnInit {
   // O GET devolve ativas e inativas; a tela mostra só as ativas.
   readonly ativas = computed(() => this.prescricoes().filter((p) => p.ativo));
 
+  // Só dá para reativar enquanto a internação ainda aceita prescrição (sem alta nem encerrada).
+  readonly reativaveis = computed(() =>
+    this.prescricoes().filter(
+      (p) => !p.ativo && STATUS_QUE_ACEITAM_PRESCRICAO.includes(this.statusDe(p.internacaoId)),
+    ),
+  );
+
   readonly internacoesElegiveis = computed(() =>
     this.internacoes().filter((i) =>
       STATUS_QUE_ACEITAM_PRESCRICAO.includes(i.status),
@@ -146,6 +153,17 @@ export class PrescricaoComponent implements OnInit {
   desativar(id: number): void {
     if (!confirm('Desativar esta prescrição?')) return;
     this.service.desativar(id).subscribe({
+      next: (atualizada) =>
+        this.prescricoes.update((lista) =>
+          lista.map((p) => (p.id === atualizada.id ? atualizada : p)),
+        ),
+      error: (e: HttpErrorResponse) => this.tratarErro(e, this.erro),
+    });
+  }
+
+  ativar(id: number): void {
+    this.erro.set(null);
+    this.service.ativar(id).subscribe({
       next: (atualizada) =>
         this.prescricoes.update((lista) =>
           lista.map((p) => (p.id === atualizada.id ? atualizada : p)),

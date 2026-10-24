@@ -151,6 +151,11 @@
             {{ desativando ? 'Desativando...' : confirmando ? 'Confirmar desativação' : 'Desativar conta' }}
           </button>
         }
+        @if (podeAtivar) {
+          <button type="button" class="botao" [disabled]="ativando" (click)="ativar.emit(usuario)">
+            {{ ativando ? 'Ativando...' : 'Reativar conta' }}
+          </button>
+        }
         <span class="espaco"></span>
         <button type="button" class="botao" (click)="fecharDialogo()">Fechar</button>
       </footer>

@@ -36,6 +36,25 @@
     </div>
   }
 
+  @if (reativaveis().length > 0) {
+    <details class="desativadas">
+      <summary>Prescrições desativadas ({{ reativaveis().length }})</summary>
+      <div class="lista">
+        @for (p of reativaveis(); track p.id) {
+          <app-prescricao-card
+            [prescricao]="p"
+            [animalNome]="animalDe(p.internacaoId)"
+            [animalEspecie]="especieDe(p.internacaoId)"
+            [status]="statusDe(p.internacaoId)"
+            [nomesDosMedicamentos]="nomesDosMedicamentos()"
+            [podeAtivar]="podePrescrever"
+            (ativar)="ativar($event)"
+          />
+        }
+      </div>
+    </details>
+  }
+
   @if (modalAberto()) {
     <app-prescricao-dialogo
       [internacoes]="internacoesElegiveis()"

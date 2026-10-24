@@ -206,3 +206,6 @@ O front chama sempre `/api/...` (`environment.apiBaseUrl`) e o proxy escolhe o m
 - Uma branch por funcionalidade (`feature/<nome>`), criada a partir da `main` atual.
 - Nunca adicionar trailer `Co-Authored-By` nem qualquer trailer extra nos commits.
 - Não versionar `.env`, `dist/` nem `.angular/cache` (já estão no `.gitignore`).
+
+## Reativar (24/10/2026)
+Quem tem "desativar" tem o par "ativar": usuários (`PATCH /api/<perfil>/{id}/ativar`, botão "Ativar" na lista e "Reativar conta" na ficha, um clique só), medicamentos (só ADMIN, botão "Reativar" no card inativo) e prescrições (lista "Prescrições desativadas", só com a internação ainda aberta). A tela de relatórios é uma lista de linhas, uma por relatório, com filtros no meio e PDF/Excel à direita; empilha no celular.

@@ -1,22 +1,23 @@
 /* As variáveis de cor (--color-*, --radius-*) vêm de src/styles/tema.css. */
 :host { display: block; }
 
+/* Uma linha por relatório: quem é, filtros e botões, sempre nas mesmas três colunas. */
 .grade {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: 1.25rem;
-  align-items: start;
-}
-
-.card {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
-  padding: 1.25rem;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
   background: var(--color-surface);
 }
+
+.card {
+  display: grid;
+  grid-template-columns: minmax(13rem, 16rem) minmax(0, 1fr) auto;
+  gap: 1rem 1.25rem;
+  align-items: center;
+  padding: 1.1rem 1.25rem;
+}
+.card + .card { border-top: 1px solid var(--color-border); }
 
 .card__topo { display: flex; gap: 0.85rem; align-items: flex-start; }
 .card__topo h2 { margin: 0 0 0.2rem; font-size: 1rem; color: var(--color-text); }
@@ -35,17 +36,17 @@
   font-size: 1.15rem;
 }
 
-.campos { display: flex; flex-wrap: wrap; gap: 0.75rem; }
+.campos { display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: flex-end; }
 .campo {
   display: flex;
-  flex: 1 1 130px;
+  flex: 1 1 7.5rem;
+  max-width: 14rem;
   flex-direction: column;
   gap: 0.3rem;
   font-size: 0.75rem;
   font-weight: 600;
   color: var(--color-text-muted);
 }
-.campo--largo { flex-basis: 100%; }
 .campo input,
 .campo select {
   padding: 0.45rem 0.6rem;
@@ -61,6 +62,7 @@
 .card__nota { margin: 0; font-size: 0.8rem; color: var(--color-text-muted); }
 
 .card__erro {
+  grid-column: 1 / -1;
   margin: 0;
   padding: 0.6rem 0.8rem;
   border: 1px solid var(--color-danger-border);
@@ -70,14 +72,14 @@
   font-size: 0.8rem;
 }
 
-.card__botoes { display: flex; gap: 0.5rem; margin-top: auto; }
+.card__botoes { display: flex; grid-column: 3; grid-row: 1; gap: 0.5rem; }
 
 .botao {
   display: inline-flex;
-  flex: 1;
   align-items: center;
   justify-content: center;
   gap: 0.4rem;
+  min-width: 6.5rem;
   padding: 0.55rem 0.85rem;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
@@ -94,6 +96,16 @@
 .botao--primario { background: var(--color-primary); border-color: var(--color-primary); color: var(--color-text-on-primary); }
 .botao--primario:hover:not(:disabled) { background: var(--color-primary-strong); }
 
-@media (max-width: 480px) {
-  .grade { grid-template-columns: 1fr; }
+@media (max-width: 1100px) {
+  .card { grid-template-columns: minmax(0, 1fr) auto; }
+  .card__topo { grid-column: 1; }
+  .card__botoes { grid-column: 2; grid-row: 1; }
+  .campos, .card__nota, .card__erro { grid-column: 1 / -1; }
+}
+
+@media (max-width: 560px) {
+  .card { grid-template-columns: 1fr; }
+  .card__botoes { grid-column: 1; grid-row: auto; }
+  .botao { flex: 1; }
+  .campo { max-width: none; }
 }

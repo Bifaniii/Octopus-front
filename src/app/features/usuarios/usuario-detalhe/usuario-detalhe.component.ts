@@ -69,11 +69,14 @@ export class UsuarioDetalheComponent implements AfterViewInit {
   @Input() erro: string | null = null;
   @Input() podeDesativar = false;
   @Input() desativando = false;
+  @Input() podeAtivar = false;
+  @Input() ativando = false;
   @Input() podeEditar = false;
   @Input() editando = false;
   @Input() salvando = false;
   @Input() erroEdicao: string | null = null;
   @Output() desativar = new EventEmitter<UsuarioListagem>();
+  @Output() ativar = new EventEmitter<UsuarioListagem>();
   @Output() editar = new EventEmitter<void>();
   @Output() cancelarEdicao = new EventEmitter<void>();
   @Output() salvar = new EventEmitter<EdicaoUsuarioEvento>();

@@ -39,7 +39,7 @@
                   }
                 </select>
               </label>
-              <label class="campo campo--largo">
+              <label class="campo">
                 <span>Auxiliar</span>
                 <select [value]="filtros()[r.tipo].auxiliar" (change)="alterar(r.tipo, 'auxiliar', $any($event.target).value)">
                   <option value="">Todos</option>
@@ -60,7 +60,7 @@
                 <span>até</span>
                 <input type="date" [value]="filtros()[r.tipo].ate" (change)="alterar(r.tipo, 'ate', $any($event.target).value)" />
               </label>
-              <label class="campo campo--largo">
+              <label class="campo">
                 <span>Situação</span>
                 <select [value]="filtros()[r.tipo].status" (change)="alterar(r.tipo, 'status', $any($event.target).value)">
                   <option value="">Todas</option>
@@ -73,7 +73,7 @@
           }
           @case ('usuarios') {
             <div class="campos">
-              <label class="campo campo--largo">
+              <label class="campo">
                 <span>Perfil</span>
                 <select [value]="filtros()[r.tipo].perfil" (change)="alterar(r.tipo, 'perfil', $any($event.target).value)">
                   <option value="">Todos</option>
@@ -82,7 +82,7 @@
                   }
                 </select>
               </label>
-              <label class="campo campo--largo">
+              <label class="campo">
                 <span>Situação</span>
                 <select [value]="filtros()[r.tipo].ativo" (change)="alterar(r.tipo, 'ativo', $any($event.target).value)">
                   <option value="">Todas</option>

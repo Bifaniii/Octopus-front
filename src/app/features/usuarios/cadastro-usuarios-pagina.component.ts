@@ -58,6 +58,7 @@ export class CadastroUsuariosPaginaComponent {
   protected readonly carregandoDetalhe = signal(false);
   protected readonly erroDetalhe = signal<string | null>(null);
   protected readonly desativando = signal(false);
+  protected readonly ativando = signal(false);
   protected readonly editandoFicha = signal(false);
   protected readonly salvandoEdicao = signal(false);
   protected readonly erroEdicao = signal<string | null>(null);
@@ -99,6 +100,10 @@ export class CadastroUsuariosPaginaComponent {
     this.filtros.set({ ...FILTROS_VAZIOS });
     this.filtrosAtivos.set(false);
     this.recarregar();
+  }
+
+  protected podeAtivar(u: UsuarioListagem): boolean {
+    return this.usuarioService.podeAtivar(u);
   }
 
   protected podeDesativar(u: UsuarioListagem): boolean {
@@ -173,6 +178,34 @@ export class CadastroUsuariosPaginaComponent {
         this.desativando.set(false);
         if (this.sessaoExpirou(e)) return;
         this.erroDetalhe.set(this.usuarioService.mensagemDeErro(e));
+      },
+    });
+  }
+
+  /** Reativação pedida dentro da ficha. */
+  protected ativarDaFicha(u: UsuarioListagem): void {
+    this.ativando.set(true);
+    this.erroDetalhe.set(null);
+    this.usuarioService.ativar(u).subscribe({
+      next: () => {
+        this.ativando.set(false);
+        this.selecionado.set({ ...u, ativo: true });
+      },
+      error: (e: HttpErrorResponse) => {
+        this.ativando.set(false);
+        if (this.sessaoExpirou(e)) return;
+        this.erroDetalhe.set(this.usuarioService.mensagemDeErro(e));
+      },
+    });
+  }
+
+  /** Reativar não destrói nada, então é um clique só. */
+  protected ativar(u: UsuarioListagem): void {
+    this.erroAcao.set(null);
+    this.usuarioService.ativar(u).subscribe({
+      error: (e: HttpErrorResponse) => {
+        if (this.sessaoExpirou(e)) return;
+        this.erroAcao.set(this.usuarioService.mensagemDeErro(e));
       },
     });
   }

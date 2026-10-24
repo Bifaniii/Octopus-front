@@ -78,6 +78,10 @@ export class UsuarioService {
     return usuario.ativo && RECURSO_POR_PERFIL[usuario.role as RoleCriavel] !== undefined;
   }
 
+  podeAtivar(usuario: UsuarioListagem): boolean {
+    return !usuario.ativo && RECURSO_POR_PERFIL[usuario.role as RoleCriavel] !== undefined;
+  }
+
   temDetalhe(usuario: UsuarioListagem): boolean {
     return RECURSO_POR_PERFIL[usuario.role as RoleCriavel] !== undefined;
   }
@@ -110,6 +114,15 @@ export class UsuarioService {
     const recurso = RECURSO_POR_PERFIL[usuario.role as RoleCriavel];
     return this.http.patch(`${this.apiBase}/${recurso}/${usuario.perfilId}/desativar`, null).pipe(
       tap(() => this._usuarios.update((lista) => lista.map((u) => (u.id === usuario.id ? { ...u, ativo: false } : u)))),
+      map(() => undefined),
+    );
+  }
+
+  /** PATCH /api/<perfil>/{perfilId}/ativar. Desfaz o desativar: a conta volta a entrar. */
+  ativar(usuario: UsuarioListagem): Observable<void> {
+    const recurso = RECURSO_POR_PERFIL[usuario.role as RoleCriavel];
+    return this.http.patch(`${this.apiBase}/${recurso}/${usuario.perfilId}/ativar`, null).pipe(
+      tap(() => this._usuarios.update((lista) => lista.map((u) => (u.id === usuario.id ? { ...u, ativo: true } : u)))),
       map(() => undefined),
     );
   }
