@@ -30,6 +30,9 @@
           [status]="statusDe(p.internacaoId)"
           [nomesDosMedicamentos]="nomesDosMedicamentos()"
           [podeDesativar]="podePrescrever"
+          [podeBaixar]="podeBaixar"
+          [baixando]="baixando() === p.id"
+          (baixar)="baixarPdf($event)"
           (desativar)="desativar($event)"
         />
       }
@@ -48,6 +51,9 @@
             [status]="statusDe(p.internacaoId)"
             [nomesDosMedicamentos]="nomesDosMedicamentos()"
             [podeAtivar]="podePrescrever"
+            [podeBaixar]="podeBaixar"
+            [baixando]="baixando() === p.id"
+            (baixar)="baixarPdf($event)"
             (ativar)="ativar($event)"
           />
         }

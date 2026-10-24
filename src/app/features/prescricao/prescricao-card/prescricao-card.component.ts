@@ -26,6 +26,9 @@ export class PrescricaoCardComponent {
   @Input() podeDesativar = false;
   @Output() desativar = new EventEmitter<number>();
   @Input() podeAtivar = false;
+  @Input() podeBaixar = false;
+  @Input() baixando = false;
+  @Output() baixar = new EventEmitter<number>();
   @Output() ativar = new EventEmitter<number>();
 
   get nomeDoStatus(): string {

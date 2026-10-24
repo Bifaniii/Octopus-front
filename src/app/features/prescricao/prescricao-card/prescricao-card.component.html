@@ -46,23 +46,24 @@
     <p class="card__obs">Obs.: {{ prescricao.observacao }}</p>
   }
 
-  @if (podeAtivar) {
+  @if (podeBaixar || podeAtivar || podeDesativar) {
     <footer class="card__acoes">
-      <button type="button" class="acao-perigo" (click)="ativar.emit(prescricao.id)">
-        <i class="bi bi-arrow-counterclockwise" aria-hidden="true"></i> Reativar prescrição
-      </button>
-    </footer>
-  }
-
-  @if (podeDesativar) {
-    <footer class="card__acoes">
-      <button
-        type="button"
-        class="acao-perigo"
-        (click)="desativar.emit(prescricao.id)"
-      >
-        <i class="bi bi-x-circle" aria-hidden="true"></i> Desativar prescrição
-      </button>
+      @if (podeBaixar) {
+        <button type="button" class="acao" [disabled]="baixando" (click)="baixar.emit(prescricao.id)">
+          <i class="bi bi-file-earmark-pdf" aria-hidden="true"></i>
+          {{ baixando ? 'Gerando PDF...' : 'Baixar PDF' }}
+        </button>
+      }
+      @if (podeAtivar) {
+        <button type="button" class="acao-perigo" (click)="ativar.emit(prescricao.id)">
+          <i class="bi bi-arrow-counterclockwise" aria-hidden="true"></i> Reativar prescrição
+        </button>
+      }
+      @if (podeDesativar) {
+        <button type="button" class="acao-perigo" (click)="desativar.emit(prescricao.id)">
+          <i class="bi bi-x-circle" aria-hidden="true"></i> Desativar prescrição
+        </button>
+      }
     </footer>
   }
 </article>

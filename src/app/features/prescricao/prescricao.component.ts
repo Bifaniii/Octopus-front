@@ -21,6 +21,7 @@ import {
   PrescricaoRequest,
   STATUS_QUE_ACEITAM_PRESCRICAO,
 } from './prescricao.model';
+import { RelatorioService } from '../relatorios/relatorio.service';
 import { PrescricaoService } from './prescricao.service';
 
 // Container da rota /prescricoes: o único que injeta services e controla o modal.
@@ -38,6 +39,7 @@ import { PrescricaoService } from './prescricao.service';
 export class PrescricaoComponent implements OnInit {
   private readonly service = inject(PrescricaoService);
   private readonly auth = inject(AuthService);
+  private readonly relatorioService = inject(RelatorioService);
   private readonly router = inject(Router);
   private readonly noNavegador = isPlatformBrowser(inject(PLATFORM_ID));
 
@@ -158,6 +160,33 @@ export class PrescricaoComponent implements OnInit {
           lista.map((p) => (p.id === atualizada.id ? atualizada : p)),
         ),
       error: (e: HttpErrorResponse) => this.tratarErro(e, this.erro),
+    });
+  }
+
+  /** Id da prescrição cujo PDF está sendo gerado. */
+  readonly baixando = signal<number | null>(null);
+
+  get podeBaixar(): boolean {
+    return this.auth.temRole(['ROLE_VETERINARIO', 'ROLE_ADMIN']);
+  }
+
+  baixarPdf(id: number): void {
+    this.erro.set(null);
+    this.baixando.set(id);
+    this.relatorioService.prescricao(id).subscribe({
+      next: (arquivo) => {
+        this.baixando.set(null);
+        this.relatorioService.baixar(arquivo);
+      },
+      error: async (e: HttpErrorResponse) => {
+        this.baixando.set(null);
+        if (e.status === 401) {
+          this.auth.logout();
+          this.router.navigate(['/login']);
+          return;
+        }
+        this.erro.set(await this.relatorioService.mensagemDeErro(e));
+      },
     });
   }
 

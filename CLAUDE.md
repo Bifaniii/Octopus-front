@@ -209,3 +209,7 @@ O front chama sempre `/api/...` (`environment.apiBaseUrl`) e o proxy escolhe o m
 
 ## Reativar (24/10/2026)
 Quem tem "desativar" tem o par "ativar": usuários (`PATCH /api/<perfil>/{id}/ativar`, botão "Ativar" na lista e "Reativar conta" na ficha, um clique só), medicamentos (só ADMIN, botão "Reativar" no card inativo) e prescrições (lista "Prescrições desativadas", só com a internação ainda aberta). A tela de relatórios é uma lista de linhas, uma por relatório, com filtros no meio e PDF/Excel à direita; empilha no celular.
+
+## PDF da prescrição e menu recolhível (24/10/2026)
+Cada prescrição tem o botão "Baixar PDF" (veterinário e admin), que chama `GET /api/relatorios/prescricoes/{id}` no msrelatorios: o PDF traz paciente, tutor, medicamentos e o carimbo "Dr. <nome> ASSINADO DIGITALMENTE". O cabeçalho de toda tela tem um botão que esconde o menu lateral; a escolha fica em `localStorage` (`plantao.menu-oculto`), então vale nas outras telas.
+

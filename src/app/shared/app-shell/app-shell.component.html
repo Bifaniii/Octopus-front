@@ -1,5 +1,5 @@
-<div class="shell">
-  <aside class="shell__sidebar">
+<div class="shell" [class.shell--sem-menu]="menuOculto()">
+  <aside class="shell__sidebar" id="menu-lateral">
     <div class="shell__marca">
       <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
         <circle cx="12" cy="14.5" r="4.2" />
@@ -69,10 +69,23 @@
 
   <div class="shell__main">
     <header class="shell__header">
-      <h1>{{ titulo }}</h1>
-      @if (subtitulo) {
-        <p>{{ subtitulo }}</p>
-      }
+      <button
+        type="button"
+        class="shell__menu-botao"
+        (click)="alternarMenu()"
+        [attr.aria-expanded]="!menuOculto()"
+        aria-controls="menu-lateral"
+        [attr.aria-label]="menuOculto() ? 'Mostrar o menu lateral' : 'Ocultar o menu lateral'"
+        [attr.title]="menuOculto() ? 'Mostrar o menu' : 'Ocultar o menu'"
+      >
+        <i class="bi" [class.bi-layout-sidebar]="!menuOculto()" [class.bi-layout-sidebar-inset]="menuOculto()" aria-hidden="true"></i>
+      </button>
+      <div class="shell__titulo">
+        <h1>{{ titulo }}</h1>
+        @if (subtitulo) {
+          <p>{{ subtitulo }}</p>
+        }
+      </div>
     </header>
 
     <main class="shell__conteudo">

@@ -30,6 +30,18 @@ export class RelatorioService {
       );
   }
 
+  /** PDF de uma prescrição, assinado pelo veterinário que prescreveu. */
+  prescricao(id: number): Observable<ArquivoRelatorio> {
+    return this.http
+      .get(`${this.apiBase}/relatorios/prescricoes/${id}`, { responseType: 'blob', observe: 'response' })
+      .pipe(
+        map((resposta: HttpResponse<Blob>) => ({
+          nome: this.nomeDoArquivo(resposta) ?? `prescricao-${id}.pdf`,
+          conteudo: resposta.body ?? new Blob(),
+        })),
+      );
+  }
+
   /** Auxiliares para o filtro do relatório de doses (inclui contas desativadas, que seguem no histórico). */
   auxiliares(): Observable<PessoaResumo[]> {
     return this.http.get<PessoaResumo[]>(`${this.apiBase}/usuarios/nomes`).pipe(
