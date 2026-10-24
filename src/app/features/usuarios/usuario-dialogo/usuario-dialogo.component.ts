@@ -15,17 +15,17 @@ import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { destacarCampo, limparDestaques } from '../../../shared/mascaras/campo-invalido';
 import { CpfCnpjDirective, CpfDirective } from '../../../shared/mascaras/documento.directive';
 import { TelefoneDirective } from '../../../shared/mascaras/telefone.directive';
-import { UfDirective } from '../../../shared/mascaras/texto.directive';
+import { DigitosDirective } from '../../../shared/mascaras/texto.directive';
+import { UFS } from '../../../shared/mascaras/ufs';
 import {
-  cnpjValido,
-  cpfValido,
+  cnpjCompleto,
+  cpfCompleto,
   crmvValido,
   emailValido,
   hojeLocal,
   nomeValido,
   problemaNaDataDeNascimento,
   telefoneValido,
-  ufValida,
 } from '../../../shared/mascaras/validacoes';
 import {
   Especializacao,
@@ -50,7 +50,7 @@ import {
 @Component({
   selector: 'app-usuario-dialogo',
   standalone: true,
-  imports: [ReactiveFormsModule, TelefoneDirective, CpfDirective, CpfCnpjDirective, UfDirective],
+  imports: [ReactiveFormsModule, TelefoneDirective, CpfDirective, CpfCnpjDirective, DigitosDirective],
   templateUrl: './usuario-dialogo.component.html',
   styleUrl: './usuario-dialogo.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -97,6 +97,7 @@ export class UsuarioDialogoComponent implements AfterViewInit {
   protected readonly erro = signal<string | null>(null);
 
   protected readonly hoje = hojeLocal();
+  protected readonly ufs = UFS;
 
   constructor() {
     // O tamanho do documento diz o tipo: 11 dígitos é pessoa física, 14 é jurídica. Dá para trocar à mão depois.
@@ -143,14 +144,14 @@ export class UsuarioDialogoComponent implements AfterViewInit {
 
     const telefone = v.telefone;
     if (!telefoneValido(telefone)) {
-      return this.setErro('Informe um telefone válido com DDD, por exemplo (11) 98765-4321.', 'telefone');
+      return this.setErro('Informe um celular com DDD, por exemplo (11) 98765-4321.', 'telefone');
     }
     const problemaNaData = problemaNaDataDeNascimento(v.dataNascimento, this.hoje);
     if (problemaNaData) return this.setErro(problemaNaData, 'dataNascimento');
 
     if (v.role === 'ROLE_AUXILIAR' || v.role === 'ROLE_RECEPCIONISTA') {
       const cpf = v.cpf;
-      if (!cpfValido(cpf)) return this.setErro('CPF inválido. Confira os 11 dígitos.', 'cpf');
+      if (!cpfCompleto(cpf)) return this.setErro('CPF incompleto: informe os 11 dígitos.', 'cpf');
 
       this.setErro(null);
       const dados = { nome, email, senha, cpf, dataNascimento: v.dataNascimento, telefone };
@@ -164,17 +165,17 @@ export class UsuarioDialogoComponent implements AfterViewInit {
 
     // ROLE_VETERINARIO
     const cpfCnpj = v.cpfCnpj;
-    if (v.tipoPessoa === 'PF' && !cpfValido(cpfCnpj)) {
-      return this.setErro('CPF inválido. Pessoa física precisa de um CPF com 11 dígitos.', 'cpfCnpj');
+    if (v.tipoPessoa === 'PF' && !cpfCompleto(cpfCnpj)) {
+      return this.setErro('CPF incompleto: pessoa física precisa dos 11 dígitos do CPF.', 'cpfCnpj');
     }
-    if (v.tipoPessoa === 'PJ' && !cnpjValido(cpfCnpj)) {
-      return this.setErro('CNPJ inválido. Pessoa jurídica precisa de um CNPJ com 14 dígitos.', 'cpfCnpj');
+    if (v.tipoPessoa === 'PJ' && !cnpjCompleto(cpfCnpj)) {
+      return this.setErro('CNPJ incompleto: pessoa jurídica precisa dos 14 dígitos do CNPJ.', 'cpfCnpj');
     }
     const crmv = v.crmv.trim();
     if (!crmv) return this.setErro('Informe o CRMV.', 'crmv');
-    if (!crmvValido(crmv)) return this.setErro('O CRMV só pode ter letras, números, ponto, hífen ou barra (até 20).', 'crmv');
+    if (!crmvValido(crmv)) return this.setErro('O CRMV tem de 1 a 5 dígitos, só números.', 'crmv');
     const crmvUf = v.crmvUf.trim().toUpperCase();
-    if (!ufValida(crmvUf)) return this.setErro('Informe a sigla de um estado, como SP.', 'crmvUf');
+    if (!crmvUf) return this.setErro('Selecione a UF do CRMV.', 'crmvUf');
 
     this.setErro(null);
     this.salvar.emit({

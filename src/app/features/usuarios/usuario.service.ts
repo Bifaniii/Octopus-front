@@ -1,6 +1,7 @@
 import { HttpClient, HttpErrorResponse, HttpParams } from '@angular/common/http';
 import { Injectable, inject, signal } from '@angular/core';
 import { Observable, finalize, map, tap } from 'rxjs';
+import { mensagemDosCampos } from '../../shared/mascaras/mensagens-api';
 import { environment } from '../../../environments/environment';
 import {
   AdminResponse,
@@ -124,9 +125,8 @@ export class UsuarioService {
       case 403:
         return 'Apenas administradores podem gerenciar usuários.';
       case 400: {
-        const campos = corpo?.campos ? Object.entries(corpo.campos) : [];
-        if (campos.length) {
-          return campos.map(([campo, msg]) => `${campo}: ${msg}`).join(' · ');
+        if (corpo?.campos && Object.keys(corpo.campos).length) {
+          return mensagemDosCampos(corpo.campos);
         }
         return corpo?.mensagem ?? 'Dados inválidos.';
       }

@@ -77,7 +77,7 @@ export class TutorFormularioComponent implements OnInit {
     const problemaNaData = problemaNaDataDeNascimento(v.dataNascimento, this.hoje);
     if (problemaNaData) return this.setErro(problemaNaData, 'dataNascimento');
     if (!telefoneValido(telefone)) {
-      return this.setErro('Informe um telefone válido com DDD, por exemplo (11) 98765-4321.', 'telefone');
+      return this.setErro('Informe um celular com DDD, por exemplo (11) 98765-4321.', 'telefone');
     }
 
     this.erro.set(null);

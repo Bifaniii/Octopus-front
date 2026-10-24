@@ -78,12 +78,17 @@
       <div class="linha">
         <label class="campo">
           <span class="campo__rotulo">CRMV</span>
-          <input type="text" formControlName="crmv" placeholder="Ex.: 12345" maxlength="20" autocomplete="off" />
+          <input type="text" appDigitos="5" formControlName="crmv" inputmode="numeric" placeholder="Ex.: 12345" autocomplete="off" />
         </label>
 
         <label class="campo campo--numero">
           <span class="campo__rotulo">UF do CRMV</span>
-          <input type="text" appUf formControlName="crmvUf" placeholder="SP" autocomplete="off" />
+          <select formControlName="crmvUf">
+            <option value="">UF</option>
+            @for (uf of ufs; track uf.sigla) {
+              <option [value]="uf.sigla" [title]="uf.nome">{{ uf.sigla }}</option>
+            }
+          </select>
         </label>
       </div>
 

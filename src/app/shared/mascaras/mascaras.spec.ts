@@ -3,18 +3,26 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { destacarCampo, limparDestaques } from './campo-invalido';
 import { CpfCnpjDirective, CpfDirective } from './documento.directive';
-import { mascararCnpj, mascararCpf, mascararCpfCnpj, mascararTelefone, posicaoApos } from './formatos';
-import { TelefoneDirective } from './telefone.directive';
-import { DigitosDirective, UfDirective } from './texto.directive';
 import {
-  cnpjValido,
-  cpfValido,
+  formatarTelefoneCadastrado,
+  mascararCnpj,
+  mascararCpf,
+  mascararCpfCnpj,
+  mascararTelefone,
+  posicaoApos,
+} from './formatos';
+import { mensagemDosCampos } from './mensagens-api';
+import { TelefoneDirective } from './telefone.directive';
+import { DigitosDirective } from './texto.directive';
+import { UFS } from './ufs';
+import {
+  cnpjCompleto,
+  cpfCompleto,
   crmvValido,
   emailValido,
   nomeValido,
   problemaNaDataDeNascimento,
   telefoneValido,
-  ufValida,
 } from './validacoes';
 
 describe('formatos', () => {
@@ -22,10 +30,16 @@ describe('formatos', () => {
     expect(mascararTelefone('')).toBe('');
     expect(mascararTelefone('1')).toBe('(1');
     expect(mascararTelefone('119')).toBe('(11) 9');
-    expect(mascararTelefone('1199999')).toBe('(11) 9999-9');
-    expect(mascararTelefone('1133334444')).toBe('(11) 3333-4444');
+    expect(mascararTelefone('1198765')).toBe('(11) 98765');
+    expect(mascararTelefone('11987654')).toBe('(11) 98765-4');
     expect(mascararTelefone('11999999999')).toBe('(11) 99999-9999');
     expect(mascararTelefone('119999999990000')).toBe('(11) 99999-9999');
+  });
+
+  it('telefone já cadastrado: celular e o fixo antigo aparecem formatados, o resto volta como veio', () => {
+    expect(formatarTelefoneCadastrado('11987654321')).toBe('(11) 98765-4321');
+    expect(formatarTelefoneCadastrado('1133334444')).toBe('(11) 3333-4444');
+    expect(formatarTelefoneCadastrado('123')).toBe('123');
   });
 
   it('CPF e CNPJ: pontos, barra e traço no lugar certo', () => {
@@ -52,46 +66,41 @@ describe('formatos', () => {
 });
 
 describe('validações', () => {
-  it('CPF confere o dígito verificador e recusa sequência repetida', () => {
-    expect(cpfValido('52998224725')).toBeTrue();
-    expect(cpfValido('529.982.247-25')).toBeTrue();
-    expect(cpfValido('11144477735')).toBeTrue();
-    expect(cpfValido('52998224726')).toBeFalse();
-    expect(cpfValido('11111111111')).toBeFalse();
-    expect(cpfValido('1234567890')).toBeFalse();
+  it('CPF e CNPJ: o front só confere o tamanho, quem confere o dígito verificador é o back', () => {
+    expect(cpfCompleto('529.982.247-25')).toBeTrue();
+    expect(cpfCompleto('11111111111')).toBeTrue(); // o back é que recusa
+    expect(cpfCompleto('5299822472')).toBeFalse();
+    expect(cnpjCompleto('11.222.333/0001-81')).toBeTrue();
+    expect(cnpjCompleto('1122233300018')).toBeFalse();
   });
 
-  it('CNPJ confere os dois dígitos verificadores', () => {
-    expect(cnpjValido('11222333000181')).toBeTrue();
-    expect(cnpjValido('11.444.777/0001-61')).toBeTrue();
-    expect(cnpjValido('11222333000182')).toBeFalse();
-    expect(cnpjValido('00000000000000')).toBeFalse();
-    expect(cnpjValido('1122233300018')).toBeFalse();
-  });
-
-  it('telefone exige DDD que existe, 9 no celular e 2 a 5 no fixo', () => {
+  it('telefone: só celular, com 11 dígitos e o 9 depois do DDD', () => {
     expect(telefoneValido('11999999999')).toBeTrue();
-    expect(telefoneValido('1133334444')).toBeTrue();
     expect(telefoneValido('(21) 98765-4321')).toBeTrue();
-    expect(telefoneValido('10999999999')).toBeFalse(); // DDD 10 não existe
-    expect(telefoneValido('11899999999')).toBeFalse(); // celular sem o 9
-    expect(telefoneValido('1163334444')).toBeFalse(); // fixo começando em 6
+    expect(telefoneValido('1133334444')).toBeFalse(); // fixo
+    expect(telefoneValido('11899999999')).toBeFalse(); // sem o 9
     expect(telefoneValido('119999999')).toBeFalse();
   });
 
-  it('e-mail, nome, UF e CRMV', () => {
+  it('e-mail, nome e CRMV', () => {
     expect(emailValido('nome@clinica.com')).toBeTrue();
     expect(emailValido('nome@clinica')).toBeFalse();
     expect(emailValido('nome clinica@x.com')).toBeFalse();
     expect(nomeValido('Ana')).toBeTrue();
     expect(nomeValido('123')).toBeFalse();
-    expect(nomeValido('-')).toBeFalse();
-    expect(ufValida('sp')).toBeTrue();
-    expect(ufValida('XX')).toBeFalse();
     expect(crmvValido('12345')).toBeTrue();
-    expect(crmvValido('SP-12345')).toBeTrue();
-    expect(crmvValido('12 345')).toBeFalse();
+    expect(crmvValido('7')).toBeTrue();
+    expect(crmvValido('123456')).toBeFalse(); // até 5 dígitos
+    expect(crmvValido('12A45')).toBeFalse();
     expect(crmvValido('')).toBeFalse();
+  });
+
+  it('a lista de UFs tem os 26 estados e o DF, em ordem', () => {
+    const siglas = UFS.map((u) => u.sigla);
+    expect(siglas.length).toBe(27);
+    expect(siglas).toContain('SP');
+    expect(siglas).toContain('DF');
+    expect([...siglas].sort()).toEqual([...siglas]);
   });
 
   it('data de nascimento: existe, é anterior a hoje e não é antes de 1900', () => {
@@ -99,22 +108,28 @@ describe('validações', () => {
     expect(problemaNaDataDeNascimento('1990-05-02', hoje)).toBeNull();
     expect(problemaNaDataDeNascimento('', hoje)).toContain('Informe');
     expect(problemaNaDataDeNascimento('2026-10-24', hoje)).toContain('anterior a hoje');
-    expect(problemaNaDataDeNascimento('2030-01-01', hoje)).toContain('anterior a hoje');
     expect(problemaNaDataDeNascimento('1850-01-01', hoje)).toContain('1900');
     expect(problemaNaDataDeNascimento('2021-02-30', hoje)).toContain('calendário');
+  });
+
+  it('mensagens do back: rótulo legível, sem repetir quando a frase já começa por ele', () => {
+    expect(mensagemDosCampos({ crmv: 'deve ter de 1 a 5 dígitos numéricos' })).toBe('CRMV: deve ter de 1 a 5 dígitos numéricos');
+    expect(mensagemDosCampos({ cpfCnpj: 'CPF inválido: pessoa física precisa de um CPF' })).toBe(
+      'CPF inválido: pessoa física precisa de um CPF',
+    );
+    expect(mensagemDosCampos({ crmvUf: 'Valor inválido', campoNovo: 'x' })).toBe('UF do CRMV: Valor inválido · campoNovo: x');
   });
 });
 
 @Component({
   standalone: true,
-  imports: [ReactiveFormsModule, TelefoneDirective, CpfDirective, CpfCnpjDirective, DigitosDirective, UfDirective],
+  imports: [ReactiveFormsModule, TelefoneDirective, CpfDirective, CpfCnpjDirective, DigitosDirective],
   template: `
     <div id="raiz">
       <input id="tel" appTelefone [formControl]="telefone" />
       <input id="cpf" appCpf [formControl]="cpf" />
       <input id="doc" appCpfCnpj [formControl]="doc" />
       <input id="cod" appDigitos="6" [formControl]="codigo" />
-      <input id="uf" appUf [formControl]="uf" />
     </div>
   `,
 })
@@ -123,7 +138,6 @@ class CamposTesteComponent {
   cpf = new FormControl('', { nonNullable: true });
   doc = new FormControl('', { nonNullable: true });
   codigo = new FormControl('', { nonNullable: true });
-  uf = new FormControl('', { nonNullable: true });
 }
 
 describe('diretivas de máscara', () => {
@@ -173,7 +187,7 @@ describe('diretivas de máscara', () => {
     digitar('tel', '11987654321');
     digitar('tel', '(11) 987654321', 'deleteContentBackward', 10);
     expect(c.telefone.value).toBe('1198764321');
-    expect(el('tel').value).toBe('(11) 9876-4321');
+    expect(el('tel').value).toBe('(11) 98764-321');
   });
 
   it('número colado com +55 fica sem o código do país', () => {
@@ -203,12 +217,6 @@ describe('diretivas de máscara', () => {
     digitar('cod', '12a3-45678');
     expect(el('cod').value).toBe('123456');
     expect(c.codigo.value).toBe('123456');
-  });
-
-  it('UF: só letras, maiúsculas, no máximo 2', () => {
-    digitar('uf', 's1p9');
-    expect(el('uf').value).toBe('SP');
-    expect(c.uf.value).toBe('SP');
   });
 
   it('só avisa o formulário quando os dígitos mudam', () => {

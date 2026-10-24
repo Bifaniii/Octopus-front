@@ -1,4 +1,4 @@
-/** DDD + 9 dígitos. O fixo, com 8, também é aceito, mas nunca passa de 11. */
+/** Celular: DDD + 9 dígitos. Telefone fixo não é aceito por enquanto (o back também recusa). */
 export const TELEFONE_MAX_DIGITOS = 11;
 export const CPF_DIGITOS = 11;
 export const CNPJ_DIGITOS = 14;
@@ -7,17 +7,24 @@ export function somenteDigitos(valor: string): string {
   return valor.replace(/\D/g, '');
 }
 
-/**
- * Máscara progressiva: vai montando "(11) 99999-9999" conforme os dígitos chegam. Com 10 dígitos o hífen fica
- * depois do 4º (fixo, "(11) 9999-9999") e passa para depois do 5º quando entra o 11º.
- */
+/** Máscara de celular, montada conforme os dígitos chegam: "(11) 99999-9999". */
 export function mascararTelefone(digitos: string): string {
   const d = somenteDigitos(digitos).slice(0, TELEFONE_MAX_DIGITOS);
   if (d.length === 0) return '';
   if (d.length <= 2) return `(${d}`;
-  if (d.length <= 6) return `(${d.slice(0, 2)}) ${d.slice(2)}`;
-  if (d.length <= 10) return `(${d.slice(0, 2)}) ${d.slice(2, 6)}-${d.slice(6)}`;
+  if (d.length <= 7) return `(${d.slice(0, 2)}) ${d.slice(2)}`;
   return `(${d.slice(0, 2)}) ${d.slice(2, 7)}-${d.slice(7)}`;
+}
+
+/**
+ * Telefone já cadastrado, para mostrar na tela: o celular de 11 dígitos e também o fixo de 10 que ficou de antes da
+ * regra "só celular". Qualquer outro tamanho volta como veio.
+ */
+export function formatarTelefoneCadastrado(telefone: string): string {
+  const d = somenteDigitos(telefone);
+  if (d.length === 11) return mascararTelefone(d);
+  if (d.length === 10) return `(${d.slice(0, 2)}) ${d.slice(2, 6)}-${d.slice(6)}`;
+  return telefone;
 }
 
 /** "000.000.000-00", montado conforme os dígitos chegam. */
