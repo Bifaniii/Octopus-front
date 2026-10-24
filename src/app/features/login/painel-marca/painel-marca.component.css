@@ -13,8 +13,8 @@
   gap: 48px;
   padding: 48px 48px 44px;
   box-sizing: border-box;
-  background: #123a40;
-  color: #f1f6f6;
+  background: #1e40af;
+  color: #f8fafc;
 }
 
 .marca__nome {
@@ -53,12 +53,12 @@
 .regua__marca {
   width: 1px;
   height: 7px;
-  background: rgba(241, 246, 246, 0.4);
+  background: rgba(248, 250, 252, 0.4);
 }
 
 .regua__marca--turno {
   height: 14px;
-  background: #f1f6f6;
+  background: #f8fafc;
 }
 
 .regua__turnos {
@@ -70,13 +70,13 @@
   flex-direction: column;
   gap: 1px;
   font-size: 13.5px;
-  color: rgba(241, 246, 246, 0.78);
+  color: rgba(248, 250, 252, 0.78);
 }
 
 .regua__turno b {
   font-size: 14px;
   font-weight: 600;
-  color: #f1f6f6;
+  color: #f8fafc;
 }
 
 .regua__turno--manha,
@@ -91,7 +91,7 @@
 .regua__legenda {
   margin-top: 8px;
   font-size: 13px;
-  color: rgba(241, 246, 246, 0.62);
+  color: rgba(248, 250, 252, 0.62);
 }
 
 /* Empilhado: o painel ocupa a largura toda e encolhe. */

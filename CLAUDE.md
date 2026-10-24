@@ -76,7 +76,7 @@ Dentro de uma feature, o padrão (use `features/baias` como referência):
   back. Esconder botão é conforto, não segurança.
 - **Estilo:** só variáveis do `tema.css` (`--color-*`, `--radius-*`, `--shadow-*`), para o tema escuro funcionar
   sozinho. Cada tela usa o `<app-shell titulo subtitulo itemAtivo>` como moldura.
-- **Visual clínico (branch `feature/redesign-clinico`):** um acento só (petróleo, `--color-primary`), tom claro do
+- **Visual clínico (branch `feature/redesign-clinico`):** um acento só (azul, `--color-primary`), tom claro do
   acento em `--color-primary-soft` (aba ativa, item selecionado) e `--color-accent-text` para texto e ícone de acento
   (no tema escuro é mais claro que o fundo do botão). Estados têm token próprio e só indicam estado:
   `--color-success`, `--color-warning` (atrasada, ainda na janela) e `--color-danger` (perdida). Cantos de 4, 6 e
