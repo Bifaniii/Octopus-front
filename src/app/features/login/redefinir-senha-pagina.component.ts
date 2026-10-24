@@ -4,6 +4,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { PainelMarcaComponent } from './painel-marca/painel-marca.component';
 import { ModoDarkComponent } from '../../shared/modo-dark/modo-dark.component';
+import { DigitosDirective } from '../../shared/mascaras/texto.directive';
 import { AuthService } from '../../core/services/auth.service';
 
 /**
@@ -18,7 +19,7 @@ import { AuthService } from '../../core/services/auth.service';
 @Component({
   selector: 'app-redefinir-senha-pagina',
   standalone: true,
-  imports: [ReactiveFormsModule, RouterLink, PainelMarcaComponent, ModoDarkComponent],
+  imports: [ReactiveFormsModule, RouterLink, PainelMarcaComponent, ModoDarkComponent, DigitosDirective],
   templateUrl: './redefinir-senha-pagina.component.html',
   styleUrl: './redefinir-senha-pagina.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -29,8 +30,8 @@ export class RedefinirSenhaPaginaComponent {
   private readonly route = inject(ActivatedRoute);
 
   protected readonly form = this.fb.nonNullable.group({
-    token: ['', [Validators.required]],
-    novaSenha: ['', [Validators.required, Validators.minLength(6)]],
+    token: ['', [Validators.required, Validators.pattern(/^\d{6}$/)]],
+    novaSenha: ['', [Validators.required, Validators.minLength(6), Validators.maxLength(100)]],
     confirmarSenha: ['', [Validators.required]],
   });
 

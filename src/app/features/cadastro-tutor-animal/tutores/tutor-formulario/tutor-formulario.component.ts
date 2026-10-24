@@ -1,6 +1,7 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  ElementRef,
   EventEmitter,
   Input,
   OnInit,
@@ -9,7 +10,9 @@ import {
   signal,
 } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
-import { TelefoneDirective } from '../../../../shared/telefone/telefone.directive';
+import { destacarCampo, limparDestaques } from '../../../../shared/mascaras/campo-invalido';
+import { hojeLocal, nomeValido, problemaNaDataDeNascimento, telefoneValido } from '../../../../shared/mascaras/validacoes';
+import { TelefoneDirective } from '../../../../shared/mascaras/telefone.directive';
 import { DadosTutor, SOMENTE_DIGITOS } from '../tutor.model';
 
 /**
@@ -38,12 +41,9 @@ export class TutorFormularioComponent implements OnInit {
   @Output() cancelar = new EventEmitter<void>();
 
   private readonly fb = inject(FormBuilder);
+  private readonly raiz = inject<ElementRef<HTMLElement>>(ElementRef).nativeElement;
 
-  /** Hoje na hora local (aaaa-MM-dd). Sem toISOString(), que converte para UTC e pode virar o dia. */
-  protected readonly hoje = (() => {
-    const d = new Date();
-    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-  })();
+  protected readonly hoje = hojeLocal();
 
   protected readonly form = this.fb.nonNullable.group({
     nome: [''],
@@ -63,26 +63,29 @@ export class TutorFormularioComponent implements OnInit {
 
   protected enviar(): void {
     if (this.salvando) return;
+    limparDestaques(this.raiz);
     const v = this.form.getRawValue();
     const nome = v.nome.trim();
     const endereco = v.endereco.trim();
     const telefone = v.telefone.replace(SOMENTE_DIGITOS, '');
 
-    if (!nome) return this.setErro('Informe o nome do tutor.');
-    if (nome.length > 100) return this.setErro('O nome pode ter no máximo 100 caracteres.');
-    if (!endereco) return this.setErro('Informe o endereço.');
-    if (endereco.length > 255) return this.setErro('O endereço pode ter no máximo 255 caracteres.');
-    if (!v.dataNascimento) return this.setErro('Informe a data de nascimento.');
-    if (v.dataNascimento >= this.hoje) return this.setErro('A data de nascimento precisa ser anterior a hoje.');
-    if (telefone.length < 10 || telefone.length > 11) {
-      return this.setErro('Telefone deve ter DDD + 8 ou 9 dígitos.');
+    if (!nome) return this.setErro('Informe o nome do tutor.', 'nome');
+    if (!nomeValido(nome)) return this.setErro('O nome precisa ter letras.', 'nome');
+    if (nome.length > 100) return this.setErro('O nome pode ter no máximo 100 caracteres.', 'nome');
+    if (!endereco) return this.setErro('Informe o endereço.', 'endereco');
+    if (endereco.length > 255) return this.setErro('O endereço pode ter no máximo 255 caracteres.', 'endereco');
+    const problemaNaData = problemaNaDataDeNascimento(v.dataNascimento, this.hoje);
+    if (problemaNaData) return this.setErro(problemaNaData, 'dataNascimento');
+    if (!telefoneValido(telefone)) {
+      return this.setErro('Informe um telefone válido com DDD, por exemplo (11) 98765-4321.', 'telefone');
     }
 
     this.erro.set(null);
     this.avancar.emit({ nome, endereco, dataNascimento: v.dataNascimento, telefone });
   }
 
-  private setErro(mensagem: string): void {
+  private setErro(mensagem: string, campo: string): void {
     this.erro.set(mensagem);
+    destacarCampo(this.raiz, campo);
   }
 }

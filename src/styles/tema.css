@@ -119,3 +119,11 @@ h1, h2, h3 {
     animation: none !important;
   }
 }
+
+/* Campo com erro de validação: o formulário marca com aria-invalid e leva o foco até ele (ver shared/mascaras/campo-invalido). */
+input[aria-invalid='true'],
+select[aria-invalid='true'],
+textarea[aria-invalid='true'] {
+  border-color: var(--color-danger) !important;
+  box-shadow: 0 0 0 1px var(--color-danger);
+}

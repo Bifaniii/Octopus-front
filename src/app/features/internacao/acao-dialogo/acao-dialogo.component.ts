@@ -49,9 +49,14 @@ export class AcaoDialogoComponent implements OnInit, AfterViewInit {
   protected baiaId: number | null = null;
   protected termo = '';
   protected dataSaida = '';
+  /** RN-08: a saída física fica entre a alta (no mesmo minuto vale) e agora. */
+  protected maxSaida = '';
+  protected minSaida = '';
 
   ngOnInit(): void {
     this.dataSaida = agoraLocal();
+    this.maxSaida = this.dataSaida;
+    this.minSaida = this.internacao.dataAlta?.slice(0, 16) ?? '';
     // Animal admitido já numa baia de isolamento (RN-02 na entrada) pode ficar nela.
     const atual = this.baias.find((b) => b.id === this.internacao.baiaId);
     if (atual?.tipo === 'ISOLAMENTO') {
@@ -91,6 +96,10 @@ export class AcaoDialogoComponent implements OnInit, AfterViewInit {
       }
       case 'encerrar':
         if (!this.dataSaida) return this.erro.set('Informe a data e a hora da saída.');
+        if (this.dataSaida > agoraLocal()) return this.erro.set('A saída não pode ser no futuro.');
+        if (this.minSaida && this.dataSaida < this.minSaida) {
+          return this.erro.set('A saída não pode ser antes da alta.');
+        }
         // Valor do datetime-local, sem fuso ("2026-10-08T22:30"): é o LocalDateTime que o back espera.
         return this.emitir({ dataSaida: this.dataSaida });
       default:

@@ -1,26 +1,29 @@
-import { Directive, ElementRef, forwardRef, inject } from '@angular/core';
-import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
-import { TELEFONE_MAX_DIGITOS, mascararTelefone, posicaoApos, somenteDigitos } from './telefone';
+import { Directive, ElementRef, HostListener, inject } from '@angular/core';
+import { ControlValueAccessor } from '@angular/forms';
+import { posicaoApos, somenteDigitos } from './formatos';
 
 /**
- * Campo de telefone com máscara. Quem digita vê "(11) 99999-9999", mas o formulário guarda e envia só os
- * dígitos ("11999999999"). Uso: `<input appTelefone formControlName="telefone" />`.
+ * Base das máscaras numéricas. Quem digita vê o texto formatado ("(11) 99999-9999", "000.000.000-00"), mas o
+ * formulário guarda e envia só os dígitos. Cada máscara diz quantos dígitos aceita e como formatá-los.
  */
-@Directive({
-  selector: 'input[appTelefone]',
-  standalone: true,
-  providers: [{ provide: NG_VALUE_ACCESSOR, useExisting: forwardRef(() => TelefoneDirective), multi: true }],
-  host: { '(input)': 'aoDigitar($event)', '(blur)': 'aoSair()' },
-})
-export class TelefoneDirective implements ControlValueAccessor {
-  private readonly input = inject<ElementRef<HTMLInputElement>>(ElementRef).nativeElement;
+@Directive()
+export abstract class MascaraDirective implements ControlValueAccessor {
+  protected readonly input = inject<ElementRef<HTMLInputElement>>(ElementRef).nativeElement;
   private digitos = '';
   private aoMudar: (valor: string) => void = () => {};
   private aoTocar: () => void = () => {};
 
+  protected abstract maxDigitos(): number;
+  protected abstract formatar(digitos: string): string;
+
+  /** Ajuste do que foi colado antes de aplicar o limite (ex.: tirar o +55 do telefone). */
+  protected aoColar(digitos: string): string {
+    return digitos;
+  }
+
   writeValue(valor: string | null): void {
-    this.digitos = somenteDigitos(valor ?? '').slice(0, TELEFONE_MAX_DIGITOS);
-    this.input.value = mascararTelefone(this.digitos);
+    this.digitos = somenteDigitos(valor ?? '').slice(0, this.maxDigitos());
+    this.input.value = this.formatar(this.digitos);
   }
 
   registerOnChange(fn: (valor: string) => void): void {
@@ -35,10 +38,12 @@ export class TelefoneDirective implements ControlValueAccessor {
     this.input.disabled = desabilitado;
   }
 
+  @HostListener('blur')
   aoSair(): void {
     this.aoTocar();
   }
 
+  @HostListener('input', ['$event'])
   aoDigitar(evento: Event): void {
     const tipo = (evento as InputEvent).inputType ?? '';
     const texto = this.input.value;
@@ -57,14 +62,14 @@ export class TelefoneDirective implements ControlValueAccessor {
       }
     }
 
-    // Número colado com o código do país (+55 11 99999-9999): fica sem ele.
-    if (tipo === 'insertFromPaste' && digitos.length > TELEFONE_MAX_DIGITOS && digitos.startsWith('55')) {
-      digitos = digitos.slice(2);
-      antesDoCursor = Math.max(0, antesDoCursor - 2);
+    if (tipo === 'insertFromPaste') {
+      const ajustado = this.aoColar(digitos);
+      antesDoCursor = Math.max(0, antesDoCursor - (digitos.length - ajustado.length));
+      digitos = ajustado;
     }
 
-    digitos = digitos.slice(0, TELEFONE_MAX_DIGITOS);
-    const formatado = mascararTelefone(digitos);
+    digitos = digitos.slice(0, this.maxDigitos());
+    const formatado = this.formatar(digitos);
     this.input.value = formatado;
     if (document.activeElement === this.input) {
       const posicao = posicaoApos(formatado, Math.min(antesDoCursor, digitos.length));

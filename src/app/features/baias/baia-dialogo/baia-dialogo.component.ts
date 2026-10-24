@@ -12,6 +12,7 @@ import {
   signal,
 } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
+import { destacarCampo, limparDestaques } from '../../../shared/mascaras/campo-invalido';
 import { Baia, CAPACIDADE_MAXIMA, DadosBaia, NOME_POR_TIPO, TipoBaia } from '../baia.model';
 
 /**
@@ -113,6 +114,7 @@ export class BaiaDialogoComponent implements OnInit, AfterViewInit {
 
   protected enviar(): void {
     if (this.salvando) return;
+    limparDestaques(this.dialogo.nativeElement);
 
     const v = this.form.getRawValue();
     const nome = v.nome.trim();
@@ -120,30 +122,25 @@ export class BaiaDialogoComponent implements OnInit, AfterViewInit {
     const maxima = CAPACIDADE_MAXIMA[v.tipo];
 
     if (!nome) {
-      this.erro.set('Informe o nome da baia.');
-      return;
+      return this.falhar('Informe o nome da baia.', 'nome');
     }
     if (nome.length > 25) {
-      this.erro.set('O nome pode ter no máximo 25 caracteres.');
-      return;
+      return this.falhar('O nome pode ter no máximo 25 caracteres.', 'nome');
     }
     if (!Number.isInteger(capacidade) || capacidade < 1 || capacidade > maxima) {
-      this.erro.set(`A capacidade de uma baia ${NOME_POR_TIPO[v.tipo]} vai de 1 a ${maxima}.`);
-      return;
+      return this.falhar(`A capacidade de uma baia ${NOME_POR_TIPO[v.tipo]} vai de 1 a ${maxima}.`, 'capacidade');
     }
 
     const repetida = this.baias.some(
       (b) => b.nome.toLowerCase() === nome.toLowerCase() && b.id !== this.baia?.id,
     );
     if (repetida) {
-      this.erro.set(`Já existe uma baia com o nome "${nome}".`);
-      return;
+      return this.falhar(`Já existe uma baia com o nome "${nome}".`, 'nome');
     }
 
     const descricao = v.descricao.trim();
     if (descricao.length > 255) {
-      this.erro.set('A descrição pode ter no máximo 255 caracteres.');
-      return;
+      return this.falhar('A descrição pode ter no máximo 255 caracteres.', 'descricao');
     }
 
     this.erro.set(null);
@@ -157,5 +154,10 @@ export class BaiaDialogoComponent implements OnInit, AfterViewInit {
     } else {
       this.confirmandoDesativacao.set(true);
     }
+  }
+
+  private falhar(mensagem: string, campo: string): void {
+    this.erro.set(mensagem);
+    destacarCampo(this.dialogo.nativeElement, campo);
   }
 }

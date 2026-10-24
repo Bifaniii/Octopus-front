@@ -29,12 +29,12 @@
     <div class="linha">
       <label class="campo">
         <span class="campo__rotulo">E-mail</span>
-        <input type="email" formControlName="email" placeholder="nome@clinica.com" maxlength="100" />
+        <input type="email" formControlName="email" placeholder="nome@clinica.com" maxlength="150" autocomplete="off" />
       </label>
 
       <label class="campo">
         <span class="campo__rotulo">Senha</span>
-        <input type="password" formControlName="senha" placeholder="Mínimo 8 caracteres" />
+        <input type="password" formControlName="senha" placeholder="Mínimo 8 caracteres" maxlength="100" autocomplete="new-password" />
       </label>
     </div>
 
@@ -42,12 +42,12 @@
       <div class="linha">
         <label class="campo">
           <span class="campo__rotulo">Telefone</span>
-          <input type="text" formControlName="telefone" placeholder="(11) 90000-0000" maxlength="11" />
+          <input type="tel" appTelefone formControlName="telefone" inputmode="numeric" autocomplete="off" placeholder="(11) 90000-0000" />
         </label>
 
         <label class="campo">
           <span class="campo__rotulo">Data de nascimento</span>
-          <input type="date" formControlName="dataNascimento" />
+          <input type="date" formControlName="dataNascimento" [max]="hoje" min="1900-01-01" />
         </label>
       </div>
     }
@@ -55,7 +55,7 @@
     @if (role === 'ROLE_AUXILIAR' || role === 'ROLE_RECEPCIONISTA') {
       <label class="campo">
         <span class="campo__rotulo">CPF</span>
-        <input type="text" formControlName="cpf" placeholder="Somente números" maxlength="11" />
+        <input type="text" appCpf formControlName="cpf" inputmode="numeric" autocomplete="off" placeholder="000.000.000-00" />
       </label>
     }
 
@@ -63,7 +63,7 @@
       <div class="linha">
         <label class="campo">
           <span class="campo__rotulo">CPF ou CNPJ</span>
-          <input type="text" formControlName="cpfCnpj" placeholder="Somente números" maxlength="14" />
+          <input type="text" appCpfCnpj formControlName="cpfCnpj" inputmode="numeric" autocomplete="off" placeholder="CPF ou CNPJ" />
         </label>
 
         <label class="campo campo--numero">
@@ -78,12 +78,12 @@
       <div class="linha">
         <label class="campo">
           <span class="campo__rotulo">CRMV</span>
-          <input type="text" formControlName="crmv" placeholder="Ex.: 12345" maxlength="6" />
+          <input type="text" formControlName="crmv" placeholder="Ex.: 12345" maxlength="20" autocomplete="off" />
         </label>
 
         <label class="campo campo--numero">
           <span class="campo__rotulo">UF do CRMV</span>
-          <input type="text" formControlName="crmvUf" placeholder="SP" maxlength="2" (input)="form.get('crmvUf')?.setValue($any($event.target).value.toUpperCase(), {emitEvent: false})"/>
+          <input type="text" appUf formControlName="crmvUf" placeholder="SP" autocomplete="off" />
         </label>
       </div>
 

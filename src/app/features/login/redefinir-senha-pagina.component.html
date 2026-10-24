@@ -25,12 +25,14 @@
             <input
               id="token"
               type="text"
+              appDigitos="6"
               formControlName="token"
-              placeholder="Código recebido por e-mail"
+              inputmode="numeric"
+              placeholder="6 dígitos recebidos por e-mail"
               autocomplete="one-time-code"
             />
             @if (form.controls.token.invalid && form.controls.token.touched) {
-              <span class="login-form__error">Informe o código recebido por e-mail.</span>
+              <span class="login-form__error">Informe o código de 6 dígitos recebido por e-mail.</span>
             }
           </div>
 
@@ -40,6 +42,7 @@
               id="novaSenha"
               type="password"
               formControlName="novaSenha"
+              maxlength="100"
               placeholder="Mínimo 6 caracteres"
               autocomplete="new-password"
             />

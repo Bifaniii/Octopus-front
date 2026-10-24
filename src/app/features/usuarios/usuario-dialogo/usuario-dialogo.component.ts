@@ -10,7 +10,23 @@ import {
   inject,
   signal,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
+import { destacarCampo, limparDestaques } from '../../../shared/mascaras/campo-invalido';
+import { CpfCnpjDirective, CpfDirective } from '../../../shared/mascaras/documento.directive';
+import { TelefoneDirective } from '../../../shared/mascaras/telefone.directive';
+import { UfDirective } from '../../../shared/mascaras/texto.directive';
+import {
+  cnpjValido,
+  cpfValido,
+  crmvValido,
+  emailValido,
+  hojeLocal,
+  nomeValido,
+  problemaNaDataDeNascimento,
+  telefoneValido,
+  ufValida,
+} from '../../../shared/mascaras/validacoes';
 import {
   Especializacao,
   NOME_POR_ESPECIALIZACAO,
@@ -20,7 +36,6 @@ import {
   TipoPessoa,
 } from '../usuario.model';
 
-const SOMENTE_DIGITOS = /\D/g;
 
 /**
  * UsuarioDialogoComponent
@@ -35,7 +50,7 @@ const SOMENTE_DIGITOS = /\D/g;
 @Component({
   selector: 'app-usuario-dialogo',
   standalone: true,
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, TelefoneDirective, CpfDirective, CpfCnpjDirective, UfDirective],
   templateUrl: './usuario-dialogo.component.html',
   styleUrl: './usuario-dialogo.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -81,6 +96,16 @@ export class UsuarioDialogoComponent implements AfterViewInit {
 
   protected readonly erro = signal<string | null>(null);
 
+  protected readonly hoje = hojeLocal();
+
+  constructor() {
+    // O tamanho do documento diz o tipo: 11 dígitos é pessoa física, 14 é jurídica. Dá para trocar à mão depois.
+    this.form.controls.cpfCnpj.valueChanges.pipe(takeUntilDestroyed()).subscribe((digitos) => {
+      if (digitos.length === 11) this.form.controls.tipoPessoa.setValue('PF');
+      if (digitos.length === 14) this.form.controls.tipoPessoa.setValue('PJ');
+    });
+  }
+
   ngAfterViewInit(): void {
     this.dialogo.nativeElement.showModal();
   }
@@ -95,15 +120,20 @@ export class UsuarioDialogoComponent implements AfterViewInit {
 
   protected enviar(): void {
     if (this.salvando) return;
+    limparDestaques(this.dialogo.nativeElement);
 
     const v = this.form.getRawValue();
     const nome = v.nome.trim();
     const email = v.email.trim();
     const senha = v.senha;
 
-    if (!nome) return this.setErro('Informe o nome.');
-    if (!email) return this.setErro('Informe o e-mail.');
-    if (!senha || senha.length < 8) return this.setErro('A senha deve ter pelo menos 8 caracteres.');
+    if (!nome) return this.setErro('Informe o nome.', 'nome');
+    if (!nomeValido(nome)) return this.setErro('O nome precisa ter letras.', 'nome');
+    if (nome.length > 100) return this.setErro('O nome pode ter no máximo 100 caracteres.', 'nome');
+    if (!email) return this.setErro('Informe o e-mail.', 'email');
+    if (!emailValido(email)) return this.setErro('Informe um e-mail válido, como nome@clinica.com.', 'email');
+    if (!senha || senha.length < 8) return this.setErro('A senha deve ter pelo menos 8 caracteres.', 'senha');
+    if (senha.length > 100) return this.setErro('A senha pode ter no máximo 100 caracteres.', 'senha');
 
     if (v.role === 'ROLE_ADMIN') {
       this.setErro(null);
@@ -111,13 +141,16 @@ export class UsuarioDialogoComponent implements AfterViewInit {
       return;
     }
 
-    const telefone = v.telefone.trim();
-    if (!telefone) return this.setErro('Informe o telefone.');
-    if (!v.dataNascimento) return this.setErro('Informe a data de nascimento.');
+    const telefone = v.telefone;
+    if (!telefoneValido(telefone)) {
+      return this.setErro('Informe um telefone válido com DDD, por exemplo (11) 98765-4321.', 'telefone');
+    }
+    const problemaNaData = problemaNaDataDeNascimento(v.dataNascimento, this.hoje);
+    if (problemaNaData) return this.setErro(problemaNaData, 'dataNascimento');
 
     if (v.role === 'ROLE_AUXILIAR' || v.role === 'ROLE_RECEPCIONISTA') {
-      const cpf = v.cpf.replace(SOMENTE_DIGITOS, '');
-      if (cpf.length !== 11) return this.setErro('CPF deve ter 11 dígitos.');
+      const cpf = v.cpf;
+      if (!cpfValido(cpf)) return this.setErro('CPF inválido. Confira os 11 dígitos.', 'cpf');
 
       this.setErro(null);
       const dados = { nome, email, senha, cpf, dataNascimento: v.dataNascimento, telefone };
@@ -130,14 +163,18 @@ export class UsuarioDialogoComponent implements AfterViewInit {
     }
 
     // ROLE_VETERINARIO
-    const cpfCnpj = v.cpfCnpj.replace(SOMENTE_DIGITOS, '');
-    if (cpfCnpj.length !== 11 && cpfCnpj.length !== 14) {
-      return this.setErro('CPF/CNPJ deve ter 11 dígitos (CPF) ou 14 dígitos (CNPJ).');
+    const cpfCnpj = v.cpfCnpj;
+    if (v.tipoPessoa === 'PF' && !cpfValido(cpfCnpj)) {
+      return this.setErro('CPF inválido. Pessoa física precisa de um CPF com 11 dígitos.', 'cpfCnpj');
+    }
+    if (v.tipoPessoa === 'PJ' && !cnpjValido(cpfCnpj)) {
+      return this.setErro('CNPJ inválido. Pessoa jurídica precisa de um CNPJ com 14 dígitos.', 'cpfCnpj');
     }
     const crmv = v.crmv.trim();
-    if (!crmv) return this.setErro('Informe o CRMV.');
+    if (!crmv) return this.setErro('Informe o CRMV.', 'crmv');
+    if (!crmvValido(crmv)) return this.setErro('O CRMV só pode ter letras, números, ponto, hífen ou barra (até 20).', 'crmv');
     const crmvUf = v.crmvUf.trim().toUpperCase();
-    if (!/^[A-Z]{2}$/.test(crmvUf)) return this.setErro('UF do CRMV deve ter 2 letras (ex.: SP).');
+    if (!ufValida(crmvUf)) return this.setErro('Informe a sigla de um estado, como SP.', 'crmvUf');
 
     this.setErro(null);
     this.salvar.emit({
@@ -157,7 +194,8 @@ export class UsuarioDialogoComponent implements AfterViewInit {
     });
   }
 
-  private setErro(mensagem: string | null): void {
+  private setErro(mensagem: string | null, campo?: string): void {
     this.erro.set(mensagem);
+    if (mensagem && campo) destacarCampo(this.dialogo.nativeElement, campo);
   }
 }

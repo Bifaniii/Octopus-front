@@ -37,7 +37,7 @@
             @if (usuario.role === 'ROLE_VETERINARIO') {
               <label class="campo">
                 <span class="campo__rotulo">CPF ou CNPJ</span>
-                <input type="text" formControlName="cpfCnpj" inputmode="numeric" maxlength="18" />
+                <input type="text" appCpfCnpj formControlName="cpfCnpj" inputmode="numeric" autocomplete="off" />
               </label>
               <label class="campo">
                 <span class="campo__rotulo">Tipo</span>
@@ -49,7 +49,7 @@
             } @else {
               <label class="campo">
                 <span class="campo__rotulo">CPF</span>
-                <input type="text" formControlName="cpf" inputmode="numeric" maxlength="14" />
+                <input type="text" appCpf formControlName="cpf" inputmode="numeric" autocomplete="off" />
               </label>
             }
           </div>
@@ -57,11 +57,11 @@
           <div class="linha">
             <label class="campo">
               <span class="campo__rotulo">Data de nascimento</span>
-              <input type="date" formControlName="dataNascimento" />
+              <input type="date" formControlName="dataNascimento" [max]="hoje" min="1900-01-01" />
             </label>
             <label class="campo">
               <span class="campo__rotulo">Telefone</span>
-              <input type="tel" formControlName="telefone" maxlength="20" />
+              <input type="tel" appTelefone formControlName="telefone" inputmode="numeric" autocomplete="off" />
             </label>
           </div>
 
@@ -73,7 +73,7 @@
               </label>
               <label class="campo campo--curto">
                 <span class="campo__rotulo">UF</span>
-                <input type="text" formControlName="crmvUf" maxlength="2" />
+                <input type="text" appUf formControlName="crmvUf" autocomplete="off" />
               </label>
               <label class="campo">
                 <span class="campo__rotulo">Especialização</span>

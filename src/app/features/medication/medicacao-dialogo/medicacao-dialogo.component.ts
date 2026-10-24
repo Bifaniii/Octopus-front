@@ -11,6 +11,8 @@ import {
   signal,
 } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
+import { destacarCampo, limparDestaques } from '../../../shared/mascaras/campo-invalido';
+import { DigitosDirective } from '../../../shared/mascaras/texto.directive';
 import { DadosMedicacao, Medicacao, NOME_POR_ESQUEMA, TipoEsquema } from '../medicacao.model';
 
 /**
@@ -24,7 +26,7 @@ import { DadosMedicacao, Medicacao, NOME_POR_ESQUEMA, TipoEsquema } from '../med
 @Component({
   selector: 'app-medicacao-dialogo',
   standalone: true,
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, DigitosDirective],
   templateUrl: './medicacao-dialogo.component.html',
   styleUrl: './medicacao-dialogo.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -99,6 +101,7 @@ export class MedicacaoDialogoComponent implements AfterViewInit {
 
   protected enviar(): void {
     if (this.salvando) return;
+    limparDestaques(this.dialogo.nativeElement);
 
     const v = this.form.getRawValue();
     const texto = {
@@ -120,38 +123,33 @@ export class MedicacaoDialogoComponent implements AfterViewInit {
       ['fabricante', 'o fabricante', 255],
     ];
     for (const [campo, nome, max] of limites) {
-      if (!texto[campo]) {
-        this.erro.set(`Informe ${nome}.`);
-        return;
-      }
-      if (texto[campo].length > max) {
-        this.erro.set(`Campo "${nome}" pode ter no máximo ${max} caracteres.`);
-        return;
-      }
+      if (!texto[campo]) return this.falhar(`Informe ${nome}.`, campo);
+      if (texto[campo].length > max) return this.falhar(`Campo "${nome}" pode ter no máximo ${max} caracteres.`, campo);
     }
 
     if (!/^\d{11}$/.test(texto.numeroRegistroAnvisa)) {
-      this.erro.set('O registro ANVISA deve ter exatamente 11 dígitos.');
-      return;
+      return this.falhar('O registro ANVISA deve ter exatamente 11 dígitos.', 'numeroRegistroAnvisa');
     }
     if (this.medicacoes.some((m) => m.numeroRegistroAnvisa === texto.numeroRegistroAnvisa)) {
-      this.erro.set(`Já existe um medicamento com o registro ANVISA ${texto.numeroRegistroAnvisa}.`);
-      return;
+      return this.falhar(`Já existe um medicamento com o registro ANVISA ${texto.numeroRegistroAnvisa}.`, 'numeroRegistroAnvisa');
     }
 
     if (!v.dataVencimento) {
-      this.erro.set('Informe a data de vencimento.');
-      return;
+      return this.falhar('Informe a data de vencimento.', 'dataVencimento');
     }
     if (v.dataVencimento < this.amanha) {
-      this.erro.set('A data de vencimento deve ser futura.');
-      return;
+      return this.falhar('A data de vencimento deve ser futura.', 'dataVencimento');
+    }
+    if (v.dataVencimento > '2100-12-31') {
+      return this.falhar('A data de vencimento parece errada: informe o ano com 4 dígitos.', 'dataVencimento');
     }
 
     const quantidade = Number(v.quantidade);
     if (!Number.isInteger(quantidade) || quantidade < 0) {
-      this.erro.set('O estoque deve ser um número inteiro, zero ou mais.');
-      return;
+      return this.falhar('O estoque deve ser um número inteiro, zero ou mais.', 'quantidade');
+    }
+    if (quantidade > 1_000_000) {
+      return this.falhar('O estoque não pode passar de 1.000.000 de doses.', 'quantidade');
     }
 
     this.erro.set(null);
@@ -169,5 +167,10 @@ export class MedicacaoDialogoComponent implements AfterViewInit {
     const mes = String(data.getMonth() + 1).padStart(2, '0');
     const dia = String(data.getDate()).padStart(2, '0');
     return `${data.getFullYear()}-${mes}-${dia}`;
+  }
+
+  private falhar(mensagem: string, campo: string): void {
+    this.erro.set(mensagem);
+    destacarCampo(this.dialogo.nativeElement, campo);
   }
 }

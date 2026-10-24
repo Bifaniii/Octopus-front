@@ -1,4 +1,5 @@
 import {
+  ElementRef,
   ChangeDetectionStrategy,
   Component,
   EventEmitter,
@@ -9,6 +10,8 @@ import {
   signal,
 } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
+import { destacarCampo, limparDestaques } from '../../../../shared/mascaras/campo-invalido';
+import { nomeValido } from '../../../../shared/mascaras/validacoes';
 import { Animal, NovoAnimalEvento, OpcaoMae } from '../animal.model';
 
 /**
@@ -44,6 +47,7 @@ export class AnimalFormularioComponent implements OnInit {
   @Output() voltar = new EventEmitter<void>();
 
   private readonly fb = inject(FormBuilder);
+  private readonly raiz = inject<ElementRef<HTMLElement>>(ElementRef).nativeElement;
 
   /** Hoje na hora local (aaaa-MM-dd). Sem toISOString(), que converte para UTC e pode virar o dia. */
   protected readonly hoje = (() => {
@@ -81,17 +85,22 @@ export class AnimalFormularioComponent implements OnInit {
 
   protected enviar(): void {
     if (this.salvando) return;
+    limparDestaques(this.raiz);
 
     const v = this.form.getRawValue();
     const nome = v.nome.trim();
     const especie = v.especie.trim();
 
-    if (!nome) return this.setErro('Informe o nome do animal.');
-    if (nome.length > 100) return this.setErro('O nome pode ter no máximo 100 caracteres.');
-    if (!especie) return this.setErro('Informe a espécie (ex.: Cão, Gato).');
-    if (especie.length > 250) return this.setErro('A espécie pode ter no máximo 250 caracteres.');
+    if (!nome) return this.setErro('Informe o nome do animal.', 'nome');
+    if (nome.length > 100) return this.setErro('O nome pode ter no máximo 100 caracteres.', 'nome');
+    if (!especie) return this.setErro('Informe a espécie (ex.: Cão, Gato).', 'especie');
+    if (!nomeValido(especie)) return this.setErro('A espécie precisa ter letras (ex.: Cão, Gato).', 'especie');
+    if (especie.length > 250) return this.setErro('A espécie pode ter no máximo 250 caracteres.', 'especie');
     if (v.dataAntirrabica && v.dataAntirrabica > this.hoje) {
-      return this.setErro('A data da última antirrábica não pode ser futura.');
+      return this.setErro('A data da última antirrábica não pode ser futura.', 'dataAntirrabica');
+    }
+    if (v.dataAntirrabica && v.dataAntirrabica < '1990-01-01') {
+      return this.setErro('A data da última antirrábica parece errada: informe o ano com 4 dígitos.', 'dataAntirrabica');
     }
 
     this.erro.set(null);
@@ -101,7 +110,8 @@ export class AnimalFormularioComponent implements OnInit {
     });
   }
 
-  private setErro(mensagem: string): void {
+  private setErro(mensagem: string, campo: string): void {
     this.erro.set(mensagem);
+    destacarCampo(this.raiz, campo);
   }
 }

@@ -9,7 +9,24 @@ import {
   ViewChild,
   inject,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
+import { destacarCampo, limparDestaques } from '../../../shared/mascaras/campo-invalido';
+import { CpfCnpjDirective, CpfDirective } from '../../../shared/mascaras/documento.directive';
+import { mascararCpfCnpj, mascararTelefone } from '../../../shared/mascaras/formatos';
+import { TelefoneDirective } from '../../../shared/mascaras/telefone.directive';
+import { UfDirective } from '../../../shared/mascaras/texto.directive';
+import {
+  cnpjValido,
+  cpfValido,
+  crmvValido,
+  emailValido,
+  hojeLocal,
+  nomeValido,
+  problemaNaDataDeNascimento,
+  telefoneValido,
+  ufValida,
+} from '../../../shared/mascaras/validacoes';
 import {
   DetalheUsuario,
   EdicaoUsuarioEvento,
@@ -20,7 +37,6 @@ import {
   UsuarioListagem,
 } from '../usuario.model';
 
-const SOMENTE_DIGITOS = /\D/g;
 
 /** Uma linha da ficha: rótulo e valor já formatado. */
 interface Campo {
@@ -41,7 +57,7 @@ interface Campo {
 @Component({
   selector: 'app-usuario-detalhe',
   standalone: true,
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, TelefoneDirective, CpfDirective, CpfCnpjDirective, UfDirective],
   templateUrl: './usuario-detalhe.component.html',
   styleUrl: './usuario-detalhe.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -82,6 +98,16 @@ export class UsuarioDetalheComponent implements AfterViewInit {
 
   protected erroForm: string | null = null;
 
+  protected readonly hoje = hojeLocal();
+
+  constructor() {
+    // O tamanho do documento diz o tipo: 11 dígitos é pessoa física, 14 é jurídica.
+    this.form.controls.cpfCnpj.valueChanges.pipe(takeUntilDestroyed()).subscribe((digitos) => {
+      if (digitos.length === 11) this.form.controls.tipoPessoa.setValue('PF');
+      if (digitos.length === 14) this.form.controls.tipoPessoa.setValue('PJ');
+    });
+  }
+
   @ViewChild('dialogo') private dialogo!: ElementRef<HTMLDialogElement>;
 
   /** Segundo clique em "Desativar" confirma. */
@@ -116,35 +142,45 @@ export class UsuarioDetalheComponent implements AfterViewInit {
 
   protected enviarEdicao(): void {
     if (this.salvando) return;
+    limparDestaques(this.dialogo.nativeElement);
     const v = this.form.getRawValue();
     const nome = v.nome.trim();
     const email = v.email.trim();
-    if (!nome) return this.falhar('Informe o nome.');
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return this.falhar('Informe um e-mail válido.');
+    if (!nome) return this.falhar('Informe o nome.', 'nome');
+    if (!nomeValido(nome)) return this.falhar('O nome precisa ter letras.', 'nome');
+    if (nome.length > 100) return this.falhar('O nome pode ter no máximo 100 caracteres.', 'nome');
+    if (!emailValido(email)) return this.falhar('Informe um e-mail válido, como nome@clinica.com.', 'email');
 
     const role = this.usuario.role;
     if (role === 'ROLE_ADMIN') {
       return this.emitir({ role, dados: { nome, email } });
     }
 
-    const telefone = v.telefone.trim();
-    if (!telefone) return this.falhar('Informe o telefone.');
-    if (!v.dataNascimento) return this.falhar('Informe a data de nascimento.');
+    const telefone = v.telefone;
+    if (!telefoneValido(telefone)) {
+      return this.falhar('Informe um telefone válido com DDD, por exemplo (11) 98765-4321.', 'telefone');
+    }
+    const problemaNaData = problemaNaDataDeNascimento(v.dataNascimento, this.hoje);
+    if (problemaNaData) return this.falhar(problemaNaData, 'dataNascimento');
 
     if (role === 'ROLE_AUXILIAR' || role === 'ROLE_RECEPCIONISTA') {
-      const cpf = v.cpf.replace(SOMENTE_DIGITOS, '');
-      if (cpf.length !== 11) return this.falhar('CPF deve ter 11 dígitos.');
+      const cpf = v.cpf;
+      if (!cpfValido(cpf)) return this.falhar('CPF inválido. Confira os 11 dígitos.', 'cpf');
       return this.emitir({ role, dados: { nome, email, cpf, dataNascimento: v.dataNascimento, telefone } });
     }
 
-    const cpfCnpj = v.cpfCnpj.replace(SOMENTE_DIGITOS, '');
-    if (cpfCnpj.length !== 11 && cpfCnpj.length !== 14) {
-      return this.falhar('CPF/CNPJ deve ter 11 dígitos (CPF) ou 14 dígitos (CNPJ).');
+    const cpfCnpj = v.cpfCnpj;
+    if (v.tipoPessoa === 'PF' && !cpfValido(cpfCnpj)) {
+      return this.falhar('CPF inválido. Pessoa física precisa de um CPF com 11 dígitos.', 'cpfCnpj');
+    }
+    if (v.tipoPessoa === 'PJ' && !cnpjValido(cpfCnpj)) {
+      return this.falhar('CNPJ inválido. Pessoa jurídica precisa de um CNPJ com 14 dígitos.', 'cpfCnpj');
     }
     const crmv = v.crmv.trim();
-    if (!crmv) return this.falhar('Informe o CRMV.');
+    if (!crmv) return this.falhar('Informe o CRMV.', 'crmv');
+    if (!crmvValido(crmv)) return this.falhar('O CRMV só pode ter letras, números, ponto, hífen ou barra (até 20).', 'crmv');
     const crmvUf = v.crmvUf.trim().toUpperCase();
-    if (!/^[A-Z]{2}$/.test(crmvUf)) return this.falhar('UF do CRMV deve ter 2 letras (ex.: SP).');
+    if (!ufValida(crmvUf)) return this.falhar('Informe a sigla de um estado, como SP.', 'crmvUf');
     this.emitir({
       role: 'ROLE_VETERINARIO',
       dados: {
@@ -166,8 +202,9 @@ export class UsuarioDetalheComponent implements AfterViewInit {
     this.salvar.emit(evento);
   }
 
-  private falhar(mensagem: string): void {
+  private falhar(mensagem: string, campo: string): void {
     this.erroForm = mensagem;
+    destacarCampo(this.dialogo.nativeElement, campo);
   }
 
   protected get papel(): string {
@@ -229,15 +266,11 @@ export class UsuarioDetalheComponent implements AfterViewInit {
 
   private documento(numero: string): string {
     const d = numero.replace(/\D/g, '');
-    if (d.length === 11) return `${d.slice(0, 3)}.${d.slice(3, 6)}.${d.slice(6, 9)}-${d.slice(9)}`;
-    if (d.length === 14) return `${d.slice(0, 2)}.${d.slice(2, 5)}.${d.slice(5, 8)}/${d.slice(8, 12)}-${d.slice(12)}`;
-    return numero;
+    return d.length === 11 || d.length === 14 ? mascararCpfCnpj(d) : numero;
   }
 
   private telefone(numero: string): string {
     const d = numero.replace(/\D/g, '');
-    if (d.length === 11) return `(${d.slice(0, 2)}) ${d.slice(2, 7)}-${d.slice(7)}`;
-    if (d.length === 10) return `(${d.slice(0, 2)}) ${d.slice(2, 6)}-${d.slice(6)}`;
-    return numero;
+    return d.length === 10 || d.length === 11 ? mascararTelefone(d) : numero;
   }
 }

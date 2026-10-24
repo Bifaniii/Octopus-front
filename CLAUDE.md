@@ -72,9 +72,14 @@ Dentro de uma feature, o padrão (use `features/baias` como referência):
 - **Diálogos:** `<dialog>` nativo aberto com `showModal()` no `ngAfterViewInit`; fechar chama `close()`, que
   dispara o evento `close` e emite `fechar`. Não fechar ao clicar fora (decisão já tomada no diálogo de
   usuários).
-- **Telefone:** o campo usa a diretiva `appTelefone` (`shared/telefone`): a pessoa vê "(11) 99999-9999" enquanto digita,
-  mas o formulário guarda e envia só os dígitos ("11999999999"), no máximo 11. Reuse a diretiva em qualquer campo de
-  telefone novo, em vez de refazer a máscara.
+- **Máscaras e validação de formulário:** `shared/mascaras`. Os campos de telefone, CPF, CNPJ e "CPF ou CNPJ" usam as
+  diretivas `appTelefone`, `appCpf`, `appCnpj` e `appCpfCnpj`: a pessoa vê "(11) 99999-9999" e "000.000.000-00" enquanto
+  digita, mas o formulário guarda e envia só os dígitos. `appDigitos="n"` deixa só números (registro ANVISA, código de
+  redefinição de senha) e `appUf` só duas letras maiúsculas. Reuse em todo campo novo desses tipos, em vez de refazer a
+  máscara. As regras estão em `validacoes.ts` (dígito verificador de CPF e CNPJ, DDD que existe, celular com 9, e-mail,
+  UF, CRMV, data de nascimento entre 1900 e ontem). O front é mais rígido que o back de propósito: o back só confere o
+  formato, então CPF de teste precisa ter dígito verificador válido. Ao falhar, o formulário chama `destacarCampo`, que
+  marca o campo (`aria-invalid`, borda vermelha no `tema.css`) e leva o foco até ele.
 - **Perfis:** `auth.temRole([...])` para mostrar ou esconder ações, com os mesmos papéis do `@PreAuthorize` do
   back. Esconder botão é conforto, não segurança.
 - **Estilo:** só variáveis do `tema.css` (`--color-*`, `--radius-*`, `--shadow-*`), para o tema escuro funcionar

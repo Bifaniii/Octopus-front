@@ -39,7 +39,7 @@
       @case ('encerrar') {
         <label class="campo">
           <span class="campo__rotulo">Saída física do animal</span>
-          <input type="datetime-local" name="dataSaida" [(ngModel)]="dataSaida" />
+          <input type="datetime-local" name="dataSaida" [(ngModel)]="dataSaida" [min]="minSaida" [max]="maxSaida" />
           <span class="campo__ajuda">Com a saída registrada a internação é encerrada e a baia é liberada (RN-08).</span>
         </label>
       }
