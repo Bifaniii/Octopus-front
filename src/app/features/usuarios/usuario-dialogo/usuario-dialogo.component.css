@@ -29,7 +29,7 @@
 
 .linha { display: flex; gap: 0.75rem; }
 .linha .campo { flex: 1; }
-.linha .campo--numero { flex: 0 0 110px; }
+.linha .campo--numero { flex: 0 0 150px; }
 
 .campo { display: flex; flex-direction: column; gap: 0.35rem; margin: 0; padding: 0; border: 0; min-width: 0; }
 .campo__rotulo { padding: 0; font-size: 0.8rem; font-weight: 600; color: var(--color-text-muted); }
