@@ -216,3 +216,6 @@ Cada prescrição tem o botão "Baixar PDF" (veterinário e admin), que chama `G
 ## Resumo de alta e e-mail do tutor (24/10/2026)
 O cadastro do tutor tem um campo "E-mail (opcional)". Depois que a alta é registrada (autorizada ou a pedido), o back manda o resumo ao e-mail do tutor e a tela abre o diálogo "Resumo de alta": com e-mail, mostra para onde foi e deixa reenviar; sem e-mail, oferece o PDF para a recepção imprimir e entregar. O mesmo botão "Resumo de alta" fica no card das internações com alta (ADMIN, recepção e veterinário). O envio de e-mail automático é uma exceção ao TAP autorizada pelo professor.
 
+
+## Logo (25/10/2026)
+A logo é a pata de `src/assets/logo.svg` (para fundo azul, como o painel do login) e `src/assets/logo-app.svg` (a mesma sobre quadrado azul arredondado, para a sidebar e o favicon). Sobre fundo claro a pata sozinha some, por isso o quadrado. Os PDFs, planilhas e e-mails do back usam a mesma arte em PNG.

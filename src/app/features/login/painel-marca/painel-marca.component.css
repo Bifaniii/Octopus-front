@@ -114,3 +114,5 @@
     display: none;
   }
 }
+
+.marca__logo { display: block; flex-shrink: 0; }

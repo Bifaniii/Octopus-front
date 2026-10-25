@@ -35,9 +35,9 @@
   color: var(--color-text);
 }
 
-.shell__marca svg {
-  color: var(--color-accent-text);
+.shell__logo {
   flex-shrink: 0;
+  display: block;
 }
 
 .shell__nav {
