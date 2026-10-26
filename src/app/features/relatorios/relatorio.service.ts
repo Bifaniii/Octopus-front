@@ -91,6 +91,8 @@ export class RelatorioService {
       } catch {
         mensagem = undefined;
       }
+    } else if (typeof e.error?.mensagem === 'string') {
+      mensagem = e.error.mensagem; // chamadas que não são download (ex.: reenviar o resumo) vêm como JSON
     }
     switch (e.status) {
       case 0:
@@ -99,7 +101,11 @@ export class RelatorioService {
         return mensagem ?? 'Filtros inválidos.';
       case 403:
         return 'Seu perfil não tem acesso a este relatório.';
+      case 422:
+        return mensagem ?? 'A operação não pôde ser feita.';
       case 502:
+        // O back usa 502 só quando o servidor de e-mail recusa o envio, e a mensagem já diz o que fazer.
+        return mensagem ?? 'O e-mail não pôde ser enviado.';
       case 503:
         return 'Um dos serviços que fornecem os dados não respondeu. Tente de novo em instantes.';
       default:
