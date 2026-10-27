@@ -21,6 +21,7 @@ import {
   crmvValido,
   emailValido,
   nomeValido,
+  problemaNoNomeDePessoa,
   problemaNaDataDeNascimento,
   telefoneValido,
 } from './validacoes';
@@ -57,6 +58,15 @@ describe('formatos', () => {
     expect(mascararCpfCnpj('11222333000181')).toBe('11.222.333/0001-81');
   });
 
+  it('CNPJ alfanumérico: aceita letras maiúsculas e a máscara é a mesma', () => {
+    expect(mascararCnpj('12abc34501de35')).toBe('12.ABC.345/01DE-35');
+    expect(mascararCpfCnpj('12abc34501de35')).toBe('12.ABC.345/01DE-35');
+    // uma letra já indica CNPJ (CPF só tem números), então a máscara de CNPJ vale desde o começo
+    expect(mascararCpfCnpj('12AB')).toBe('12.AB');
+    // CPF continua só de números
+    expect(mascararCpfCnpj('529.982.247-25')).toBe('529.982.247-25');
+  });
+
   it('acha a posição logo depois do n-ésimo dígito', () => {
     expect(posicaoApos('(11) 99999-9999', 0)).toBe(0);
     expect(posicaoApos('(11) 99999-9999', 2)).toBe(3);
@@ -72,6 +82,24 @@ describe('validações', () => {
     expect(cpfCompleto('5299822472')).toBeFalse();
     expect(cnpjCompleto('11.222.333/0001-81')).toBeTrue();
     expect(cnpjCompleto('1122233300018')).toBeFalse();
+    expect(cnpjCompleto('12.ABC.345/01DE-35')).toBeTrue(); // alfanumérico
+    expect(cnpjCompleto('12.abc.345/01de-35')).toBeTrue(); // minúsculas viram maiúsculas na máscara
+    expect(cnpjCompleto('12ABC34501DEAB')).toBeFalse(); // os dois últimos são números
+    expect(cpfCompleto('52998224A25')).toBeFalse(); // CPF não tem letra
+  });
+
+  it('nome de pessoa: sem números e com sobrenome', () => {
+    for (const bom of ['Maria Silva', 'João da Silva', 'Dra. Carla Souza', "Ana-Clara D'Ávila", 'José A. Pereira']) {
+      expect(problemaNoNomeDePessoa(bom)).withContext(bom).toBeNull();
+    }
+    expect(problemaNoNomeDePessoa('aaa12131241')).toBe('O nome não pode ter números.');
+    expect(problemaNoNomeDePessoa('Maria Silva 2')).toBe('O nome não pode ter números.');
+    expect(problemaNoNomeDePessoa('Maria')).toBe('Informe nome e sobrenome.');
+    expect(problemaNoNomeDePessoa('M. S.')).toBe('Informe nome e sobrenome.');
+    expect(problemaNoNomeDePessoa('Ana#Souza')).toContain('só pode ter letras');
+    expect(problemaNoNomeDePessoa('  ')).toBe('Informe o nome.');
+    // nome de animal segue a regra frouxa: "Rex" não tem sobrenome
+    expect(nomeValido('Rex')).toBeTrue();
   });
 
   it('telefone: só celular, com 11 dígitos e o 9 depois do DDD', () => {
@@ -211,6 +239,14 @@ describe('diretivas de máscara', () => {
     digitar('doc', '11222333000181');
     expect(el('doc').value).toBe('11.222.333/0001-81');
     expect(c.doc.value).toBe('11222333000181');
+  });
+
+  it('CPF ou CNPJ: aceita letras do CNPJ alfanumérico, em maiúsculas, e entrega os 14 caracteres', () => {
+    digitar('doc', '12abc34501de35');
+    expect(el('doc').value).toBe('12.ABC.345/01DE-35');
+    expect(c.doc.value).toBe('12ABC34501DE35');
+    digitar('doc', '12.ABC.345/01DE-35X'); // passa do limite de 14
+    expect(c.doc.value).toBe('12ABC34501DE35');
   });
 
   it('dígitos: tira o que não é número e respeita o limite', () => {

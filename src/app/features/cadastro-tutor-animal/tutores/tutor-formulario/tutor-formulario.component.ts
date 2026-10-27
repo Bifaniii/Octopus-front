@@ -11,7 +11,7 @@ import {
 } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { destacarCampo, limparDestaques } from '../../../../shared/mascaras/campo-invalido';
-import { emailValido, hojeLocal, nomeValido, problemaNaDataDeNascimento, telefoneValido } from '../../../../shared/mascaras/validacoes';
+import { emailValido, hojeLocal, problemaNaDataDeNascimento, problemaNoNomeDePessoa, telefoneValido } from '../../../../shared/mascaras/validacoes';
 import { TelefoneDirective } from '../../../../shared/mascaras/telefone.directive';
 import { DadosTutor, SOMENTE_DIGITOS } from '../tutor.model';
 
@@ -72,7 +72,8 @@ export class TutorFormularioComponent implements OnInit {
     const email = v.email.trim();
 
     if (!nome) return this.setErro('Informe o nome do tutor.', 'nome');
-    if (!nomeValido(nome)) return this.setErro('O nome precisa ter letras.', 'nome');
+    const problemaNoNome = problemaNoNomeDePessoa(nome);
+    if (problemaNoNome) return this.setErro(problemaNoNome, 'nome');
     if (nome.length > 100) return this.setErro('O nome pode ter no máximo 100 caracteres.', 'nome');
     if (!endereco) return this.setErro('Informe o endereço.', 'endereco');
     if (endereco.length > 255) return this.setErro('O endereço pode ter no máximo 255 caracteres.', 'endereco');

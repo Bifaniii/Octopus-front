@@ -23,7 +23,7 @@ import {
   crmvValido,
   emailValido,
   hojeLocal,
-  nomeValido,
+  problemaNoNomeDePessoa,
   problemaNaDataDeNascimento,
   telefoneValido,
 } from '../../../shared/mascaras/validacoes';
@@ -107,8 +107,8 @@ export class UsuarioDetalheComponent implements AfterViewInit {
   constructor() {
     // O tamanho do documento diz o tipo: 11 dígitos é pessoa física, 14 é jurídica.
     this.form.controls.cpfCnpj.valueChanges.pipe(takeUntilDestroyed()).subscribe((digitos) => {
-      if (digitos.length === 11) this.form.controls.tipoPessoa.setValue('PF');
-      if (digitos.length === 14) this.form.controls.tipoPessoa.setValue('PJ');
+      if (digitos.length === 11 && /^\d+$/.test(digitos)) this.form.controls.tipoPessoa.setValue('PF');
+      if (digitos.length === 14 || /[A-Z]/.test(digitos)) this.form.controls.tipoPessoa.setValue('PJ');
     });
   }
 
@@ -151,7 +151,8 @@ export class UsuarioDetalheComponent implements AfterViewInit {
     const nome = v.nome.trim();
     const email = v.email.trim();
     if (!nome) return this.falhar('Informe o nome.', 'nome');
-    if (!nomeValido(nome)) return this.falhar('O nome precisa ter letras.', 'nome');
+    const problemaNoNome = problemaNoNomeDePessoa(nome);
+    if (problemaNoNome) return this.falhar(problemaNoNome, 'nome');
     if (nome.length > 100) return this.falhar('O nome pode ter no máximo 100 caracteres.', 'nome');
     if (!emailValido(email)) return this.falhar('Informe um e-mail válido, como nome@clinica.com.', 'email');
 
@@ -178,7 +179,7 @@ export class UsuarioDetalheComponent implements AfterViewInit {
       return this.falhar('CPF incompleto: pessoa física precisa dos 11 dígitos do CPF.', 'cpfCnpj');
     }
     if (v.tipoPessoa === 'PJ' && !cnpjCompleto(cpfCnpj)) {
-      return this.falhar('CNPJ incompleto: pessoa jurídica precisa dos 14 dígitos do CNPJ.', 'cpfCnpj');
+      return this.falhar('CNPJ incompleto: pessoa jurídica precisa dos 14 caracteres do CNPJ (números e letras).', 'cpfCnpj');
     }
     const crmv = v.crmv.trim();
     if (!crmv) return this.falhar('Informe o CRMV.', 'crmv');
@@ -269,7 +270,7 @@ export class UsuarioDetalheComponent implements AfterViewInit {
   }
 
   private documento(numero: string): string {
-    const d = numero.replace(/\D/g, '');
+    const d = numero.toUpperCase().replace(/[^0-9A-Z]/g, '');
     return d.length === 11 || d.length === 14 ? mascararCpfCnpj(d) : numero;
   }
 

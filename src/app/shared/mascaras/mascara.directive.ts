@@ -13,6 +13,14 @@ export abstract class MascaraDirective implements ControlValueAccessor {
   private aoMudar: (valor: string) => void = () => {};
   private aoTocar: () => void = () => {};
 
+  /** O que a máscara guarda: por padrão só dígitos. O CNPJ sobrescreve para aceitar também letras. */
+  protected limpar(texto: string): string {
+    return somenteDigitos(texto);
+  }
+
+  /** Caractere que conta para a posição do cursor (mesmo critério de `limpar`). */
+  protected significativo = /\d/;
+
   protected abstract maxDigitos(): number;
   protected abstract formatar(digitos: string): string;
 
@@ -22,7 +30,7 @@ export abstract class MascaraDirective implements ControlValueAccessor {
   }
 
   writeValue(valor: string | null): void {
-    this.digitos = somenteDigitos(valor ?? '').slice(0, this.maxDigitos());
+    this.digitos = this.limpar(valor ?? '').slice(0, this.maxDigitos());
     this.input.value = this.formatar(this.digitos);
   }
 
@@ -48,8 +56,8 @@ export abstract class MascaraDirective implements ControlValueAccessor {
     const tipo = (evento as InputEvent).inputType ?? '';
     const texto = this.input.value;
     const cursor = this.input.selectionStart ?? texto.length;
-    let digitos = somenteDigitos(texto);
-    let antesDoCursor = somenteDigitos(texto.slice(0, cursor)).length;
+    let digitos = this.limpar(texto);
+    let antesDoCursor = this.limpar(texto.slice(0, cursor)).length;
 
     // Apagar só um símbolo da máscara, como "-" ou ")", não muda os dígitos e a máscara o devolveria: nesse caso
     // o que a pessoa quer é apagar o dígito vizinho.
@@ -72,7 +80,7 @@ export abstract class MascaraDirective implements ControlValueAccessor {
     const formatado = this.formatar(digitos);
     this.input.value = formatado;
     if (document.activeElement === this.input) {
-      const posicao = posicaoApos(formatado, Math.min(antesDoCursor, digitos.length));
+      const posicao = posicaoApos(formatado, Math.min(antesDoCursor, digitos.length), this.significativo);
       this.input.setSelectionRange(posicao, posicao);
     }
 

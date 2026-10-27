@@ -219,3 +219,6 @@ O cadastro do tutor tem um campo "E-mail (opcional)". Depois que a alta é regis
 
 ## Logo (25/10/2026)
 A logo é a pata de `src/assets/logo.svg` (para fundo azul, como o painel do login) e `src/assets/logo-app.svg` (a mesma sobre quadrado azul arredondado, para a sidebar e o favicon). Sobre fundo claro a pata sozinha some, por isso o quadrado. Os PDFs, planilhas e e-mails do back usam a mesma arte em PNG.
+
+## Nomes e CNPJ alfanumérico (27/10/2026)
+Nome de pessoa (usuário e tutor) não aceita números e exige nome e sobrenome (`problemaNoNomeDePessoa`); nome de animal segue a regra frouxa de `nomeValido`. O CNPJ aceita letras maiúsculas (formato de 2026, 12 posições alfanuméricas e 2 dígitos): a máscara `appCnpj`/`appCpfCnpj` guarda 14 caracteres, e uma letra já indica CNPJ. CPF continua só de números. O dígito verificador segue sendo conferido só no back.

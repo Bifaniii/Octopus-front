@@ -23,7 +23,7 @@ import {
   crmvValido,
   emailValido,
   hojeLocal,
-  nomeValido,
+  problemaNoNomeDePessoa,
   problemaNaDataDeNascimento,
   telefoneValido,
 } from '../../../shared/mascaras/validacoes';
@@ -102,8 +102,8 @@ export class UsuarioDialogoComponent implements AfterViewInit {
   constructor() {
     // O tamanho do documento diz o tipo: 11 dígitos é pessoa física, 14 é jurídica. Dá para trocar à mão depois.
     this.form.controls.cpfCnpj.valueChanges.pipe(takeUntilDestroyed()).subscribe((digitos) => {
-      if (digitos.length === 11) this.form.controls.tipoPessoa.setValue('PF');
-      if (digitos.length === 14) this.form.controls.tipoPessoa.setValue('PJ');
+      if (digitos.length === 11 && /^\d+$/.test(digitos)) this.form.controls.tipoPessoa.setValue('PF');
+      if (digitos.length === 14 || /[A-Z]/.test(digitos)) this.form.controls.tipoPessoa.setValue('PJ');
     });
   }
 
@@ -129,7 +129,8 @@ export class UsuarioDialogoComponent implements AfterViewInit {
     const senha = v.senha;
 
     if (!nome) return this.setErro('Informe o nome.', 'nome');
-    if (!nomeValido(nome)) return this.setErro('O nome precisa ter letras.', 'nome');
+    const problemaNoNome = problemaNoNomeDePessoa(nome);
+    if (problemaNoNome) return this.setErro(problemaNoNome, 'nome');
     if (nome.length > 100) return this.setErro('O nome pode ter no máximo 100 caracteres.', 'nome');
     if (!email) return this.setErro('Informe o e-mail.', 'email');
     if (!emailValido(email)) return this.setErro('Informe um e-mail válido, como nome@clinica.com.', 'email');
@@ -169,7 +170,7 @@ export class UsuarioDialogoComponent implements AfterViewInit {
       return this.setErro('CPF incompleto: pessoa física precisa dos 11 dígitos do CPF.', 'cpfCnpj');
     }
     if (v.tipoPessoa === 'PJ' && !cnpjCompleto(cpfCnpj)) {
-      return this.setErro('CNPJ incompleto: pessoa jurídica precisa dos 14 dígitos do CNPJ.', 'cpfCnpj');
+      return this.setErro('CNPJ incompleto: pessoa jurídica precisa dos 14 caracteres do CNPJ (números e letras).', 'cpfCnpj');
     }
     const crmv = v.crmv.trim();
     if (!crmv) return this.setErro('Informe o CRMV.', 'crmv');

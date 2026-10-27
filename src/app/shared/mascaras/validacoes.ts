@@ -1,4 +1,4 @@
-import { CNPJ_DIGITOS, CPF_DIGITOS, somenteDigitos } from './formatos';
+import { CPF_DIGITOS, somenteAlfanumericos, somenteDigitos } from './formatos';
 
 /**
  * Validações de formulário que o front faz sozinho: só o formato, para a pessoa corrigir sem esperar a resposta.
@@ -10,8 +10,9 @@ export function cpfCompleto(valor: string): boolean {
   return somenteDigitos(valor).length === CPF_DIGITOS;
 }
 
+/** CNPJ completo: 12 posições de 0-9 ou A-Z e 2 dígitos. O dígito verificador é conferido no back. */
 export function cnpjCompleto(valor: string): boolean {
-  return somenteDigitos(valor).length === CNPJ_DIGITOS;
+  return /^[0-9A-Z]{12}\d{2}$/.test(somenteAlfanumericos(valor));
 }
 
 /** Celular: 11 dígitos e o 9 logo depois do DDD. Telefone fixo não é aceito por enquanto. */
@@ -27,6 +28,21 @@ export function emailValido(valor: string): boolean {
 /** Pelo menos duas letras: recusa nome vazio, só número ou só símbolo. */
 export function nomeValido(valor: string): boolean {
   return (valor.match(/\p{L}/gu) ?? []).length >= 2;
+}
+
+/**
+ * Nome de pessoa (usuário ou tutor): só letras, espaço, apóstrofo, hífen e ponto, sem números, e com nome e
+ * sobrenome (duas palavras de 2 letras ou mais). Devolve a mensagem do problema, ou null se estiver certo.
+ * Nome de animal tem regra mais frouxa (`nomeValido`): "Rex" não tem sobrenome.
+ */
+export function problemaNoNomeDePessoa(valor: string): string | null {
+  const nome = valor.trim();
+  if (!nome) return 'Informe o nome.';
+  if (/\d/.test(nome)) return 'O nome não pode ter números.';
+  if (!/^[\p{L}\p{M}\s'’.-]+$/u.test(nome)) return 'O nome só pode ter letras, espaço, hífen, apóstrofo e ponto.';
+  const palavras = nome.split(/\s+/).filter((p) => (p.match(/\p{L}/gu) ?? []).length >= 2);
+  if (palavras.length < 2) return 'Informe nome e sobrenome.';
+  return null;
 }
 
 /** CRMV: de 1 a 5 dígitos numéricos. */

@@ -37,7 +37,7 @@
             @if (usuario.role === 'ROLE_VETERINARIO') {
               <label class="campo">
                 <span class="campo__rotulo">CPF ou CNPJ</span>
-                <input type="text" appCpfCnpj formControlName="cpfCnpj" inputmode="numeric" autocomplete="off" />
+                <input type="text" appCpfCnpj formControlName="cpfCnpj" inputmode="text" autocapitalize="characters" autocomplete="off" />
               </label>
               <label class="campo">
                 <span class="campo__rotulo">Tipo</span>
