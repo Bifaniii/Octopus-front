@@ -12,9 +12,14 @@
         {{ prescricao.criadoEm | date: "dd/MM/yyyy HH:mm" }}
       </p>
     </div>
-    @if (nomeDoStatus) {
-      <span class="selo">{{ nomeDoStatus }}</span>
-    }
+    <div class="card__selos">
+      @if (prescricao.situacao !== 'ATIVA') {
+        <span class="selo selo--inativa" [attr.title]="dicaDaSituacao">{{ rotuloDaSituacao }}</span>
+      }
+      @if (nomeDoStatus) {
+        <span class="selo">{{ nomeDoStatus }}</span>
+      }
+    </div>
   </header>
 
   <ul class="card__itens">

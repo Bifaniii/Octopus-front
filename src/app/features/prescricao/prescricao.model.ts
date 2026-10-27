@@ -20,6 +20,9 @@ export interface Prescricao {
   veterinarioEmail: string;
   observacao?: string | null;
   ativo: boolean;
+  /** ATIVA; CONCLUIDA (acabou sozinha: animal saiu ou sem dose pendente); DESATIVADA (o veterinário desativou). */
+  situacao: 'ATIVA' | 'CONCLUIDA' | 'DESATIVADA';
+  concluidaEm?: string | null;
   criadoEm: string;
   itens: ItemPrescricao[];
 }

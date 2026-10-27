@@ -31,6 +31,16 @@ export class PrescricaoCardComponent {
   @Output() baixar = new EventEmitter<number>();
   @Output() ativar = new EventEmitter<number>();
 
+  get rotuloDaSituacao(): string {
+    return this.prescricao.situacao === 'CONCLUIDA' ? 'Concluída' : 'Desativada';
+  }
+
+  get dicaDaSituacao(): string {
+    return this.prescricao.situacao === 'CONCLUIDA'
+      ? 'Acabou sozinha: o animal já saiu ou não há mais dose a aplicar.'
+      : 'Desativada pelo veterinário.';
+  }
+
   get nomeDoStatus(): string {
     return NOME_DO_STATUS[this.status] ?? '';
   }

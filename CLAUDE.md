@@ -222,3 +222,6 @@ A logo é a pata de `src/assets/logo.svg` (para fundo azul, como o painel do log
 
 ## Nomes e CNPJ alfanumérico (27/10/2026)
 Nome de pessoa (usuário e tutor) não aceita números e exige nome e sobrenome (`problemaNoNomeDePessoa`); nome de animal segue a regra frouxa de `nomeValido`. O CNPJ aceita letras maiúsculas (formato de 2026, 12 posições alfanuméricas e 2 dígitos): a máscara `appCnpj`/`appCpfCnpj` guarda 14 caracteres, e uma letra já indica CNPJ. CPF continua só de números. O dígito verificador segue sendo conferido só no back.
+
+## Prescrições ativas e inativas (27/10/2026)
+A tela de prescrições mostra só as ativas; "Mostrar inativas" traz as outras. O back passou a concluir sozinho a prescrição que acabou (animal que já saiu, ou sem dose pendente nem item "se necessário"), e a resposta traz `situacao`: `ATIVA`, `CONCLUIDA` ou `DESATIVADA`. O cartão mostra a etiqueta da situação, e "Reativar" só aparece para a desativada à mão, com a internação ainda aberta.

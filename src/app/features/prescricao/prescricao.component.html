@@ -4,12 +4,18 @@
   itemAtivo="prontuarios"
 >
   <div class="topo">
-    <h2>Prescrições ativas</h2>
-    @if (podePrescrever) {
-      <button type="button" class="primario" (click)="abrirModal()">
-        <i class="bi bi-plus-lg" aria-hidden="true"></i> Nova prescrição
-      </button>
-    }
+    <h2>{{ mostrarInativas() ? "Todas as prescrições" : "Prescrições ativas" }}</h2>
+    <div class="topo__acoes">
+      <label class="filtro-inativas">
+        <input type="checkbox" [checked]="mostrarInativas()" (change)="alternarInativas($event)" />
+        Mostrar inativas ({{ inativas().length }})
+      </label>
+      @if (podePrescrever) {
+        <button type="button" class="primario" (click)="abrirModal()">
+          <i class="bi bi-plus-lg" aria-hidden="true"></i> Nova prescrição
+        </button>
+      }
+    </div>
   </div>
 
   @if (erro()) {
@@ -18,47 +24,32 @@
 
   @if (carregando()) {
     <p class="vazio">Carregando prescrições...</p>
-  } @else if (ativas().length === 0 && !erro()) {
-    <p class="vazio">Nenhuma prescrição ativa no momento.</p>
+  } @else if (visiveis().length === 0 && !erro()) {
+    <p class="vazio">
+      Nenhuma prescrição ativa no momento.
+      @if (inativas().length > 0) {
+        Há {{ inativas().length }} inativa(s): marque "Mostrar inativas" para ver.
+      }
+    </p>
   } @else {
     <div class="lista">
-      @for (p of ativas(); track p.id) {
+      @for (p of visiveis(); track p.id) {
         <app-prescricao-card
           [prescricao]="p"
           [animalNome]="animalDe(p.internacaoId)"
           [animalEspecie]="especieDe(p.internacaoId)"
           [status]="statusDe(p.internacaoId)"
           [nomesDosMedicamentos]="nomesDosMedicamentos()"
-          [podeDesativar]="podePrescrever"
+          [podeDesativar]="podePrescrever && p.ativo"
+          [podeAtivar]="podeReativar(p)"
           [podeBaixar]="podeBaixar"
           [baixando]="baixando() === p.id"
           (baixar)="baixarPdf($event)"
           (desativar)="desativar($event)"
+          (ativar)="ativar($event)"
         />
       }
     </div>
-  }
-
-  @if (reativaveis().length > 0) {
-    <details class="desativadas">
-      <summary>Prescrições desativadas ({{ reativaveis().length }})</summary>
-      <div class="lista">
-        @for (p of reativaveis(); track p.id) {
-          <app-prescricao-card
-            [prescricao]="p"
-            [animalNome]="animalDe(p.internacaoId)"
-            [animalEspecie]="especieDe(p.internacaoId)"
-            [status]="statusDe(p.internacaoId)"
-            [nomesDosMedicamentos]="nomesDosMedicamentos()"
-            [podeAtivar]="podePrescrever"
-            [podeBaixar]="podeBaixar"
-            [baixando]="baixando() === p.id"
-            (baixar)="baixarPdf($event)"
-            (ativar)="ativar($event)"
-          />
-        }
-      </div>
-    </details>
   }
 
   @if (modalAberto()) {

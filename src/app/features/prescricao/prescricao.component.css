@@ -34,5 +34,14 @@
   color: var(--color-danger);
 }
 
-.desativadas { margin-top: 1.5rem; }
-.desativadas summary { cursor: pointer; font-weight: 600; color: var(--color-text-muted); margin-bottom: 0.75rem; }
+
+.topo__acoes { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+.filtro-inativas {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+  cursor: pointer;
+}
+.filtro-inativas input { accent-color: var(--color-primary); }

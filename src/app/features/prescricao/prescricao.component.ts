@@ -53,15 +53,33 @@ export class PrescricaoComponent implements OnInit {
   readonly salvando = signal(false);
   readonly erroDoModal = signal<string | null>(null);
 
-  // O GET devolve ativas e inativas; a tela mostra só as ativas.
+  // O GET devolve ativas e inativas (concluídas e desativadas); por padrão a tela mostra só as ativas.
   readonly ativas = computed(() => this.prescricoes().filter((p) => p.ativo));
+  readonly inativas = computed(() => this.prescricoes().filter((p) => !p.ativo));
 
-  // Só dá para reativar enquanto a internação ainda aceita prescrição (sem alta nem encerrada).
-  readonly reativaveis = computed(() =>
-    this.prescricoes().filter(
-      (p) => !p.ativo && STATUS_QUE_ACEITAM_PRESCRICAO.includes(this.statusDe(p.internacaoId)),
-    ),
+  /** Filtro "Mostrar inativas". */
+  readonly mostrarInativas = signal(false);
+
+  /** O que a lista mostra: as ativas e, com o filtro ligado, as inativas depois delas. */
+  readonly visiveis = computed(() =>
+    this.mostrarInativas() ? [...this.ativas(), ...this.inativas()] : this.ativas(),
   );
+
+  alternarInativas(evento: Event): void {
+    this.mostrarInativas.set((evento.target as HTMLInputElement).checked);
+  }
+
+  /**
+   * Reativar só vale para a que o veterinário desativou, e enquanto a internação ainda aceita prescrição: a que
+   * acabou sozinha (concluída) não tem mais dose a aplicar.
+   */
+  podeReativar(p: Prescricao): boolean {
+    return (
+      this.podePrescrever &&
+      p.situacao === 'DESATIVADA' &&
+      STATUS_QUE_ACEITAM_PRESCRICAO.includes(this.statusDe(p.internacaoId))
+    );
+  }
 
   readonly internacoesElegiveis = computed(() =>
     this.internacoes().filter((i) =>
