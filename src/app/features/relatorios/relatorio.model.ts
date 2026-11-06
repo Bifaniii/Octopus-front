@@ -60,6 +60,7 @@ export const RELATORIOS: DefinicaoRelatorio[] = [
 export interface FiltrosRelatorio {
   de: string;
   ate: string;
+  animal: string;
   turno: string;
   situacao: string;
   auxiliar: string;
@@ -71,6 +72,7 @@ export interface FiltrosRelatorio {
 export const FILTROS_VAZIOS: FiltrosRelatorio = {
   de: '',
   ate: '',
+  animal: '',
   turno: '',
   situacao: '',
   auxiliar: '',
@@ -81,8 +83,8 @@ export const FILTROS_VAZIOS: FiltrosRelatorio = {
 
 /** Quais filtros vão na query de cada relatório. */
 export const FILTROS_POR_TIPO: Record<TipoRelatorio, (keyof FiltrosRelatorio)[]> = {
-  doses: ['de', 'ate', 'turno', 'situacao', 'auxiliar'],
-  internacoes: ['de', 'ate', 'status'],
+  doses: ['de', 'ate','animal', 'turno', 'situacao', 'auxiliar'],
+  internacoes: ['de', 'ate','animal', 'status'],
   'tutores-animais': [],
   baias: [],
   usuarios: ['perfil', 'ativo'],
