@@ -24,7 +24,12 @@
 
               <label class="campo">
                 <span>Animal</span>
-                <input type="search" placeholder="Nome do animal" [value]="filtros()[r.tipo].animal" (input)="alterar(r.tipo, 'animal', $any($event.target).value)" />
+                <select [value]="filtros()[r.tipo].animal" (change)="alterar(r.tipo, 'animal', $any($event.target).value)">
+                  <option value="">Todos</option>
+                  @for (animal of animais(); track animal) {
+                    <option [value]="animal">{{ animal }}</option>
+                  }
+                </select>
               </label>
 
               <label class="campo">
@@ -68,7 +73,12 @@
               </label>
               <label class="campo">
                 <span>Animal</span>
-                <input type="search" placeholder="Nome do animal" [value]="filtros()[r.tipo].animal" (input)="alterar(r.tipo, 'animal', $any($event.target).value)" />
+                <select [value]="filtros()[r.tipo].animal" (change)="alterar(r.tipo, 'animal', $any($event.target).value)">
+                  <option value="">Todos</option>
+                  @for (animal of animais(); track animal) {
+                    <option [value]="animal">{{ animal }}</option>
+                  }
+                </select>
               </label>
               <label class="campo">
                 <span>Situação</span>

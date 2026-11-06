@@ -4,6 +4,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { AppShellComponent } from '../../shared/app-shell/app-shell.component';
 import { AuthService } from '../../core/services/auth.service';
+import { InternacaoService } from '../internacao/internacao.service';
 import { RelatorioService } from './relatorio.service';
 import {
   FILTROS_VAZIOS,
@@ -34,6 +35,7 @@ import {
 })
 export class RelatoriosPaginaComponent {
   private readonly relatorioService = inject(RelatorioService);
+  private readonly internacaoService = inject(InternacaoService);
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
 
@@ -42,6 +44,7 @@ export class RelatoriosPaginaComponent {
   protected readonly situacoesDose = SITUACOES_DOSE;
   protected readonly statusInternacao = STATUS_INTERNACAO;
   protected readonly perfis = PERFIS;
+  protected readonly animais = signal<string[]>([]);
 
   protected readonly filtros = signal<Record<TipoRelatorio, FiltrosRelatorio>>(this.filtrosIniciais());
   protected readonly auxiliares = signal<PessoaResumo[]>([]);
@@ -56,6 +59,13 @@ export class RelatoriosPaginaComponent {
         next: (lista) => this.auxiliares.set(lista),
         // Sem a lista, o relatório de doses ainda sai; só o filtro por auxiliar fica vazio.
         error: () => this.auxiliares.set([]),
+      });
+      this.internacaoService.carregar().subscribe({
+        next: (internacoes) => {
+          const nomes = [...new Set(internacoes.map((internacao) => internacao.animalNome))];
+          this.animais.set(nomes.sort((a, b) => a.localeCompare(b, 'pt-BR')));
+        },
+        error: () => this.animais.set([]),
       });
     }
   }
