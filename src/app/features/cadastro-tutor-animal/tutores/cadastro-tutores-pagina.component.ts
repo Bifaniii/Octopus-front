@@ -78,10 +78,12 @@ export class CadastroTutoresPaginaComponent {
     Object.fromEntries(this.tutores().flatMap((t) => t.animais.map((a) => [a.id, a.nome]))),
   );
 
-  /** Qualquer animal já cadastrado pode ser indicado como mãe; o rótulo leva o tutor para diferenciar homônimos. */
+  /** Animais que podem ser mãe; o formulário filtra as fêmeas da espécie escolhida. O rótulo leva o tutor. */
   protected readonly opcoesMae = computed<OpcaoMae[]>(() =>
     this.tutores()
-      .flatMap((t) => t.animais.map((a) => ({ id: a.id, rotulo: `${a.nome} · ${a.especie} (${t.nome})` })))
+      .flatMap((t) =>
+        t.animais.map((a) => ({ id: a.id, rotulo: `${a.nome} (${t.nome})`, especie: a.especie, sexo: a.sexo })),
+      )
       .sort((a, b) => a.rotulo.localeCompare(b.rotulo, 'pt-BR')),
   );
 

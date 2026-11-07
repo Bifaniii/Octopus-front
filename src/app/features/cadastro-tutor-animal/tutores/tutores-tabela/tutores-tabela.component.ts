@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
 import { antirrabicaVencida } from '../../../internacao/internacao.model';
-import { Animal } from '../../animais/animal.model';
+import { Animal, rotuloDoSexo } from '../../animais/animal.model';
 import { Tutor, formatarData, formatarTelefone } from '../tutor.model';
 
 export interface AnimalDoTutor {
@@ -34,4 +34,5 @@ export class TutoresTabelaComponent {
   protected readonly data = formatarData;
   /** RN-02, mesma conta do back: sem registro ou há mais de 12 meses. */
   protected readonly vencida = antirrabicaVencida;
+  protected readonly sexo = rotuloDoSexo;
 }

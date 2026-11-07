@@ -7,12 +7,31 @@
  * admissão usa.
  */
 
-/** Resposta de GET/POST/PUT de animal. */
+/** Espécies que a clínica atende (enum `Especie` do back, que manda e recebe o rótulo). */
+export const ESPECIES = ['Cão', 'Gato', 'Outro'] as const;
+export type Especie = (typeof ESPECIES)[number];
+
+/** Sexo do animal (enum `SexoAnimal` do back). Só fêmea pode ser mãe. */
+export type Sexo = 'MACHO' | 'FEMEA';
+export const SEXOS: { valor: Sexo; rotulo: string }[] = [
+  { valor: 'FEMEA', rotulo: 'Fêmea' },
+  { valor: 'MACHO', rotulo: 'Macho' },
+];
+
+export function rotuloDoSexo(sexo: Sexo | null | undefined): string {
+  return SEXOS.find((s) => s.valor === sexo)?.rotulo ?? 'sexo não informado';
+}
+
+/**
+ * Resposta de GET/POST/PUT de animal. Espécie e sexo podem vir nulos em cadastros antigos: o animal sem espécie da
+ * carga do enunciado e os animais cadastrados antes de 07/11/2026, que ficam sem sexo até a edição.
+ */
 export interface Animal {
   id: number;
   nome: string;
   tutorId: number;
-  especie: string;
+  especie: Especie | null;
+  sexo: Sexo | null;
   dataUltimaAntirrabica: string | null; // aaaa-MM-dd
   maeId: number | null;
 }
@@ -20,15 +39,21 @@ export interface Animal {
 /** Corpo do POST e do PUT. Atenção ao nome do campo da vacina, que difere do da resposta. */
 export interface DadosAnimal {
   nome: string;
-  especie: string;
+  especie: Especie;
+  sexo: Sexo;
   dataAntirrabica: string | null; // aaaa-MM-dd
   maeId: number | null;
 }
 
-/** Opção do campo "mãe": um animal já cadastrado, com o tutor no rótulo para diferenciar homônimos. */
+/**
+ * Opção do campo "mãe": um animal já cadastrado, com o tutor no rótulo para diferenciar homônimos. Espécie e sexo
+ * vão junto para o formulário mostrar só as fêmeas da mesma espécie, que é o que o back aceita.
+ */
 export interface OpcaoMae {
   id: number;
   rotulo: string;
+  especie: Especie | null;
+  sexo: Sexo | null;
 }
 
 /** O que o formulário emite: os dados do animal e, no cadastro, a resposta de "precisa internar?". */

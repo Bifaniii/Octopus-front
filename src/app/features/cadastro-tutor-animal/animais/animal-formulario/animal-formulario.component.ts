@@ -1,4 +1,5 @@
 import {
+  DestroyRef,
   ElementRef,
   ChangeDetectionStrategy,
   Component,
@@ -10,16 +11,17 @@ import {
   signal,
 } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { destacarCampo, limparDestaques } from '../../../../shared/mascaras/campo-invalido';
-import { nomeValido } from '../../../../shared/mascaras/validacoes';
-import { Animal, NovoAnimalEvento, OpcaoMae } from '../animal.model';
+import { Animal, ESPECIES, Especie, NovoAnimalEvento, OpcaoMae, SEXOS, Sexo } from '../animal.model';
 
 /**
  * AnimalFormularioComponent
  * -------------------------
  * Dados do animal: passo 2 do cadastro, novo animal de um tutor existente ou edição. Não conhece serviços:
  * valida com as regras do AnimalRequest do back e avisa o container por eventos (`salvar`, `voltar`).
- * A mãe é opcional e sai da lista `opcoesMae`; quem garante que ela é válida (existe e não cria ciclo) é o back.
+ * A mãe é opcional e sai da lista `opcoesMae`, filtrada para as fêmeas da espécie escolhida, que é o que o back
+ * aceita. Quem garante de verdade (fêmea, mesma espécie, sem ciclo) é o back, com 422.
  */
 @Component({
   selector: 'app-animal-formulario',
@@ -48,6 +50,10 @@ export class AnimalFormularioComponent implements OnInit {
 
   private readonly fb = inject(FormBuilder);
   private readonly raiz = inject<ElementRef<HTMLElement>>(ElementRef).nativeElement;
+  private readonly destroyRef = inject(DestroyRef);
+
+  protected readonly especies = ESPECIES;
+  protected readonly sexos = SEXOS;
 
   /** Hoje na hora local (aaaa-MM-dd). Sem toISOString(), que converte para UTC e pode virar o dia. */
   protected readonly hoje = (() => {
@@ -57,7 +63,8 @@ export class AnimalFormularioComponent implements OnInit {
 
   protected readonly form = this.fb.nonNullable.group({
     nome: [''],
-    especie: [''],
+    especie: this.fb.control<Especie | null>(null),
+    sexo: this.fb.control<Sexo | null>(null),
     dataAntirrabica: [''],
     maeId: this.fb.control<number | null>(null),
     precisaInternar: [false],
@@ -71,16 +78,33 @@ export class AnimalFormularioComponent implements OnInit {
       this.form.reset({
         nome: a.nome,
         especie: a.especie,
+        sexo: a.sexo,
         dataAntirrabica: a.dataUltimaAntirrabica ?? '',
         maeId: a.maeId,
         precisaInternar: false,
       });
     }
+    // Trocar a espécie tira a mãe escolhida, se ela deixar de ser compatível.
+    this.form.controls.especie.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
+      const maeId = this.form.controls.maeId.value;
+      if (maeId !== null && !this.maes.some((m) => m.id === maeId)) {
+        this.form.controls.maeId.setValue(null);
+      }
+    });
   }
 
-  /** A própria opção some da lista quando o animal está em edição. */
+  /**
+   * Só fêmeas da espécie escolhida, sem o próprio animal. A mãe já gravada continua na lista mesmo que o cadastro
+   * dela esteja incompleto (sem sexo), para a edição não apagá-la sem querer; ao salvar, o back confere.
+   */
   protected get maes(): OpcaoMae[] {
-    return this.opcoesMae.filter((o) => o.id !== this.animal?.id);
+    const especie = this.form.controls.especie.value;
+    const maeAtual = this.animal?.maeId ?? null;
+    return this.opcoesMae.filter(
+      (o) =>
+        o.id !== this.animal?.id &&
+        (o.id === maeAtual || (o.sexo === 'FEMEA' && especie !== null && o.especie === especie)),
+    );
   }
 
   protected enviar(): void {
@@ -89,13 +113,11 @@ export class AnimalFormularioComponent implements OnInit {
 
     const v = this.form.getRawValue();
     const nome = v.nome.trim();
-    const especie = v.especie.trim();
 
     if (!nome) return this.setErro('Informe o nome do animal.', 'nome');
     if (nome.length > 100) return this.setErro('O nome pode ter no máximo 100 caracteres.', 'nome');
-    if (!especie) return this.setErro('Informe a espécie (ex.: Cão, Gato).', 'especie');
-    if (!nomeValido(especie)) return this.setErro('A espécie precisa ter letras (ex.: Cão, Gato).', 'especie');
-    if (especie.length > 250) return this.setErro('A espécie pode ter no máximo 250 caracteres.', 'especie');
+    if (!v.especie) return this.setErro('Escolha a espécie.', 'especie');
+    if (!v.sexo) return this.setErro('Escolha o sexo do animal.', 'sexo');
     if (v.dataAntirrabica && v.dataAntirrabica > this.hoje) {
       return this.setErro('A data da última antirrábica não pode ser futura.', 'dataAntirrabica');
     }
@@ -105,7 +127,7 @@ export class AnimalFormularioComponent implements OnInit {
 
     this.erro.set(null);
     this.salvar.emit({
-      dados: { nome, especie, dataAntirrabica: v.dataAntirrabica || null, maeId: v.maeId },
+      dados: { nome, especie: v.especie, sexo: v.sexo, dataAntirrabica: v.dataAntirrabica || null, maeId: v.maeId },
       precisaInternar: v.precisaInternar,
     });
   }

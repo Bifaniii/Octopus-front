@@ -26,7 +26,7 @@
               @for (a of t.animais; track a.id) {
                 <li class="animal">
                   <span class="animal__nome">{{ a.nome }}</span>
-                  <span class="animal__info">{{ a.especie }}</span>
+                  <span class="animal__info">{{ a.especie ?? 'espécie não informada' }} · {{ sexo(a.sexo) }}</span>
                   <span class="vacina" [class.vacina--vencida]="vencida(a.dataUltimaAntirrabica)">
                     @if (a.dataUltimaAntirrabica) {
                       Antirrábica {{ data(a.dataUltimaAntirrabica) }}{{ vencida(a.dataUltimaAntirrabica) ? ' · vencida' : '' }}
