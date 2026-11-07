@@ -227,4 +227,4 @@ Nome de pessoa (usuário e tutor) não aceita números e exige nome e sobrenome 
 A tela de prescrições mostra só as ativas; "Mostrar inativas" traz as outras. O back passou a concluir sozinho a prescrição que acabou (animal que já saiu, ou sem dose pendente nem item "se necessário"), e a resposta traz `situacao`: `ATIVA`, `CONCLUIDA` ou `DESATIVADA`. O cartão mostra a etiqueta da situação, e "Reativar" só aparece para a desativada à mão, com a internação ainda aberta.
 
 ## Idade mínima do veterinário (06/11/2026)
-Veterinário precisa ter 23 anos (`IDADE_MINIMA_VETERINARIO`, o mesmo valor do back): o campo de data de nascimento do cadastro e da ficha limita o `max` a quem já fez 23 anos, e `problemaNaDataDeNascimento` recusa com a mensagem. Outros perfis seguem sem idade mínima.
+Veterinário precisa ter 23 anos (`IDADE_MINIMA_VETERINARIO`, o mesmo valor do back): o campo de data de nascimento do cadastro e da ficha limita o `max` a quem já fez 23 anos, e `problemaNaDataDeNascimento` recusa com a mensagem. Auxiliar, recepcionista e tutor precisam de 18 anos (`IDADE_MINIMA_ADULTO`); admin não tem data de nascimento e animal fica fora.

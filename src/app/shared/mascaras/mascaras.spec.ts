@@ -21,6 +21,7 @@ import {
   crmvValido,
   emailValido,
   nomeValido,
+  IDADE_MINIMA_ADULTO,
   IDADE_MINIMA_VETERINARIO,
   idadeEmAnos,
   nascimentoMaximoPara,
@@ -144,7 +145,12 @@ describe('validações', () => {
     expect(problemaNaDataDeNascimento('2003-11-06', hoje, IDADE_MINIMA_VETERINARIO, 'O veterinário')).toBeNull();
     expect(problemaNaDataDeNascimento('2003-11-07', hoje, IDADE_MINIMA_VETERINARIO, 'O veterinário')).toBe(aviso);
     expect(problemaNaDataDeNascimento('2010-05-01', hoje, IDADE_MINIMA_VETERINARIO, 'O veterinário')).toBe(aviso);
-    // sem idade mínima (os outros perfis), só valem as regras de data
+    // os outros perfis e o tutor precisam ser maiores de idade
+    expect(problemaNaDataDeNascimento('2008-11-06', hoje, IDADE_MINIMA_ADULTO)).toBeNull();
+    expect(problemaNaDataDeNascimento('2008-11-07', hoje, IDADE_MINIMA_ADULTO, 'O tutor')).toBe(
+      'O tutor precisa ter pelo menos 18 anos.',
+    );
+    // sem idade mínima só valem as regras de data
     expect(problemaNaDataDeNascimento('2010-05-01', hoje)).toBeNull();
   });
 

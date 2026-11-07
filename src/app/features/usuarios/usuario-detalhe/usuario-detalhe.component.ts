@@ -24,6 +24,7 @@ import {
   emailValido,
   hojeLocal,
   problemaNoNomeDePessoa,
+  IDADE_MINIMA_ADULTO,
   IDADE_MINIMA_VETERINARIO,
   nascimentoMaximoPara,
   problemaNaDataDeNascimento,
@@ -105,11 +106,12 @@ export class UsuarioDetalheComponent implements AfterViewInit {
 
   protected readonly hoje = hojeLocal();
 
-  /** Último nascimento aceito: hoje, e para veterinário quem já fez 23 anos. */
+  /** Último nascimento aceito: quem já fez 23 anos (veterinário) ou 18 (auxiliar e recepcionista). */
   protected get nascimentoMaximo(): string {
-    return this.usuario.role === 'ROLE_VETERINARIO'
-      ? nascimentoMaximoPara(IDADE_MINIMA_VETERINARIO, this.hoje)
-      : this.hoje;
+    return nascimentoMaximoPara(
+      this.usuario.role === 'ROLE_VETERINARIO' ? IDADE_MINIMA_VETERINARIO : IDADE_MINIMA_ADULTO,
+      this.hoje,
+    );
   }
   protected readonly ufs = UFS;
 
@@ -177,8 +179,8 @@ export class UsuarioDetalheComponent implements AfterViewInit {
     const problemaNaData = problemaNaDataDeNascimento(
       v.dataNascimento,
       this.hoje,
-      role === 'ROLE_VETERINARIO' ? IDADE_MINIMA_VETERINARIO : undefined,
-      'O veterinário',
+      role === 'ROLE_VETERINARIO' ? IDADE_MINIMA_VETERINARIO : IDADE_MINIMA_ADULTO,
+      role === 'ROLE_VETERINARIO' ? 'O veterinário' : 'A pessoa',
     );
     if (problemaNaData) return this.falhar(problemaNaData, 'dataNascimento');
 

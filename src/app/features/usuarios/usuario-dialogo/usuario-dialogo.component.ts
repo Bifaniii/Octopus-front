@@ -24,6 +24,7 @@ import {
   emailValido,
   hojeLocal,
   problemaNoNomeDePessoa,
+  IDADE_MINIMA_ADULTO,
   IDADE_MINIMA_VETERINARIO,
   nascimentoMaximoPara,
   problemaNaDataDeNascimento,
@@ -113,9 +114,12 @@ export class UsuarioDialogoComponent implements AfterViewInit {
     this.dialogo.nativeElement.showModal();
   }
 
-  /** Último nascimento aceito: hoje, e para veterinário quem já fez 23 anos. */
+  /** Último nascimento aceito: quem já fez 23 anos (veterinário) ou 18 (auxiliar e recepcionista). */
   protected get nascimentoMaximo(): string {
-    return this.role === 'ROLE_VETERINARIO' ? nascimentoMaximoPara(IDADE_MINIMA_VETERINARIO, this.hoje) : this.hoje;
+    return nascimentoMaximoPara(
+      this.role === 'ROLE_VETERINARIO' ? IDADE_MINIMA_VETERINARIO : IDADE_MINIMA_ADULTO,
+      this.hoje,
+    );
   }
 
   protected get role(): RoleCriavel {
@@ -157,8 +161,8 @@ export class UsuarioDialogoComponent implements AfterViewInit {
     const problemaNaData = problemaNaDataDeNascimento(
       v.dataNascimento,
       this.hoje,
-      v.role === 'ROLE_VETERINARIO' ? IDADE_MINIMA_VETERINARIO : undefined,
-      'O veterinário',
+      v.role === 'ROLE_VETERINARIO' ? IDADE_MINIMA_VETERINARIO : IDADE_MINIMA_ADULTO,
+      v.role === 'ROLE_VETERINARIO' ? 'O veterinário' : 'A pessoa',
     );
     if (problemaNaData) return this.setErro(problemaNaData, 'dataNascimento');
 

@@ -53,6 +53,9 @@ export function crmvValido(valor: string): boolean {
 /** Veterinário: o mínimo de uma formação em medicina veterinária concluída (o back confere o mesmo valor). */
 export const IDADE_MINIMA_VETERINARIO = 23;
 
+/** Maioridade: auxiliar, recepcionista e tutor (o back confere o mesmo valor). */
+export const IDADE_MINIMA_ADULTO = 18;
+
 /** Anos completos em `hoje` de quem nasceu em `nascimento` (aaaa-MM-dd). */
 export function idadeEmAnos(nascimento: string, hoje: string): number {
   const [an, mn, dn] = nascimento.split('-').map(Number);
