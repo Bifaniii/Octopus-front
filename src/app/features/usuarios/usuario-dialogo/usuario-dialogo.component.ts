@@ -24,6 +24,8 @@ import {
   emailValido,
   hojeLocal,
   problemaNoNomeDePessoa,
+  IDADE_MINIMA_VETERINARIO,
+  nascimentoMaximoPara,
   problemaNaDataDeNascimento,
   telefoneValido,
 } from '../../../shared/mascaras/validacoes';
@@ -111,6 +113,11 @@ export class UsuarioDialogoComponent implements AfterViewInit {
     this.dialogo.nativeElement.showModal();
   }
 
+  /** Último nascimento aceito: hoje, e para veterinário quem já fez 23 anos. */
+  protected get nascimentoMaximo(): string {
+    return this.role === 'ROLE_VETERINARIO' ? nascimentoMaximoPara(IDADE_MINIMA_VETERINARIO, this.hoje) : this.hoje;
+  }
+
   protected get role(): RoleCriavel {
     return this.form.controls.role.value;
   }
@@ -147,7 +154,12 @@ export class UsuarioDialogoComponent implements AfterViewInit {
     if (!telefoneValido(telefone)) {
       return this.setErro('Informe um celular com DDD, por exemplo (11) 98765-4321.', 'telefone');
     }
-    const problemaNaData = problemaNaDataDeNascimento(v.dataNascimento, this.hoje);
+    const problemaNaData = problemaNaDataDeNascimento(
+      v.dataNascimento,
+      this.hoje,
+      v.role === 'ROLE_VETERINARIO' ? IDADE_MINIMA_VETERINARIO : undefined,
+      'O veterinário',
+    );
     if (problemaNaData) return this.setErro(problemaNaData, 'dataNascimento');
 
     if (v.role === 'ROLE_AUXILIAR' || v.role === 'ROLE_RECEPCIONISTA') {
