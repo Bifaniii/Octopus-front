@@ -18,7 +18,17 @@ export class BaiaCardComponent {
   @Input({ required: true }) baia!: Baia;
   /** Quando false (usuário sem permissão de escrita), o card não é clicável. */
   @Input() editavel = false;
+  /** Animais internados nesta baia agora; `null` quando a ocupação não pôde ser carregada (a linha some). */
+  @Input() ocupantes: string[] | null = null;
   @Output() selecionar = new EventEmitter<Baia>();
+
+  /** Ex.: "Ocupada · Thor", "2 de 6 · Nina, Bidu" ou "Livre". */
+  protected get ocupacao(): string {
+    const nomes = this.ocupantes ?? [];
+    if (nomes.length === 0) return 'Livre';
+    const quantos = this.baia.capacidade > 1 ? `${nomes.length} de ${this.baia.capacidade}` : 'Ocupada';
+    return `${quantos} · ${nomes.join(', ')}`;
+  }
 
   /** Ex.: "Coletiva · até 6 animais" */
   protected get rodape(): string {

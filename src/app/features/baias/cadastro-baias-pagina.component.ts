@@ -15,6 +15,8 @@ import { AuthService } from '../../core/services/auth.service';
 import { BaiaCardComponent } from './baia-card/baia-card.component';
 import { BaiaDialogoComponent } from './baia-dialogo/baia-dialogo.component';
 import { BaiaService } from './baia.service';
+import { InternacaoService } from '../internacao/internacao.service';
+import { ocupaBaia } from '../internacao/internacao.model';
 import { Baia, DadosBaia, LIMITE_BAIAS, TipoBaia } from './baia.model';
 
 const SECOES: { tipo: TipoBaia; titulo: string }[] = [
@@ -36,7 +38,8 @@ interface Servico {
  * ----------------------------
  * Componente de ROTA do painel de baias. Busca os dados no BaiaService
  * (API ms-cadastro-baias), agrupa por tipo, monta os cards e controla o
- * diálogo de cadastro/edição. Só administradores podem cadastrar/editar.
+ * diálogo de cadastro/edição. Só administradores podem cadastrar/editar. Cada card mostra a ocupação atual,
+ * a partir das internações abertas do ms-internacao.
  * A moldura (sidebar, cabeçalho, tema) vem do AppShellComponent compartilhado.
  */
 @Component({
@@ -51,6 +54,7 @@ export class CadastroBaiasPaginaComponent {
   private readonly baiaService = inject(BaiaService);
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
+  private readonly internacaoService = inject(InternacaoService);
 
   protected readonly baias = this.baiaService.baias;
   protected readonly carregando = this.baiaService.carregando;
@@ -72,6 +76,21 @@ export class CadastroBaiasPaginaComponent {
   protected readonly salvando = signal(false);
   protected readonly erroDialogo = signal<string | null>(null);
 
+  /**
+   * Nomes dos animais em cada baia (internações abertas). Se o ms-internacao não responder, os cards só não
+   * mostram a ocupação: o cadastro de baias continua funcionando.
+   */
+  protected readonly ocupantes = computed(() => {
+    const mapa: Partial<Record<number, string[]>> = {};
+    for (const i of this.internacaoService.internacoes()) {
+      if (ocupaBaia(i.status)) {
+        (mapa[i.baiaId] ??= []).push(i.animalNome);
+      }
+    }
+    return mapa;
+  });
+  protected readonly ocupacaoCarregada = signal(false);
+
   protected readonly servicos: Servico[] = [
     { nome: 'Internação', icone: 'bi-plus-square', rota: '/internacao' },
     { nome: 'Prescrições', icone: 'bi-clipboard2-check', rota: '/prescricoes' }
@@ -91,6 +110,10 @@ export class CadastroBaiasPaginaComponent {
     // Só no navegador: no SSR não há token (localStorage) nem proxy para /api.
    if (isPlatformBrowser(inject(PLATFORM_ID))) {
       this.recarregar();
+      this.internacaoService.carregar().subscribe({
+        next: () => this.ocupacaoCarregada.set(true),
+        error: () => this.ocupacaoCarregada.set(false),
+      });
     }
   }
 

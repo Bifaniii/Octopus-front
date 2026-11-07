@@ -54,7 +54,12 @@
       </div>
       <div class="grade">
         @for (baia of grupo.baias; track baia.id) {
-          <app-baia-card [baia]="baia" [editavel]="podeEditar()" (selecionar)="editarBaia($event)" />
+          <app-baia-card
+            [baia]="baia"
+            [editavel]="podeEditar()"
+            [ocupantes]="ocupacaoCarregada() ? (ocupantes()[baia.id] ?? []) : null"
+            (selecionar)="editarBaia($event)"
+          />
         }
       </div>
     </section>

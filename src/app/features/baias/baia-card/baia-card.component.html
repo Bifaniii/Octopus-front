@@ -13,5 +13,12 @@
   </span>
 
   <span class="card__descricao">{{ baia.descricao || 'Sem descrição' }}</span>
+  @if (ocupantes !== null) {
+    <span class="card__ocupacao" [class.card__ocupacao--livre]="ocupantes.length === 0">
+      <i class="bi" [class.bi-heart-pulse]="ocupantes.length > 0" [class.bi-check-circle]="ocupantes.length === 0"
+         aria-hidden="true"></i>
+      {{ ocupacao }}
+    </span>
+  }
   <span class="card__detalhe">{{ rodape }}</span>
 </button>

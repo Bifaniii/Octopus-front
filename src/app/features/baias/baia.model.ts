@@ -2,8 +2,8 @@
  * Modelos de baia — espelham o contrato do microserviço ms-cadastro-baias
  * (BaiaRequest / BaiaResponse, endpoints em /api/baias).
  *
- * A ocupação (livre/ocupada) ainda não existe no back-end: ela será tratada
- * na internação (Sprint 2). Aqui é só o cadastro.
+ * A ocupação não é guardada aqui: a tela calcula a partir das internações abertas
+ * do ms-internacao (RN-08: a baia só fica livre com a saída física do animal).
  */
 
 /** Tipos de baia, exatamente como o enum `Tipo` do back-end. */
