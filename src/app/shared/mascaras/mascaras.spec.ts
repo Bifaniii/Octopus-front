@@ -21,6 +21,10 @@ import {
   crmvValido,
   emailValido,
   nomeValido,
+  IDADE_MINIMA_ADULTO,
+  IDADE_MINIMA_VETERINARIO,
+  idadeEmAnos,
+  nascimentoMaximoPara,
   problemaNoNomeDePessoa,
   problemaNaDataDeNascimento,
   telefoneValido,
@@ -129,6 +133,31 @@ describe('validações', () => {
     expect(siglas).toContain('SP');
     expect(siglas).toContain('DF');
     expect([...siglas].sort()).toEqual([...siglas]);
+  });
+
+  it('veterinário precisa ter 23 anos: vale no dia do aniversário, não um dia antes', () => {
+    const hoje = '2026-11-06';
+    expect(idadeEmAnos('2003-11-06', hoje)).toBe(23);
+    expect(idadeEmAnos('2003-11-07', hoje)).toBe(22);
+    expect(idadeEmAnos('1990-01-15', hoje)).toBe(36);
+
+    const aviso = 'O veterinário precisa ter pelo menos 23 anos.';
+    expect(problemaNaDataDeNascimento('2003-11-06', hoje, IDADE_MINIMA_VETERINARIO, 'O veterinário')).toBeNull();
+    expect(problemaNaDataDeNascimento('2003-11-07', hoje, IDADE_MINIMA_VETERINARIO, 'O veterinário')).toBe(aviso);
+    expect(problemaNaDataDeNascimento('2010-05-01', hoje, IDADE_MINIMA_VETERINARIO, 'O veterinário')).toBe(aviso);
+    // os outros perfis e o tutor precisam ser maiores de idade
+    expect(problemaNaDataDeNascimento('2008-11-06', hoje, IDADE_MINIMA_ADULTO)).toBeNull();
+    expect(problemaNaDataDeNascimento('2008-11-07', hoje, IDADE_MINIMA_ADULTO, 'O tutor')).toBe(
+      'O tutor precisa ter pelo menos 18 anos.',
+    );
+    // sem idade mínima só valem as regras de data
+    expect(problemaNaDataDeNascimento('2010-05-01', hoje)).toBeNull();
+  });
+
+  it('último nascimento aceito para o campo de data (max), inclusive 29/02', () => {
+    expect(nascimentoMaximoPara(23, '2026-11-06')).toBe('2003-11-06');
+    expect(nascimentoMaximoPara(23, '2024-02-29')).toBe('2001-02-28');
+    expect(nascimentoMaximoPara(24, '2024-02-29')).toBe('2000-02-29');
   });
 
   it('data de nascimento: existe, é anterior a hoje e não é antes de 1900', () => {
