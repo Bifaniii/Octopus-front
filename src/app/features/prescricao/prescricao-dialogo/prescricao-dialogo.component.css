@@ -28,6 +28,10 @@ h2 {
 select,
 input,
 textarea {
+  /* Sem isso o campo de data e hora, que tem largura própria, passa da coluna e da borda do bloco. */
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
   font: inherit;
   padding: 9px 10px;
   border: 1px solid var(--color-border-strong);
@@ -54,9 +58,15 @@ textarea {
   display: flex;
   gap: 12px;
   flex-wrap: wrap;
+  align-items: flex-end; /* rótulo que quebra em duas linhas não desalinha os campos */
 }
 .linha .campo {
-  min-width: 160px;
+  flex: 1 1 120px;
+  min-width: 0;
+}
+/* Data e hora precisa de mais espaço que o intervalo e a quantidade de doses. */
+.linha .campo--data {
+  flex: 2 1 220px;
 }
 .aviso {
   color: var(--color-text-muted);
