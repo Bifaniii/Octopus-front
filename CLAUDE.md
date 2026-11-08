@@ -234,3 +234,6 @@ Funcionário (veterinário, auxiliar e recepcionista): no máximo 70 anos (`IDAD
 
 ## Campo cheio recusa a tecla (08/11/2026)
 As máscaras (`MascaraDirective`, usada em telefone, CPF e CNPJ) e o `appDigitos` (CRMV) recusam a tecla no `beforeinput` quando o campo já tem o máximo e não há texto selecionado, como o `maxlength`. Antes, com o cursor voltado no meio, o dígito entrava e o limite cortava o **último**. Se a tecla entrar mesmo assim (teclado virtual), o handler de `input` desfaz a inserção e mantém o cursor onde estava. Colar texto maior que o limite ainda é truncado no fim.
+
+## Busca no mapa de internação (08/11/2026)
+O mapa tem o campo "Buscar animal no mapa": ele esconde as baias que não têm um animal com aquele nome (sem diferenciar maiúsculas nem acentos), mostra quantos animais achou e contorna o cartão do animal procurado. Esc limpa. A aba "Encerradas" continua com a busca dela. Só no front.

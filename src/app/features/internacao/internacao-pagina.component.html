@@ -50,14 +50,37 @@
       </div>
     </section>
 
+    <div class="filtro">
+      <label class="busca">
+        <i class="bi bi-search" aria-hidden="true"></i>
+        <input
+          type="search"
+          placeholder="Buscar animal no mapa"
+          aria-label="Buscar animal no mapa pelo nome"
+          [value]="buscaMapa()"
+          (input)="buscarNoMapa($event)"
+          (keydown.escape)="buscaMapa.set('')"
+        />
+      </label>
+      @if (buscaMapa()) {
+        <span class="filtro__total" role="status">
+          {{ animaisAchados() }} animal(is) em {{ blocosVisiveis().length }} baia(s)
+        </span>
+      }
+    </div>
+
     @if (carregando() && blocos().length === 0) {
       <p class="aviso">Carregando painel...</p>
     } @else if (!erroLista() && blocos().length === 0) {
       <p class="aviso">Nenhuma baia ativa cadastrada. Cadastre as baias no Painel de baias.</p>
     }
 
+    @if (buscaMapa() && blocosVisiveis().length === 0 && blocos().length > 0) {
+      <p class="aviso">Nenhum animal internado com esse nome.</p>
+    }
+
     <div class="mapa">
-      @for (bloco of blocos(); track bloco.id) {
+      @for (bloco of blocosVisiveis(); track bloco.id) {
         <section
           class="baia"
           [class.baia--livre]="bloco.internacoes.length === 0"
@@ -74,6 +97,7 @@
           @for (internacao of bloco.internacoes; track internacao.id) {
             <app-internacao-card
               [internacao]="internacao"
+              [destacado]="combinaComABusca(internacao)"
               [acoes]="acoes(internacao)"
               [podePrescrever]="podePrescrever()"
               (acao)="abrirAcao(internacao, $event)"

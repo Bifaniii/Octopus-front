@@ -154,6 +154,38 @@ export class InternacaoPaginaComponent {
   });
 
   protected readonly aba = signal<Aba>('mapa');
+
+  /** Busca por nome no mapa: some a baia que não tem o animal. */
+  protected readonly buscaMapa = signal('');
+
+  private readonly termoDoMapa = computed(() => normalizar(this.buscaMapa()));
+
+  /** As baias do mapa; com busca, só as que têm um animal cujo nome bate (sem acento e sem maiúsculas). */
+  protected readonly blocosVisiveis = computed<BlocoBaia[]>(() => {
+    const termo = this.termoDoMapa();
+    if (!termo) return this.blocos();
+    return this.blocos().filter((b) => b.internacoes.some((i) => normalizar(i.animalNome).includes(termo)));
+  });
+
+  /** Quantos animais batem com a busca (para o contador ao lado do campo). */
+  protected readonly animaisAchados = computed(() => {
+    const termo = this.termoDoMapa();
+    if (!termo) return 0;
+    return this.blocos().reduce(
+      (total, b) => total + b.internacoes.filter((i) => normalizar(i.animalNome).includes(termo)).length,
+      0,
+    );
+  });
+
+  /** O animal bate com a busca do mapa? Nos cartões da baia achada, destaca quem foi procurado. */
+  protected combinaComABusca(internacao: Internacao): boolean {
+    const termo = this.termoDoMapa();
+    return !!termo && normalizar(internacao.animalNome).includes(termo);
+  }
+
+  protected buscarNoMapa(evento: Event): void {
+    this.buscaMapa.set((evento.target as HTMLInputElement).value);
+  }
   protected readonly busca = signal('');
 
   /** Encerradas, da saída mais recente para a mais antiga, filtradas pelo nome do animal. */

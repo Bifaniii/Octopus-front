@@ -1,4 +1,4 @@
-<article class="card" [class]="classeStatus">
+<article class="card" [class]="classeStatus" [class.card--destacado]="destacado">
   <header class="card__topo">
     <span class="card__titulo" [attr.title]="internacao.animalNome">{{ internacao.animalNome }}</span>
     <span class="selo">{{ nomes[internacao.status] }}</span>

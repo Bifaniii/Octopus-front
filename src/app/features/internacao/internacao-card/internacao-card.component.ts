@@ -19,6 +19,8 @@ import { ACOES, Acao, Internacao, NOME_POR_STATUS, formatarDataHora } from '../i
 export class InternacaoCardComponent {
   @Input({ required: true }) internacao!: Internacao;
   @Input() acoes: Acao[] = [];
+  /** Bate com a busca do mapa: ganha um contorno para achar o animal de relance. */
+  @Input() destacado = false;
   /** Só o veterinário prescreve: para ele, o aviso de prescrição pendente traz o atalho para a tela. */
   @Input() podePrescrever = false;
   @Output() acao = new EventEmitter<Acao>();

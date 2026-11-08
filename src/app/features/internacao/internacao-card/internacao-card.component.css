@@ -62,3 +62,5 @@
 
 .card__aviso { font-size: 0.75rem; color: var(--color-text-muted); }
 a.acao { text-decoration: none; }
+
+.card--destacado { box-shadow: 0 0 0 2px var(--color-primary); }
