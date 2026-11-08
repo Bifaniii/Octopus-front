@@ -24,11 +24,25 @@
 .botao-novo:focus-visible,
 .botao-secundario:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 2px; }
 
-.resumo {
+/* O resumo e a busca do mapa usam a mesma grade: o campo ocupa a largura de um cartão (o "Internados"). */
+.resumo,
+.filtro.filtro--mapa {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  grid-template-columns: repeat(4, 1fr);
   gap: 0.75rem;
-  margin-bottom: 1.5rem;
+}
+.resumo { margin-bottom: 1.5rem; }
+.filtro.filtro--mapa { align-items: center; margin-bottom: 1rem; }
+.filtro--mapa .busca { max-width: none; min-width: 0; flex: none; }
+.filtro--mapa .filtro__total { grid-column: 2 / -1; }
+@media (max-width: 1000px) {
+  .resumo,
+  .filtro.filtro--mapa { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 560px) {
+  .resumo,
+  .filtro.filtro--mapa { grid-template-columns: 1fr; }
+  .filtro--mapa .filtro__total { grid-column: 1; }
 }
 .resumo__item {
   display: flex;
