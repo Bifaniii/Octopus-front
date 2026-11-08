@@ -24,9 +24,11 @@ import {
   emailValido,
   hojeLocal,
   problemaNoNomeDePessoa,
+  IDADE_MAXIMA_FUNCIONARIO,
   IDADE_MINIMA_ADULTO,
   IDADE_MINIMA_VETERINARIO,
   nascimentoMaximoPara,
+  nascimentoMinimoPara,
   problemaNaDataDeNascimento,
   telefoneValido,
 } from '../../../shared/mascaras/validacoes';
@@ -114,6 +116,11 @@ export class UsuarioDialogoComponent implements AfterViewInit {
     this.dialogo.nativeElement.showModal();
   }
 
+  /** Primeiro nascimento aceito: quem ainda não passou dos 70 anos. */
+  protected get nascimentoMinimo(): string {
+    return nascimentoMinimoPara(IDADE_MAXIMA_FUNCIONARIO, this.hoje);
+  }
+
   /** Último nascimento aceito: quem já fez 23 anos (veterinário) ou 18 (auxiliar e recepcionista). */
   protected get nascimentoMaximo(): string {
     return nascimentoMaximoPara(
@@ -163,6 +170,7 @@ export class UsuarioDialogoComponent implements AfterViewInit {
       this.hoje,
       v.role === 'ROLE_VETERINARIO' ? IDADE_MINIMA_VETERINARIO : IDADE_MINIMA_ADULTO,
       v.role === 'ROLE_VETERINARIO' ? 'O veterinário' : 'A pessoa',
+      IDADE_MAXIMA_FUNCIONARIO,
     );
     if (problemaNaData) return this.setErro(problemaNaData, 'dataNascimento');
 

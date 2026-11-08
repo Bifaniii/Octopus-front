@@ -56,6 +56,12 @@ export const IDADE_MINIMA_VETERINARIO = 23;
 /** Maioridade: auxiliar, recepcionista e tutor (o back confere o mesmo valor). */
 export const IDADE_MINIMA_ADULTO = 18;
 
+/** Quem trabalha na clínica (veterinário, auxiliar e recepcionista); o back confere o mesmo valor. */
+export const IDADE_MAXIMA_FUNCIONARIO = 70;
+
+/** Tutor: idoso é comum numa clínica veterinária, então o teto só barra data absurda (como nascer há 200 anos). */
+export const IDADE_MAXIMA_TUTOR = 120;
+
 /** Anos completos em `hoje` de quem nasceu em `nascimento` (aaaa-MM-dd). */
 export function idadeEmAnos(nascimento: string, hoje: string): number {
   const [an, mn, dn] = nascimento.split('-').map(Number);
@@ -75,15 +81,28 @@ export function nascimentoMaximoPara(anos: number, hoje: string): string {
 }
 
 /**
+ * Primeiro nascimento (aaaa-MM-dd) que ainda não passou da idade máxima em `hoje`: com 70 de limite, quem nasceu um
+ * dia antes de `hoje` menos 71 anos já fez 71. Serve de `min` do campo de data.
+ */
+export function nascimentoMinimoPara(idadeMaxima: number, hoje: string): string {
+  const [ano, mes, dia] = hoje.split('-').map(Number);
+  const alvo = ano - (idadeMaxima + 1);
+  const ultimoDia = new Date(alvo, mes, 0).getDate();
+  const d = new Date(alvo, mes - 1, Math.min(dia, ultimoDia) + 1);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
+
+/**
  * Data de nascimento (aaaa-MM-dd) de pessoa: existe no calendário, é anterior a hoje, não é antes de 1900 e, se
- * `idadeMinima` vier, a pessoa já tem essa idade (`quem` entra na mensagem). Devolve a mensagem do problema, ou
- * null se estiver certa.
+ * `idadeMinima` vier, a pessoa já tem essa idade e, se `idadeMaxima` vier, não passou dela (`quem` entra na
+ * mensagem). Devolve a mensagem do problema, ou null se estiver certa.
  */
 export function problemaNaDataDeNascimento(
   iso: string,
   hoje: string,
   idadeMinima?: number,
   quem = 'A pessoa',
+  idadeMaxima?: number,
 ): string | null {
   if (!iso) return 'Informe a data de nascimento.';
   const [ano, mes, dia] = iso.split('-').map(Number);
@@ -93,7 +112,9 @@ export function problemaNaDataDeNascimento(
   }
   if (iso >= hoje) return 'A data de nascimento precisa ser anterior a hoje.';
   if (ano < 1900) return 'A data de nascimento não pode ser anterior a 1900.';
-  if (idadeMinima && idadeEmAnos(iso, hoje) < idadeMinima) return `${quem} precisa ter pelo menos ${idadeMinima} anos.`;
+  const idade = idadeEmAnos(iso, hoje);
+  if (idadeMinima && idade < idadeMinima) return `${quem} precisa ter pelo menos ${idadeMinima} anos.`;
+  if (idadeMaxima && idade > idadeMaxima) return `${quem} não pode ter mais de ${idadeMaxima} anos.`;
   return null;
 }
 

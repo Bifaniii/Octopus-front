@@ -228,3 +228,6 @@ A tela de prescrições mostra só as ativas; "Mostrar inativas" traz as outras.
 
 ## Idade mínima do veterinário (06/11/2026)
 Veterinário precisa ter 23 anos (`IDADE_MINIMA_VETERINARIO`, o mesmo valor do back): o campo de data de nascimento do cadastro e da ficha limita o `max` a quem já fez 23 anos, e `problemaNaDataDeNascimento` recusa com a mensagem. Auxiliar, recepcionista e tutor precisam de 18 anos (`IDADE_MINIMA_ADULTO`); admin não tem data de nascimento e animal fica fora.
+
+## Idade máxima (08/11/2026)
+Funcionário (veterinário, auxiliar e recepcionista): no máximo 70 anos (`IDADE_MAXIMA_FUNCIONARIO`); tutor: 120 (`IDADE_MAXIMA_TUTOR`). O campo de data limita o `min` pelo `nascimentoMinimoPara`, e `problemaNaDataDeNascimento` recusa com a mensagem. Quem faz 71 no dia do aniversário deixa de valer, como no back.

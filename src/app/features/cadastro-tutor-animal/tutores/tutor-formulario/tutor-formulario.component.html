@@ -14,7 +14,7 @@
   <div class="linha">
     <label class="campo">
       <span class="campo__rotulo">Data de nascimento</span>
-      <input type="date" formControlName="dataNascimento" [max]="nascimentoMaximo" />
+      <input type="date" formControlName="dataNascimento" [max]="nascimentoMaximo" [min]="nascimentoMinimo" />
     </label>
 
     <label class="campo">

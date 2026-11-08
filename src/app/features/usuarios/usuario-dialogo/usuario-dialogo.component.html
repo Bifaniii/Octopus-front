@@ -47,7 +47,7 @@
 
         <label class="campo">
           <span class="campo__rotulo">Data de nascimento</span>
-          <input type="date" formControlName="dataNascimento" [max]="nascimentoMaximo" min="1900-01-01" />
+          <input type="date" formControlName="dataNascimento" [max]="nascimentoMaximo" [min]="nascimentoMinimo" />
         </label>
       </div>
     }

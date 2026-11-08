@@ -21,10 +21,12 @@ import {
   crmvValido,
   emailValido,
   nomeValido,
+  IDADE_MAXIMA_TUTOR,
   IDADE_MINIMA_ADULTO,
   IDADE_MINIMA_VETERINARIO,
   idadeEmAnos,
   nascimentoMaximoPara,
+  nascimentoMinimoPara,
   problemaNoNomeDePessoa,
   problemaNaDataDeNascimento,
   telefoneValido,
@@ -150,8 +152,26 @@ describe('validações', () => {
     expect(problemaNaDataDeNascimento('2008-11-07', hoje, IDADE_MINIMA_ADULTO, 'O tutor')).toBe(
       'O tutor precisa ter pelo menos 18 anos.',
     );
+    // idade máxima: 70 anos ainda vale, e quem faz 71 no dia deixa de valer
+    expect(problemaNaDataDeNascimento('1956-11-06', hoje, 18, 'A pessoa', 70)).toBeNull(); // 70 anos
+    expect(problemaNaDataDeNascimento('1955-11-07', hoje, 18, 'A pessoa', 70)).toBeNull(); // falta 1 dia para os 71
+    expect(problemaNaDataDeNascimento('1955-11-06', hoje, 18, 'A pessoa', 70)).toBe(
+      'A pessoa não pode ter mais de 70 anos.',
+    );
+    expect(problemaNaDataDeNascimento('1926-01-01', hoje, 18, 'O tutor', IDADE_MAXIMA_TUTOR)).toBeNull(); // 100 anos
+    expect(problemaNaDataDeNascimento('1900-01-01', hoje, 18, 'O tutor', IDADE_MAXIMA_TUTOR)).toBe(
+      'O tutor não pode ter mais de 120 anos.',
+    );
     // sem idade mínima só valem as regras de data
     expect(problemaNaDataDeNascimento('2010-05-01', hoje)).toBeNull();
+  });
+
+  it('primeiro nascimento aceito para o campo de data (min), inclusive 29/02', () => {
+    // 70 de limite: quem nasceu em 06/11/1955 fez 71 hoje (2026-11-06); o primeiro válido é o dia seguinte
+    expect(nascimentoMinimoPara(70, '2026-11-06')).toBe('1955-11-07');
+    expect(nascimentoMinimoPara(70, '2026-12-31')).toBe('1956-01-01'); // vira o ano
+    expect(nascimentoMinimoPara(70, '2028-02-29')).toBe('1957-03-01'); // 29/02 sem equivalente 71 anos antes
+    expect(nascimentoMinimoPara(120, '2026-11-06')).toBe('1905-11-07');
   });
 
   it('último nascimento aceito para o campo de data (max), inclusive 29/02', () => {

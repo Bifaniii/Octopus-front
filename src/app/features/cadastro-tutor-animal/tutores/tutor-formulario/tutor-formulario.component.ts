@@ -11,7 +11,7 @@ import {
 } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { destacarCampo, limparDestaques } from '../../../../shared/mascaras/campo-invalido';
-import { IDADE_MINIMA_ADULTO, emailValido, hojeLocal, nascimentoMaximoPara, problemaNaDataDeNascimento, problemaNoNomeDePessoa, telefoneValido } from '../../../../shared/mascaras/validacoes';
+import { IDADE_MAXIMA_TUTOR, IDADE_MINIMA_ADULTO, emailValido, hojeLocal, nascimentoMaximoPara, nascimentoMinimoPara, problemaNaDataDeNascimento, problemaNoNomeDePessoa, telefoneValido } from '../../../../shared/mascaras/validacoes';
 import { TelefoneDirective } from '../../../../shared/mascaras/telefone.directive';
 import { DadosTutor, SOMENTE_DIGITOS } from '../tutor.model';
 
@@ -46,6 +46,9 @@ export class TutorFormularioComponent implements OnInit {
   protected readonly hoje = hojeLocal();
 
   /** Último nascimento aceito: quem já tem 18 anos. */
+  /** Primeiro nascimento aceito: quem ainda não passou dos 120 anos. */
+  protected readonly nascimentoMinimo = nascimentoMinimoPara(IDADE_MAXIMA_TUTOR, this.hoje);
+
   protected readonly nascimentoMaximo = nascimentoMaximoPara(IDADE_MINIMA_ADULTO, this.hoje);
 
   protected readonly form = this.fb.nonNullable.group({
@@ -80,7 +83,7 @@ export class TutorFormularioComponent implements OnInit {
     if (nome.length > 100) return this.setErro('O nome pode ter no máximo 100 caracteres.', 'nome');
     if (!endereco) return this.setErro('Informe o endereço.', 'endereco');
     if (endereco.length > 255) return this.setErro('O endereço pode ter no máximo 255 caracteres.', 'endereco');
-    const problemaNaData = problemaNaDataDeNascimento(v.dataNascimento, this.hoje, IDADE_MINIMA_ADULTO, 'O tutor');
+    const problemaNaData = problemaNaDataDeNascimento(v.dataNascimento, this.hoje, IDADE_MINIMA_ADULTO, 'O tutor', IDADE_MAXIMA_TUTOR);
     if (problemaNaData) return this.setErro(problemaNaData, 'dataNascimento');
     if (!telefoneValido(telefone)) {
       return this.setErro('Informe um celular com DDD, por exemplo (11) 98765-4321.', 'telefone');
