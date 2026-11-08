@@ -231,3 +231,6 @@ Veterinário precisa ter 23 anos (`IDADE_MINIMA_VETERINARIO`, o mesmo valor do b
 
 ## Idade máxima (08/11/2026)
 Funcionário (veterinário, auxiliar e recepcionista): no máximo 70 anos (`IDADE_MAXIMA_FUNCIONARIO`); tutor: 120 (`IDADE_MAXIMA_TUTOR`). O campo de data limita o `min` pelo `nascimentoMinimoPara`, e `problemaNaDataDeNascimento` recusa com a mensagem. Quem faz 71 no dia do aniversário deixa de valer, como no back.
+
+## Campo cheio recusa a tecla (08/11/2026)
+As máscaras (`MascaraDirective`, usada em telefone, CPF e CNPJ) e o `appDigitos` (CRMV) recusam a tecla no `beforeinput` quando o campo já tem o máximo e não há texto selecionado, como o `maxlength`. Antes, com o cursor voltado no meio, o dígito entrava e o limite cortava o **último**. Se a tecla entrar mesmo assim (teclado virtual), o handler de `input` desfaz a inserção e mantém o cursor onde estava. Colar texto maior que o limite ainda é truncado no fim.

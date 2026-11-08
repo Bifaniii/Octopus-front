@@ -41,6 +41,18 @@ export class DigitosDirective implements ControlValueAccessor {
     this.aoTocar();
   }
 
+  /** Campo cheio: recusa a tecla (como o `maxlength`), em vez de deixar o limite cortar o último dígito. */
+  @HostListener('beforeinput', ['$event'])
+  aoAntesDeDigitar(evento: InputEvent): void {
+    if (
+      evento.inputType === 'insertText' &&
+      this.input.selectionStart === this.input.selectionEnd &&
+      this.limpar(this.input.value).length >= Number(this.maximo)
+    ) {
+      evento.preventDefault();
+    }
+  }
+
   @HostListener('input')
   aoDigitar(): void {
     const limpo = this.limpar(this.input.value);

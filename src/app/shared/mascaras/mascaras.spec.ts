@@ -242,6 +242,57 @@ describe('diretivas de máscara', () => {
     expect(c.telefone.value).toBe('11999999999');
   });
 
+  /** Simula a tecla antes de entrar no campo; devolve se o navegador a recusou. */
+  function teclaFoiRecusada(id: string, inicio: number, fim = inicio): boolean {
+    const input = el(id);
+    input.setSelectionRange(inicio, fim);
+    const evento = new InputEvent('beforeinput', { inputType: 'insertText', data: '9', cancelable: true });
+    input.dispatchEvent(evento);
+    return evento.defaultPrevented;
+  }
+
+  it('campo cheio recusa a tecla em qualquer posição do cursor, e não corta o último dígito', () => {
+    digitar('tel', '11964834564');
+    expect(el('tel').value).toBe('(11) 96483-4564');
+
+    expect(teclaFoiRecusada('tel', 15)).toBeTrue(); // cursor no fim
+    expect(teclaFoiRecusada('tel', 6)).toBeTrue(); // cursor voltou com a seta
+    expect(teclaFoiRecusada('tel', 0)).toBeTrue(); // cursor no começo
+    expect(el('tel').value).toBe('(11) 96483-4564');
+    expect(c.telefone.value).toBe('11964834564');
+  });
+
+  it('texto selecionado pode ser substituído mesmo com o campo cheio', () => {
+    digitar('tel', '11964834564');
+
+    expect(teclaFoiRecusada('tel', 14, 15)).toBeFalse(); // último dígito selecionado
+  });
+
+  it('se o dígito entrar mesmo assim (teclado virtual), o que sai é o dígito novo e o cursor fica onde estava', () => {
+    digitar('tel', '11964834564');
+    el('tel').focus(); // a diretiva só devolve o cursor ao lugar com o campo focado
+    // a pessoa voltou o cursor depois do 3º dígito e digitou um 9: o texto já chega com o dígito a mais
+    digitar('tel', '(11) 996483-4564', 'insertText', 7);
+
+    expect(el('tel').value).toBe('(11) 96483-4564');
+    expect(c.telefone.value).toBe('11964834564');
+    expect(el('tel').selectionStart).toBe(6); // logo depois do 3º dígito
+  });
+
+  it('com espaço no campo, a tecla no meio entra normalmente', () => {
+    digitar('tel', '1196483456');
+
+    expect(teclaFoiRecusada('tel', 6)).toBeFalse();
+  });
+
+  it('campo de dígitos (CRMV) também recusa a tecla quando está cheio', () => {
+    el('cod').value = '123456';
+    el('cod').dispatchEvent(new InputEvent('input', { inputType: 'insertText' }));
+
+    expect(teclaFoiRecusada('cod', 2)).toBeTrue();
+    expect(el('cod').value).toBe('123456');
+  });
+
   it('telefone: não passa de 11 dígitos', () => {
     digitar('tel', '11999999999');
     digitar('tel', '(11) 99999-99991');

@@ -51,6 +51,21 @@ export abstract class MascaraDirective implements ControlValueAccessor {
     this.aoTocar();
   }
 
+  /**
+   * Campo cheio: a tecla é recusada, como faz o `maxlength`. Sem isso o dígito entrava no meio (cursor movido com a
+   * seta) e o limite cortava o último dígito, que sumia. Com texto selecionado a tecla vale, porque substitui.
+   */
+  @HostListener('beforeinput', ['$event'])
+  aoAntesDeDigitar(evento: InputEvent): void {
+    if (
+      evento.inputType === 'insertText' &&
+      this.input.selectionStart === this.input.selectionEnd &&
+      this.digitos.length >= this.maxDigitos()
+    ) {
+      evento.preventDefault();
+    }
+  }
+
   @HostListener('input', ['$event'])
   aoDigitar(evento: Event): void {
     const tipo = (evento as InputEvent).inputType ?? '';
@@ -74,6 +89,12 @@ export abstract class MascaraDirective implements ControlValueAccessor {
       const ajustado = this.aoColar(digitos);
       antesDoCursor = Math.max(0, antesDoCursor - (digitos.length - ajustado.length));
       digitos = ajustado;
+    }
+
+    // Reserva do bloqueio acima (autocompletar, teclado virtual): o que não cabe é a tecla nova, nunca o último dígito.
+    if (tipo === 'insertText' && digitos.length > this.maxDigitos()) {
+      digitos = this.digitos;
+      antesDoCursor = Math.max(0, antesDoCursor - 1);
     }
 
     digitos = digitos.slice(0, this.maxDigitos());
