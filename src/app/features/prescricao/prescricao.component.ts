@@ -125,9 +125,17 @@ export class PrescricaoComponent implements OnInit {
     // Se internação ou medicamentos estiverem fora do ar, a lista de prescrições ainda aparece.
     forkJoin({
       prescricoes: this.service.listar(),
+      internacoes: this.service
+        .listarInternacoes()
+        .pipe(catchError(() => of([] as InternacaoOpcao[]))),
+      medicacoes: this.service
+        .listarMedicacoes()
+        .pipe(catchError(() => of([] as MedicacaoOpcao[]))),
     }).subscribe({
-      next: ({ prescricoes}) => {
+      next: ({ prescricoes, internacoes, medicacoes }) => {
         this.prescricoes.set(prescricoes);
+        this.internacoes.set(internacoes);
+        this.medicacoes.set(medicacoes);
         this.carregando.set(false);
       },
       error: (e: HttpErrorResponse) => {
