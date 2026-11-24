@@ -51,7 +51,7 @@ export class PainelDosesService {
       case 0:
         return 'Não foi possível falar com o servidor. Verifique a conexão.';
       case 403:
-        return 'Só o auxiliar registra a aplicação das doses.';
+        return 'Só o auxiliar ou o admin registra a aplicação das doses.';
       case 404:
       case 422:
         // 422 traz o texto da regra: RN-03 (fora da janela), RN-04 (perdida), RN-05 (já aplicada) ou intervalo mínimo.

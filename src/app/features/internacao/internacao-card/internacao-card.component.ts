@@ -21,7 +21,7 @@ export class InternacaoCardComponent {
   @Input() acoes: Acao[] = [];
   /** Bate com a busca do mapa: ganha um contorno para achar o animal de relance. */
   @Input() destacado = false;
-  /** Só o veterinário prescreve: para ele, o aviso de prescrição pendente traz o atalho para a tela. */
+  /** Só o veterinário e o admin prescrevem: para eles, o aviso de prescrição pendente traz o atalho para a tela. */
   @Input() podePrescrever = false;
   @Output() acao = new EventEmitter<Acao>();
   @Output() historico = new EventEmitter<void>();

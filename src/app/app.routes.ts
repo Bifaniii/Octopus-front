@@ -107,7 +107,7 @@ export const routes: Routes = [
   },
 
   {
-    // Tela 6. Todos os perfis acompanham; só o auxiliar registra a aplicação (botão escondido para os outros).
+    // Tela 6. Todos os perfis acompanham; só o auxiliar e o admin registram a aplicação (botão escondido para os outros).
     path: 'painel-doses',
     canActivate: [authGuard],
     loadComponent: () =>

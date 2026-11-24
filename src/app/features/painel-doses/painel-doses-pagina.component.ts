@@ -39,7 +39,7 @@ export class PainelDosesPaginaComponent {
   protected readonly nomeDoEsquema = NOME_DO_ESQUEMA;
 
   // O enunciado: o auxiliar registra a aplicação. Os outros perfis acompanham o painel.
-  protected readonly podeAplicar = computed(() => this.auth.temRole(['ROLE_AUXILIAR']));
+  protected readonly podeAplicar = computed(() => this.auth.temRole(['ROLE_ADMIN', 'ROLE_AUXILIAR']));
 
   // Só animais ainda internados: a dose perdida de quem já saiu fica no relatório, não no plantão.
   private readonly aberta = (d: { internacaoId: number }) =>

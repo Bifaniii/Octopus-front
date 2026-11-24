@@ -145,13 +145,13 @@ O front chama sempre `/api/...` (`environment.apiBaseUrl`) e o proxy escolhe o m
   linha permite acrescentar animal (`POST /api/tutores/{id}/animais`), editar o tutor (`PUT /api/tutores/{id}`) e
   editar um animal (`PUT /api/animais/{id}`, inclusive mãe e antirrábica). A leitura vem só de `GET /api/tutores`,
   que já traz os animais. A antirrábica vencida aparece destacada, com a mesma conta da RN-02.
-- `prescricoes` (tela 5): o veterinário prescreve para uma internação aberta (medicamento, dosagem, intervalo,
+- `prescricoes` (tela 5): o veterinário (e o admin, perfil de TI) prescreve para uma internação aberta (medicamento, dosagem, intervalo,
   número de doses e início). O card mostra os horários gerados pelo back. Desativar cancela as doses pendentes no
   `octopus-msdoses`. Cada item pode ser "se necessário" (mudança contratada de 01/11): a caixa esconde quantidade e
   início, e o intervalo vira o mínimo entre aplicações. O back só aceita a partir da data de vigência.
 - `painel-doses` (tela 6, ícone de despertador, todos os perfis): atrasadas (ainda na janela de 30 minutos),
   próximas (vencem na próxima hora), perdidas nas últimas 24 horas e itens "se necessário", só de animais ainda
-  internados, com atualização a cada 60 s. Só o auxiliar vê "Registrar aplicação"; a dose que vence na próxima hora
+  internados, com atualização a cada 60 s. Só o auxiliar e o admin veem "Registrar aplicação"; a dose que vence na próxima hora
   mostra a partir de quando pode ser registrada (RN-03), e o "se necessário", quando fica liberado. Quem marca
   perdida e reaplica (RN-04, RN-07) é o `octopus-msdoses`; a tela só agrupa. Os nomes de animal, baia e medicamento
   vêm de internações, baias e medicamentos.
@@ -237,3 +237,9 @@ As máscaras (`MascaraDirective`, usada em telefone, CPF e CNPJ) e o `appDigitos
 
 ## Busca no mapa de internação (08/11/2026)
 O mapa tem o campo "Buscar animal no mapa": ele esconde as baias que não têm um animal com aquele nome (sem diferenciar maiúsculas nem acentos), mostra quantos animais achou e contorna o cartão do animal procurado. Esc limpa. A aba "Encerradas" continua com a busca dela. Só no front.
+
+## ADMIN é o perfil de TI (24/11/2026)
+O admin faz tudo o que os outros perfis fazem, como no back (`fix/admin-ti-*`): prescrever e desativar prescrição,
+registrar a aplicação das doses e o "se necessário", e todas as ações da internação (`ACOES` em `internacao.model.ts`).
+O histórico grava o e-mail do admin nesses atos. Depende do back publicado com as mesmas branches; antes disso o
+botão aparece e o back responde 403.

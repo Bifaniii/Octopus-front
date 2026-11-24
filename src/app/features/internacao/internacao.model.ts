@@ -86,25 +86,25 @@ export const ACOES: Record<Acao, DefinicaoAcao> = {
     rotulo: 'Isolar',
     icone: 'bi-shield-exclamation',
     de: ['EM_TRATAMENTO'],
-    roles: ['ROLE_VETERINARIO'],
+    roles: ['ROLE_ADMIN', 'ROLE_VETERINARIO'],
   },
   'autorizar-alta': {
     rotulo: 'Autorizar alta',
     icone: 'bi-check2-circle',
     de: ['EM_TRATAMENTO', 'ISOLAMENTO'],
-    roles: ['ROLE_VETERINARIO'],
+    roles: ['ROLE_ADMIN', 'ROLE_VETERINARIO'],
   },
   'alta-a-pedido-do-tutor': {
     rotulo: 'Alta a pedido do tutor',
     icone: 'bi-file-earmark-text',
     de: ['EM_TRATAMENTO', 'ISOLAMENTO'],
-    roles: ['ROLE_RECEPCIONISTA', 'ROLE_VETERINARIO'],
+    roles: ['ROLE_ADMIN', 'ROLE_RECEPCIONISTA', 'ROLE_VETERINARIO'],
   },
   encerrar: {
     rotulo: 'Registrar saída',
     icone: 'bi-box-arrow-right',
     de: ['ALTA_AUTORIZADA', 'ALTA_A_PEDIDO_DO_TUTOR'],
-    roles: ['ROLE_RECEPCIONISTA', 'ROLE_VETERINARIO'],
+    roles: ['ROLE_ADMIN', 'ROLE_RECEPCIONISTA', 'ROLE_VETERINARIO'],
   },
 };
 

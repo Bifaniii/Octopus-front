@@ -99,7 +99,7 @@ export class PrescricaoComponent implements OnInit {
 
   // O back só deixa o VETERINARIO prescrever e desativar (o admin levaria 403).
   get podePrescrever(): boolean {
-    return this.auth.temRole(['ROLE_VETERINARIO']);
+    return this.auth.temRole(['ROLE_ADMIN', 'ROLE_VETERINARIO']);
   }
 
   ngOnInit(): void {
