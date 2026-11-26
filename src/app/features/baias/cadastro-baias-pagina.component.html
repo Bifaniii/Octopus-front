@@ -6,7 +6,7 @@
       }
       <button type="button" class="botao-novo" (click)="irParaUsuarios()">
         <i class="bi bi-person-plus"></i>
-        Criar usuário
+        Usuários
       </button>
       <button type="button" class="botao-novo" [disabled]="limiteAtingido()" (click)="novaBaia()">
         <i class="bi bi-plus-lg"></i>
@@ -72,11 +72,11 @@
     [baias]="baias()"
     [salvando]="salvando()"
     [erroApi]="erroDialogo()"
-    [podeReativar]="!limiteAtingido()"   
-    [limite]="limite"                    
+    [podeReativar]="!limiteAtingido()"
+    [limite]="limite"
     (salvar)="salvar($event)"
     (desativar)="desativar()"
-    (reativar)="reativar()"              
+    (reativar)="reativar()"
     (fechar)="fecharDialogo()"
   />
 }
