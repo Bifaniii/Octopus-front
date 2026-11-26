@@ -143,8 +143,15 @@ export class UsuarioService {
         }
         return corpo?.mensagem ?? 'Dados inválidos.';
       }
+      case 404:
+      case 422:
+        return corpo?.mensagem ?? 'Não foi possível concluir a operação.';
       case 409:
         return corpo?.mensagem ?? 'Já existe um usuário com esses dados (e-mail, CPF ou CRMV).';
+      // Texto fixo: no 502 do proxy, a mensagem cita o nome da variável de ambiente do serviço.
+      case 502:
+      case 503:
+        return 'O serviço de usuários está fora do ar. Tente de novo em instantes.';
       default:
         return 'Algo deu errado. Tente novamente.';
     }
