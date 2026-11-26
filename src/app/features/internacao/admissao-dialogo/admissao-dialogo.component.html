@@ -27,7 +27,7 @@
     @if (animal(); as a) {
       @if (vacinaVencida) {
         <p class="alerta alerta--perigo">
-          RN-02: antirrábica {{ a.dataUltimaAntirrabica ? 'vencida' : 'sem registro' }}. Este animal só pode ser
+          Antirrábica {{ a.dataUltimaAntirrabica ? 'vencida' : 'sem registro' }}. Este animal só pode ser
           internado em baia de isolamento.
         </p>
       } @else {

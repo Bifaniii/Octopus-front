@@ -10,10 +10,10 @@
     @switch (acao) {
       @case ('autorizar-alta') {
         <p class="texto">Autoriza a alta de {{ internacao.animalNome }}. A baia continua ocupada até a saída
-          física ser registrada (RN-08).</p>
+          física ser registrada.</p>
       }
       @case ('isolar') {
-        <p class="texto">RN-02: o isolamento só é aceito para animal com a antirrábica vencida ou sem registro.</p>
+        <p class="texto">O isolamento só é aceito para animal com a antirrábica vencida ou sem registro.</p>
         <label class="campo">
           <span class="campo__rotulo">Baia de isolamento</span>
           <select name="baiaId" [(ngModel)]="baiaId">
@@ -40,7 +40,7 @@
         <label class="campo">
           <span class="campo__rotulo">Saída física do animal</span>
           <input type="datetime-local" name="dataSaida" [(ngModel)]="dataSaida" [min]="minSaida" [max]="maxSaida" />
-          <span class="campo__ajuda">Com a saída registrada a internação é encerrada e a baia é liberada (RN-08).</span>
+          <span class="campo__ajuda">Com a saída registrada a internação é encerrada e a baia é liberada.</span>
         </label>
       }
     }
